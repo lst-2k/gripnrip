@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        /* Add this to hide admin elements by default in Member view */
+        .admin-only { display: none !important; }
+        input[type=number] { border: none !important; pointer-events: none; background: transparent; }
+    </style>
+</head>
+<body>
+    <div id="main-container" class="leaderboard-container">
+        <div class="header">
+            <img src="2k25 logo.png" alt="2K25 Logo">
+            <div class="header-title">Grip & Rip Member Leaderboard</div>
+        </div>
+        
+        <div class="info-bar">
+            <div class="info-item"><span class="editable-label">Venue</span><span id="course-venue">---</span></div>
+            <div class="info-item"><span class="editable-label">Par</span><span id="course-par">---</span></div>
+        </div>
+
+        <div id="div-container">
+            <div style="padding: 50px; text-align: center;">Loading tournament data...</div>
+        </div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="season-header">Season Standings</div>
+        <div id="season-container"></div>
+    </div>
+
+    <script>
+        // CHANGE THIS URL to your actual GitHub Raw URL after you upload data.json
+        const DATA_URL = 'data.json'; 
+        let state = { players: [], showR3R4: false, par: 72, venue: '' };
+
+        async function fetchData() {
+            try {
+                const response = await fetch(DATA_URL);
+                state = await response.json();
+                render();
+            } catch (e) {
+                document.getElementById('div-container').innerHTML = "Error loading data.";
+            }
+        }
+
+        // Use your existing getScore, countRounds, getPlatIcon functions here...
+        // Use a modified render() that doesn't include <input> or <button> tags
+        function render() {
+            document.getElementById('course-venue').innerText = state.venue;
+            document.getElementById('course-par').innerText = state.par;
+            
+            const container = document.getElementById('div-container');
+            container.innerHTML = '';
+            
+            [1, 2, 3].forEach(divNum => {
+                let dps = state.players.filter(p => String(p.division) === String(divNum));
+                dps.sort((a,b) => (countRounds(b) - countRounds(a)) || (getScore(a) - getScore(b)));
+
+                const divBox = document.createElement('div');
+                divBox.innerHTML = `<div class="div-header div-${divNum}">Division ${divNum}</div>
+                <table>
+                    <thead><tr>
+                        <th style="width:60px">POS</th><th style="width:280px">PLAYER</th>
+                        <th>PAR</th><th>R1</th><th>R2</th>
+                        <th class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
+                        <th class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
+                        <th>TOTAL</th><th class="pts-col">PTS</th>
+                    </tr></thead>
+                    <tbody>${dps.map((p, idx) => `
+                        <tr>
+                            <td>${countRounds(p) > 0 ? (idx + 1) : '-'}</td>
+                            <td>${p.name}</td>
+                            <td style="color:${(getScore(p) - (state.par * countRounds(p))) < 0 ? 'red' : 'black'}">
+                                ${calculatePar(p)}
+                            </td>
+                            <td>${p.r1 || '-'}</td>
+                            <td>${p.r2 || '-'}</td>
+                            <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r3 || '-'}</td>
+                            <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r4 || '-'}</td>
+                            <td>${getScore(p) || '-'}</td>
+                            <td class="pts-col">-</td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>`;
+                container.appendChild(divBox);
+            });
+            renderSeason();
+        }
+
+        function calculatePar(p) {
+            const rds = countRounds(p);
+            if (rds === 0) return '-';
+            const diff = getScore(p) - (state.par * rds);
+            return diff === 0 ? 'E' : (diff > 0 ? '+' + diff : diff);
+        }
+
+        // Include your existing renderSeason() function
+        
+        fetchData();
+    </script>
+</body>
+</html>
