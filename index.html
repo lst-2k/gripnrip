@@ -105,13 +105,19 @@
                             const score = getScore(p); const rds = countRounds(p); const toPar = score - (state.par * rds);
                             const parText = rds === 0 ? '-' : (toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar));
                             
+                            // TIE DISPLAY LOGIC
+                            const firstTieIdx = dps.findIndex(x => getScore(x) === score && countRounds(x) === rds);
+                            const tieCount = dps.filter(x => getScore(x) === score && countRounds(x) === rds).length;
+                            const displayRank = (rds > 0) ? (tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1)) : '-';
+
                             let wkPts = 0;
                             if (rds >= (state.showR3R4 ? 4 : 2)) {
-                                wkPts = ptsMap[idx] || 5;
+                                // Award points based on the FIRST occurrence of that score in the sorted list
+                                wkPts = ptsMap[firstTieIdx] || 5;
+                                
+                                // Add individual bonuses
                                 if (parseFloat(p.putt) === minPutt && minPutt > 0) wkPts += 25;
                                 if (parseFloat(p.hole) === maxHole && maxHole > 0) wkPts += 25;
-                                
-                                // Direct addition of whatever value is entered in these columns
                                 wkPts += (Number(p.hio) || 0);
                                 wkPts += (Number(p.albatross) || 0);
                             }
@@ -119,7 +125,7 @@
                             p.liveWkPts = wkPts;
 
                             return `<tr>
-							<td>${rds > 0 ? (idx + 1) : '-'}</td>
+							<td>${displayRank}</td>
 							<td><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span><span>${p.name}</span></div></td>
 							<td style="font-weight:bold; color:${toPar < 0 ? 'red' : 'black'}">${parText}</td>
 							<td>${p.r1 || '-'}</td>
@@ -151,8 +157,14 @@
                 if (dps.length === 0) return;
                 const rowsHtml = dps.map((p, idx) => {
                     let totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
+                    
+                    // Season tie display logic
+                    const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
+                    const tieCount = dps.filter(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts).length;
+                    const displayRank = tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1);
+
                     let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '<span class="steady">—</span>')) : '<span class="steady">—</span>';
-                    return `<tr><td>${changeIcon}</td><td>${idx+1}</td><td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td><td class="pts-col">${totalPts}</td></tr>`;
+                    return `<tr><td>${changeIcon}</td><td>${displayRank}</td><td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td><td class="pts-col">${totalPts}</td></tr>`;
                 }).join('');
                 
                 const divBox = document.createElement('div');
