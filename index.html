@@ -34,41 +34,42 @@
     .season-header { background: #7C7C7C; color: white; padding: 12px; font-size: 20px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--gold); }
     .hidden { display: none !important; }
 	
-/* Center the standings but let them expand to match the top container */
+/* Container for standings to span full width but keep columns tight */
 #season-container {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
-    width: 100%;
-    max-width: 1600px; /* Matches your main container */
-    margin: 0 auto;
 }
 
 .standings-box {
-    width: 100%; /* Spans full width of container */
+    width: 100%;
     background: white;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     overflow: hidden;
 }
 
-/* Narrow the +/- and RNK columns to 3 characters wide */
+/* Force narrow columns for RNK and +/- */
 .col-narrow {
-    width: 35px;
+    width: 30px;
     text-align: center;
     padding: 8px 2px !important;
 }
 
-/* Player column will now take up the bulk of the horizontal space */
+/* Allow the player column to be flexible but not excessive */
 .standings-name-cell {
     text-align: left;
     padding-left: 15px !important;
+    /* This column will take up remaining space, but we fix the 
+       numerical columns to the right to prevent the gap */
 }
 
-.standings-box td, .standings-box th {
-    padding: 12px 6px;
-    font-size: 15px;
+/* Numerical columns with fixed widths to stay close to the names */
+.col-stat {
+    width: 60px;
+    text-align: center;
 }
 </style>
 </head>
@@ -218,9 +219,13 @@ function renderSeason() {
 
         const rowsHtml = dps.map((p, idx) => {
             const totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
+            
+            // ACC: Use seasonToPar from admin state
             const accumToPar = p.seasonToPar || 0;
             const parDisplay = accumToPar === 0 ? 'E' : (accumToPar > 0 ? '+' + accumToPar : accumToPar);
             const parColor = accumToPar < 0 ? 'red' : (accumToPar > 0 ? 'black' : '#999');
+
+            // EV: Historical + 1 if they have a score this week
             const totalEvents = (p.seasonEvents || 0) + (countRounds(p) > 0 ? 1 : 0);
 
             const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
@@ -233,9 +238,9 @@ function renderSeason() {
                 <td class="col-narrow">${changeIcon}</td>
                 <td class="col-narrow">${displayRank}</td>
                 <td class="standings-name-cell"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                <td style="width:60px; font-weight:bold; color:${parColor}">${parDisplay}</td>
-                <td style="width:50px">${totalEvents}</td>
-                <td style="width:70px" class="pts-col">${totalPts}</td>
+                <td class="col-stat" style="font-weight:bold; color:${parColor}">${parDisplay}</td>
+                <td class="col-stat">${totalEvents}</td>
+                <td class="col-stat pts-col">${totalPts}</td>
             </tr>`;
         }).join('');
         
@@ -248,9 +253,9 @@ function renderSeason() {
                             <th class="col-narrow">+/-</th>
                             <th class="col-narrow">RNK</th>
                             <th style="text-align:left; padding-left:15px;">PLAYER</th>
-                            <th style="width:60px">ACC</th>
-                            <th style="width:50px">EV</th>
-                            <th style="width:70px" class="pts-col">PTS</th>
+                            <th class="col-stat">ACC</th>
+                            <th class="col-stat">EV</th>
+                            <th class="col-stat pts-col">PTS</th>
                         </tr>
                     </thead>
                     <tbody>${rowsHtml}</tbody>
