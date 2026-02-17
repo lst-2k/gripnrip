@@ -33,6 +33,35 @@
     .pts-col { font-weight: 900; color: #333; background: #fafafa; }
     .season-header { background: #7C7C7C; color: white; padding: 12px; font-size: 20px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--gold); }
     .hidden { display: none !important; }
+	
+		/* Container for standings remains vertical but centered */
+	#season-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center; /* This centers the tables */
+		gap: 20px;
+		padding: 20px;
+	}
+
+	/* Limit Standings tables to 50% width or 500px max */
+	.standings-box {
+		width: 50%;
+		min-width: 320px; /* Essential for mobile view */
+		max-width: 500px;
+		background: white;
+		border-radius: 8px;
+		box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+		overflow: hidden;
+	}
+
+	/* Tighten the text for the smaller width */
+	.standings-box table {
+		font-size: 13px;
+	}
+
+	.standings-box td, .standings-box th {
+		padding: 8px 4px;
+	}
 </style>
 </head>
 <body>
@@ -168,63 +197,66 @@ function render() {
 
 function renderSeason() {
     const container = document.getElementById('season-container');
-    container.innerHTML = '';
+    container.innerHTML = ''; 
 
     [1, 2, 3].forEach(divNum => {
         let dps = state.players.filter(p => String(p.division) === String(divNum));
         
-        // Sort by total points (Confirmed Season Pts + Live Weekly Pts)
+        // Sort by total points (Season Points + Live Weekly Points)
         dps.sort((a,b) => ((b.seasonPts || 0) + (b.liveWkPts || 0)) - ((a.seasonPts || 0) + (a.liveWkPts || 0)));
         
         if (dps.length === 0) return;
 
+        const divBox = document.createElement('div');
+        divBox.className = 'standings-box';
+
         const rowsHtml = dps.map((p, idx) => {
             const totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
             
-            // ACCUMULATIVE TOTAL (historical only, as requested)
+            // ACC: Shows historical season to par
             const accumToPar = p.seasonToPar || 0;
             const parDisplay = accumToPar === 0 ? 'E' : (accumToPar > 0 ? '+' + accumToPar : accumToPar);
             const parColor = accumToPar < 0 ? 'red' : 'black';
 
-            // EVENTS played (Historical + 1 if they have a score this week)
-            const hasPlayedThisWeek = countRounds(p) > 0 ? 1 : 0;
-            const totalEvents = (p.seasonEvents || 0) + hasPlayedThisWeek;
+            // EV: Historical + 1 if they have a score this week
+            const playedThisWeek = countRounds(p) > 0 ? 1 : 0;
+            const totalEvents = (p.seasonEvents || 0) + playedThisWeek;
 
-            // Tie logic for standings rank
+            // TIE Rank Logic
             const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
             const tieCount = dps.filter(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts).length;
             const displayRank = tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1);
 
-            let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '<span class="steady">—</span>')) : '<span class="steady">—</span>';
+            let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '▲' : (idx + 1 > p.prevRank ? '▼' : '—')) : '—';
             
             return `<tr>
-                <td style="width:35px">${changeIcon}</td>
+                <td style="width:30px">${changeIcon}</td>
                 <td style="width:35px">${displayRank}</td>
-                <td style="text-align:left; padding-left:15px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                <td style="width:50px; font-weight:bold; color:${parColor}">${parDisplay}</td>
+                <td style="text-align:left;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                <td style="width:45px; font-weight:bold; color:${parColor}">${parDisplay}</td>
                 <td style="width:35px">${totalEvents}</td>
-                <td style="width:45px" class="pts-col">${totalPts}</td>
+                <td style="width:50px" class="pts-col">${totalPts}</td>
             </tr>`;
         }).join('');
         
-        const divBox = document.createElement('div');
         divBox.innerHTML = `
-            <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
+            <div class="div-header div-${divNum}" style="font-size:15px; padding:10px;">Division ${divNum} Standings</div>
             <div class="table-wrapper">
                 <table style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
-                            <th style="width:35px">+/-</th>
+                            <th style="width:30px">+/-</th>
                             <th style="width:35px">RNK</th>
-                            <th style="text-align:left; padding-left:15px;">PLAYER</th>
-                            <th style="width:50px">ACC</th>
+                            <th style="text-align:left;">PLAYER</th>
+                            <th style="width:45px">ACC</th>
                             <th style="width:35px">EV</th>
-                            <th style="width:45px" class="pts-col">PTS</th>
+                            <th style="width:50px" class="pts-col">PTS</th>
                         </tr>
                     </thead>
                     <tbody>${rowsHtml}</tbody>
                 </table>
             </div>`;
+        
         container.appendChild(divBox);
     });
 }
