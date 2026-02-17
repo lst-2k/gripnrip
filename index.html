@@ -147,59 +147,31 @@
             renderSeason();
         }
 
-function renderSeason() {
-    const container = document.getElementById('season-container');
-    container.innerHTML = '';
-    [1, 2, 3].forEach(divNum => {
-        let dps = state.players.filter(p => String(p.division) === String(divNum));
-        
-        // Sort by total points
-        dps.sort((a,b) => ((b.seasonPts || 0) + (p.liveWkPts || 0)) - ((a.seasonPts || 0) + (a.liveWkPts || 0)));
-        
-        if (dps.length === 0) return;
-        const rowsHtml = dps.map((p, idx) => {
-            let totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
-            
-            // Show only the accumulative season total (ignoring live weekly scores)
-            const accumulativeToPar = p.seasonToPar || 0;
-            const parDisplay = accumulativeToPar === 0 ? 'E' : (accumulativeToPar > 0 ? '+' + accumulativeToPar : accumulativeToPar);
-            const parColor = accumulativeToPar < 0 ? 'red' : 'black';
+        function renderSeason() {
+            const container = document.getElementById('season-container');
+            container.innerHTML = '';
+            [1, 2, 3].forEach(divNum => {
+                let dps = state.players.filter(p => String(p.division) === String(divNum));
+                dps.sort((a,b) => ((b.seasonPts || 0) + (b.liveWkPts || 0)) - ((a.seasonPts || 0) + (a.liveWkPts || 0)));
+                
+                if (dps.length === 0) return;
+                const rowsHtml = dps.map((p, idx) => {
+                    let totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
+                    
+                    // Season tie display logic
+                    const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
+                    const tieCount = dps.filter(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts).length;
+                    const displayRank = tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1);
 
-            const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
-            const tieCount = dps.filter(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts).length;
-            const displayRank = tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1);
-
-            let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '<span class="steady">—</span>')) : '<span class="steady">—</span>';
-            
-            return `<tr>
-                <td>${changeIcon}</td>
-                <td>${displayRank}</td>
-                <td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                <td style="font-weight:bold; color:${parColor}">${parDisplay}</td>
-                <td class="pts-col">${totalPts}</td>
-            </tr>`;
-        }).join('');
-        
-        const divBox = document.createElement('div');
-        divBox.innerHTML = `
-            <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width:50px">+/-</th>
-                            <th style="width:50px">RANK</th>
-                            <th style="left; padding-left:20px;">PLAYER</th>
-                            <th style="width:100px">ACCUMULATIVE</th>
-                            <th style="width:80px">PTS</th>
-                        </tr>
-                    </thead>
-                    <tbody>${rowsHtml}</tbody>
-                </table>
-            </div>`;
-        container.appendChild(divBox);
-    });
-}
+                    let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '<span class="steady">—</span>')) : '<span class="steady">—</span>';
+                    return `<tr><td>${changeIcon}</td><td>${displayRank}</td><td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td><td class="pts-col">${totalPts}</td></tr>`;
+                }).join('');
+                
+                const divBox = document.createElement('div');
+                divBox.innerHTML = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div><div class="table-wrapper"><table><thead><tr><th style="width:50px">+/-</th><th style="width:50px">RANK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th style="width:80px">PTS</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+                container.appendChild(divBox);
+            });
+        }
 
         loadData();
         setInterval(loadData, 30000);
