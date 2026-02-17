@@ -12,31 +12,25 @@
             --info-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%);
         }
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; overflow-x: hidden; }
-        
         .leaderboard-container { max-width: 1600px; margin: 0 auto 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        
         .header { background: var(--header-grad); color: white; padding: 25px 15px; text-align: center; border-bottom: 4px solid var(--gold); }
         .header-title { font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-
         .info-bar { display: flex; justify-content: center; gap: 20px; background: var(--info-grad); color: #fff; padding: 15px; border-bottom: 1px solid #444; font-size: 14px; }
         .editable-label { color: var(--gold); font-weight: 800; margin-right: 5px; text-transform: uppercase; }
-
-        .div-header { color: white; padding: 10px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
+        
+        /* Centered Division Headings */
+        .div-header { color: white; padding: 12px 15px; font-size: 20px; font-weight: bold; text-transform: uppercase; text-align: center; letter-spacing: 1px; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        /* SCROLL CONTAINER */
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        
-        table { width: 100%; border-collapse: collapse; min-width: 600px; /* Forces scroll on small screens */ }
-        thead th { background: #f4f4f4; font-size: 12px; padding: 12px 5px; text-transform: uppercase; border-bottom: 2px solid #ddd; position: sticky; left: 0; }
-        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; font-size: 16px; white-space: nowrap; }
-        
+        table { width: 100%; border-collapse: collapse; min-width: 850px; } 
+        thead th { background: #f4f4f4; font-size: 11px; padding: 12px 5px; text-transform: uppercase; border-bottom: 2px solid #ddd; }
+        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; white-space: nowrap; }
         .name-col-cell { display: flex; align-items: center; gap: 10px; text-align: left; padding-left: 10px; }
-        .pts-col { font-weight: 900; color: #333; }
+        .pts-col { font-weight: 900; color: #333; background: #fafafa; }
+        .season-header { background: #7C7C7C; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--gold); }
         .up { color: #28a745; } .down { color: #dc3545; } .steady { color: #999; }
         .hidden { display: none !important; }
-
-        .season-header { background: #7C7C7C; color: white; padding: 15px; font-size: 20px; font-weight: 900; text-align: center; text-transform: uppercase; }
     </style>
 </head>
 <body>
@@ -105,20 +99,21 @@
                     <table>
                         <thead><tr>
                             <th style="width:50px">POS</th>
-                            <th style="text-align:left; padding-left:20px; width:250px;">PLAYER</th>
-                            <th style="width:60px">PAR</th>
-                            <th style="width:60px">R1</th>
-                            <th style="width:60px">R2</th>
-                            <th style="width:60px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
-                            <th style="width:60px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
-                            <th style="width:80px">TOTAL</th>
+                            <th style="text-align:left; padding-left:20px; width:200px;">PLAYER</th>
+                            <th style="width:50px">PAR</th>
+                            <th style="width:50px">R1</th><th style="width:50px">R2</th>
+                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
+                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
+                            <th style="width:60px">TOTAL</th>
+                            <th style="width:100px">LONG PUTT</th>
+                            <th style="width:100px">LONG HOLE</th>
+                            <th class="pts-col" style="width:60px">PTS</th>
                         </tr></thead>
                         <tbody>${dps.map((p, idx) => {
                             const score = getScore(p);
                             const rds = countRounds(p);
                             const toPar = score - (state.par * rds);
                             const parText = rds === 0 ? '-' : (toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar));
-                            
                             return `<tr>
                                 <td>${rds > 0 ? (idx + 1) : '-'}</td>
                                 <td><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span><span>${p.name}</span></div></td>
@@ -127,6 +122,9 @@
                                 <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r3 || '-'}</td>
                                 <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r4 || '-'}</td>
                                 <td style="font-weight:bold">${score > 0 ? score : '-'}</td>
+                                <td>${p.putt ? p.putt + 'ft' : '-'}</td>
+                                <td>${p.hole ? p.hole + 'yd' : '-'}</td>
+                                <td class="pts-col">-</td>
                             </tr>`;
                         }).join('')}</tbody>
                     </table>
@@ -150,25 +148,24 @@
                         else if (idx + 1 > p.prevRank) changeIcon = '<span class="down">▼</span>';
                     }
                     return `<tr>
-                        <td style="width:50px">${changeIcon}</td>
-                        <td style="width:50px">${idx+1}</td>
+                        <td>${changeIcon}</td>
+                        <td>${idx+1}</td>
                         <td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                        <td class="pts-col" style="width:80px">${p.seasonPts || 0}</td>
+                        <td class="pts-col">${p.seasonPts || 0}</td>
                     </tr>`;
                 }).join('');
                 const divBox = document.createElement('div');
                 divBox.innerHTML = `
-                <div class="div-header div-${divNum}" style="font-size:15px;">Div ${divNum} Standings</div>
+                <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>+/-</th><th>RANK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>PTS</th></tr></thead>
+                        <thead><tr><th style="width:50px">+/-</th><th style="width:50px">RANK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th style="width:80px">PTS</th></tr></thead>
                         <tbody>${rowsHtml}</tbody>
                     </table>
                 </div>`;
                 container.appendChild(divBox);
             });
         }
-
         loadData();
     </script>
 </body>
