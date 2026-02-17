@@ -1,55 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grip & Rip Divisional Season - Member View</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* Add this to hide admin elements by default in Member view */
-        .admin-only { display: none !important; }
-        input[type=number] { border: none !important; pointer-events: none; background: transparent; }
+        :root { 
+            --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
+            --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
+            --info-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%);
+            --promo-bg: rgba(40, 167, 69, 0.15);
+            --relegate-bg: rgba(220, 53, 69, 0.12);
+        }
+        body { background-color: #f0f2f5; margin: 20px; font-family: 'Segoe UI', sans-serif; font-size: 18px; }
+        .leaderboard-container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 40px; }
+        .header { background: var(--header-grad); color: white; padding: 30px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 4px solid var(--gold); }
+        .header img { position: absolute; left: 25px; height: 55px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .header-title { font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .info-bar { display: flex; justify-content: center; gap: 40px; background: var(--info-grad); color: #fff; padding: 20px; border-bottom: 1px solid #444; }
+        .editable-label { color: var(--gold); font-weight: 800; font-size: 16px; margin-right: 10px; text-transform: uppercase; }
+        .div-header { position: sticky; top: 0; z-index: 100; color: white; padding: 15px 25px; font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
+        .season-header { background: #7C7C7C; color: white; padding: 20px; font-size: 28px; font-weight: 900; text-align: center; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        thead th { background: #f4f4f4; font-size: 13px; padding: 12px 4px; text-transform: uppercase; border-bottom: 2px solid #ddd; }
+        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; font-size: 18px; }
+        .name-col-cell { display: flex; align-items: center; gap: 12px; text-align: left; padding-left: 20px; }
+        .pts-col { font-weight: 900; color: #333; width: 80px; font-size: 20px; }
+        .up { color: #28a745; } .down { color: #dc3545; } .steady { color: #999; }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div id="main-container" class="leaderboard-container">
         <div class="header">
             <img src="2k25 logo.png" alt="2K25 Logo">
-            <div class="header-title">Grip & Rip Member Leaderboard</div>
+            <div class="header-title">Grip & Rip Divisional Season</div>
         </div>
-        
         <div class="info-bar">
-            <div class="info-item"><span class="editable-label">Venue</span><span id="course-venue">---</span></div>
-            <div class="info-item"><span class="editable-label">Par</span><span id="course-par">---</span></div>
+            <div class="info-item"><span class="editable-label">Venue</span><span id="course-venue">Loading...</span></div>
+            <div class="info-item"><span class="editable-label">Par</span><span id="course-par">--</span></div>
         </div>
-
-        <div id="div-container">
-            <div style="padding: 50px; text-align: center;">Loading tournament data...</div>
-        </div>
+        <div id="div-container"></div>
     </div>
-
     <div class="leaderboard-container">
         <div class="season-header">Season Standings</div>
         <div id="season-container"></div>
     </div>
 
     <script>
-        // CHANGE THIS URL to your actual GitHub Raw URL after you upload data.json
-        const DATA_URL = 'data.json'; 
         let state = { players: [], showR3R4: false, par: 72, venue: '' };
 
-        async function fetchData() {
+        async function loadData() {
             try {
-                const response = await fetch(DATA_URL);
+                // This fetches the data.json file from your GitHub repository
+                const response = await fetch('data.json');
                 state = await response.json();
                 render();
             } catch (e) {
-                document.getElementById('div-container').innerHTML = "Error loading data.";
+                console.error("Data load failed", e);
+                document.getElementById('div-container').innerHTML = "<h2 style='text-align:center; padding:20px;'>Tournament data not found.</h2>";
             }
         }
 
-        // Use your existing getScore, countRounds, getPlatIcon functions here...
-        // Use a modified render() that doesn't include <input> or <button> tags
+        function getScore(p) {
+            let t = (Number(p.r1)||0) + (Number(p.r2)||0);
+            if(state.showR3R4) t += (Number(p.r3)||0) + (Number(p.r4)||0);
+            return t;
+        }
+
+        function countRounds(p) {
+            let c = 0;
+            if (Number(p.r1) > 0) c++; if (Number(p.r2) > 0) c++;
+            if (state.showR3R4) { if (Number(p.r3) > 0) c++; if (Number(p.r4) > 0) c++; }
+            return c;
+        }
+
+        const getPlatIcon = (p) => {
+            if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
+            if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
+            return '<i class="fa-brands fa-steam"></i>';
+        };
+
         function render() {
             document.getElementById('course-venue').innerText = state.venue;
             document.getElementById('course-par').innerText = state.par;
-            
             const container = document.getElementById('div-container');
             container.innerHTML = '';
             
@@ -59,45 +95,61 @@
 
                 const divBox = document.createElement('div');
                 divBox.innerHTML = `<div class="div-header div-${divNum}">Division ${divNum}</div>
-                <table>
-                    <thead><tr>
-                        <th style="width:60px">POS</th><th style="width:280px">PLAYER</th>
-                        <th>PAR</th><th>R1</th><th>R2</th>
-                        <th class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
-                        <th class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
-                        <th>TOTAL</th><th class="pts-col">PTS</th>
-                    </tr></thead>
-                    <tbody>${dps.map((p, idx) => `
-                        <tr>
-                            <td>${countRounds(p) > 0 ? (idx + 1) : '-'}</td>
-                            <td>${p.name}</td>
-                            <td style="color:${(getScore(p) - (state.par * countRounds(p))) < 0 ? 'red' : 'black'}">
-                                ${calculatePar(p)}
-                            </td>
-                            <td>${p.r1 || '-'}</td>
-                            <td>${p.r2 || '-'}</td>
-                            <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r3 || '-'}</td>
-                            <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r4 || '-'}</td>
-                            <td>${getScore(p) || '-'}</td>
-                            <td class="pts-col">-</td>
-                        </tr>`).join('')}
-                    </tbody>
-                </table>`;
+                <table><thead><tr>
+                    <th style="width:60px">POS</th><th style="width:280px">PLAYER</th>
+                    <th style="width:60px">PAR</th><th style="width:70px">R1</th><th style="width:70px">R2</th>
+                    <th style="width:70px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
+                    <th style="width:70px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
+                    <th style="width:100px">TOTAL</th><th class="pts-col">PTS</th>
+                </tr></thead><tbody>${dps.map((p, idx) => {
+                    const score = getScore(p);
+                    const rds = countRounds(p);
+                    const toPar = score - (state.par * rds);
+                    const parText = rds === 0 ? '-' : (toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar));
+                    
+                    return `<tr>
+                        <td>${rds > 0 ? (idx + 1) : '-'}</td>
+                        <td><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span><span>${p.name}</span></div></td>
+                        <td style="font-weight:bold; color:${toPar < 0 ? 'red' : 'black'}">${parText}</td>
+                        <td>${p.r1 || '-'}</td><td>${p.r2 || '-'}</td>
+                        <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r3 || '-'}</td>
+                        <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r4 || '-'}</td>
+                        <td style="font-weight:bold">${score > 0 ? score : '-'}</td>
+                        <td class="pts-col">-</td>
+                    </tr>`;
+                }).join('')}</tbody></table>`;
                 container.appendChild(divBox);
             });
             renderSeason();
         }
 
-        function calculatePar(p) {
-            const rds = countRounds(p);
-            if (rds === 0) return '-';
-            const diff = getScore(p) - (state.par * rds);
-            return diff === 0 ? 'E' : (diff > 0 ? '+' + diff : diff);
+        function renderSeason() {
+            const container = document.getElementById('season-container');
+            container.innerHTML = '';
+            [1, 2, 3].forEach(divNum => {
+                let dps = state.players.filter(p => String(p.division) === String(divNum));
+                dps.sort((a,b) => (b.seasonPts || 0) - (a.seasonPts || 0));
+                if (dps.length === 0) return;
+                const rowsHtml = dps.map((p, idx) => {
+                    let changeIcon = '<span class="steady">—</span>';
+                    if (p.prevRank) {
+                        if (idx + 1 < p.prevRank) changeIcon = '<span class="up">▲</span>';
+                        else if (idx + 1 > p.prevRank) changeIcon = '<span class="down">▼</span>';
+                    }
+                    return `<tr>
+                        <td style="width:60px">${changeIcon}</td><td>${idx+1}</td>
+                        <td><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                        <td class="pts-col">${p.seasonPts || 0}</td><td>${p.seasonEvents || 0}</td>
+                    </tr>`;
+                }).join('');
+                const divBox = document.createElement('div');
+                divBox.innerHTML = `<div class="div-header div-${divNum}" style="font-size:18px; padding:8px 25px;">Div ${divNum} Standings</div>
+                <table><thead><tr><th>+/-</th><th>RANK</th><th style="width:300px">PLAYER</th><th>TOTAL PTS</th><th>EVENTS</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
+                container.appendChild(divBox);
+            });
         }
 
-        // Include your existing renderSeason() function
-        
-        fetchData();
+        loadData();
     </script>
 </body>
 </html>
