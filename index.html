@@ -164,6 +164,8 @@
     container.innerHTML = '';
     [1, 2, 3].forEach(divNum => {
         let dps = state.players.filter(p => String(p.division) === String(divNum));
+        
+        // Sort by total points (Season + Current Weekly)
         dps.sort((a,b) => ((b.seasonPts || 0) + (b.liveWkPts || 0)) - ((a.seasonPts || 0) + (a.liveWkPts || 0)));
         
         if (dps.length === 0) return;
@@ -175,6 +177,10 @@
             const parDisplay = accumToPar === 0 ? 'E' : (accumToPar > 0 ? '+' + accumToPar : accumToPar);
             const parColor = accumToPar < 0 ? 'red' : 'black';
 
+            // EVENT COUNT logic: historical events + 1 IF they have played this week
+            const playedThisWeek = countRounds(p) > 0 ? 1 : 0;
+            const totalEvents = (p.seasonEvents || 0) + playedThisWeek;
+
             const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
             const tieCount = dps.filter(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts).length;
             const displayRank = tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1);
@@ -184,8 +190,10 @@
             return `<tr>
                 <td>${changeIcon}</td>
                 <td>${displayRank}</td>
-                <td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                <td style="font-weight:bold; color:${parColor}">${parDisplay}</td> <td class="pts-col">${totalPts}</td>
+                <td style="text-align:left; padding-left:15px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                <td style="font-weight:bold; color:${parColor}">${parDisplay}</td>
+                <td style="font-weight:bold; color:#555;">${totalEvents}</td>
+                <td class="pts-col">${totalPts}</td>
             </tr>`;
         }).join('');
         
@@ -193,14 +201,15 @@
         divBox.innerHTML = `
             <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
             <div class="table-wrapper">
-                <table>
+                <table style="table-layout: fixed; min-width: 0; width: 100%;">
                     <thead>
                         <tr>
-                            <th style="width:50px">+/-</th>
-                            <th style="width:50px">RANK</th>
-                            <th style="text-align:left; padding-left:20px;">PLAYER</th>
-                            <th style="width:100px">ACCUMULATIVE</th>
-                            <th style="width:80px">PTS</th>
+                            <th style="width:35px">+/-</th>
+                            <th style="width:35px">RNK</th>
+                            <th style="text-align:left; padding-left:15px;">PLAYER</th>
+                            <th style="width:50px">ACC</th>
+                            <th style="width:35px">EV</th>
+                            <th style="width:45px" class="pts-col">PTS</th>
                         </tr>
                     </thead>
                     <tbody>${rowsHtml}</tbody>
