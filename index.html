@@ -44,17 +44,17 @@
 
 .standings-box {
     width: 100%;
-    max-width: 400px; /* Reduced to keep all columns tight */
+    max-width: 380px; /* Kept very narrow */
+    margin: 0 auto;
     background: white;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    overflow: hidden; /* Prevents stray scrollbars */
 }
 
-/* Specific styling for the Standing Name cells */
 .standings-name-cell {
     text-align: left;
-    padding-left: 8px !important;
-    width: 140px; /* Forces the column to be narrow */
+    padding-left: 10px !important;
+    width: 130px; /* Fixed narrow width for names */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -223,31 +223,35 @@ function renderSeason() {
 
             let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '▲' : (idx + 1 > p.prevRank ? '▼' : '—')) : '—';
             
-            return `<tr>
-                <td style="width:25px">${changeIcon}</td>
-                <td style="width:35px">${displayRank}</td>
-                <td class="standings-name-cell"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                <td style="width:40px; font-weight:bold; color:${parColor}">${parDisplay}</td>
-                <td style="width:30px">${totalEvents}</td>
-                <td style="width:45px" class="pts-col">${totalPts}</td>
-            </tr>`;
+  return `<tr>
+    <td style="width:30px">${changeIcon}</td>
+    <td style="width:35px">${displayRank}</td>
+    <td class="standings-name-cell">
+        <div class="name-col-cell">
+            <span>${getPlatIcon(p.platform)}</span>${p.name}
+        </div>
+    </td>
+    <td style="width:40px; font-weight:bold; color:${parColor}">${parDisplay}</td>
+    <td style="width:35px">${totalEvents}</td>
+    <td style="width:50px" class="pts-col">${totalPts}</td>
+</tr>`;
         }).join('');
         
-        divBox.innerHTML = `
-            <div class="div-header div-${divNum}" style="font-size:14px; padding:8px;">Division ${divNum} Standings</div>
-            <table style="table-layout: fixed; width: 100%;">
-                <thead>
-                    <tr>
-                        <th style="width:25px">+/-</th>
-                        <th style="width:35px">RNK</th>
-                        <th style="text-align:left; padding-left:8px; width:140px;">PLAYER</th>
-                        <th style="width:40px">ACC</th>
-                        <th style="width:30px">EV</th>
-                        <th style="width:45px" class="pts-col">PTS</th>
-                    </tr>
-                </thead>
-                <tbody>${rowsHtml}</tbody>
-            </table>`;
+divBox.innerHTML = `
+    <div class="div-header div-${divNum}" style="font-size:14px; padding:8px;">Division ${divNum} Standings</div>
+    <table style="table-layout: fixed; width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="width:30px">+/-</th>
+                <th style="width:35px">RNK</th>
+                <th style="width:130px; text-align:left; padding-left:10px;">PLAYER</th>
+                <th style="width:40px">ACC</th>
+                <th style="width:35px">EV</th>
+                <th style="width:50px" class="pts-col">PTS</th>
+            </tr>
+        </thead>
+        <tbody>${rowsHtml}</tbody>
+    </table>`;
         
         container.appendChild(divBox);
     });
