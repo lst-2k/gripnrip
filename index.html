@@ -99,13 +99,20 @@
                 <div class="table-wrapper">
                     <table>
                         <thead><tr>
-                            <th style="width:50px">POS</th><th style="text-align:left; padding-left:20px; width:180px;">PLAYER</th><th style="width:50px">PAR</th>
-                            <th style="width:50px">R1</th><th style="width:50px">R2</th>
-                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
-                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
-                            <th style="width:60px">TOTAL</th><th style="width:90px">LONG PUTT</th><th style="width:90px">LONG HOLE</th>
-                            <th style="width:80px">HOLE IN ONE</th><th style="width:80px">ALBATROSS</th><th class="pts-col" style="width:60px">PTS</th>
-                        </tr></thead>
+							<th style="width:40px">POS</th>
+							<th style="text-align:left; padding-left:15px; width:160px;">PLAYER</th>
+							<th style="width:45px">PAR</th>
+							<th style="width:40px">R1</th>
+							<th style="width:40px">R2</th>
+							<th style="width:40px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
+							<th style="width:40px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
+							<th style="width:55px">TOTAL</th>
+							<th style="width:70px">L-PUTT</th>
+							<th style="width:70px">L-HOLE</th>
+							<th style="width:65px">HIO</th>
+							<th style="width:65px">ALBA</th>
+							<th class="pts-col" style="width:50px">PTS</th>
+						</tr></thead>
                         <tbody>${dps.map((p, idx) => {
                             const score = getScore(p); const rds = countRounds(p); const toPar = score - (state.par * rds);
                             const parText = rds === 0 ? '-' : (toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar));
