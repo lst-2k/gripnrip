@@ -119,22 +119,19 @@
                             
                             // TIE DISPLAY LOGIC
                             const firstTieIdx = dps.findIndex(x => getScore(x) === score && countRounds(x) === rds);
-                            const tieCount = dps.filter(x => getScore(x) === score && countRounds(x) === rds).length;
-                            const displayRank = (rds > 0) ? (tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1)) : '-';
 
-                            let wkPts = 0;
-                            if (rds >= (state.showR3R4 ? 4 : 2)) {
-                                // Award points based on the FIRST occurrence of that score in the sorted list
-                                wkPts = ptsMap[firstTieIdx] || 5;
-                                
-                                // Add individual bonuses
-                                if (parseFloat(p.putt) === minPutt && minPutt > 0) wkPts += 25;
-                                if (parseFloat(p.hole) === maxHole && maxHole > 0) wkPts += 25;
-                                wkPts += (Number(p.hio) || 0);
-                                wkPts += (Number(p.albatross) || 0);
-                            }
-                            
-                            p.liveWkPts = wkPts;
+							let wkPts = 0;
+							if (rds >= (state.showR3R4 ? 4 : 2)) {
+								// Both players at T1 will now receive ptsMap[0] (100 points)
+								wkPts = ptsMap[firstTieIdx] || 5;
+								
+								// Bonuses (Putt/Hole-out/HIO/Albatross)
+								if (parseFloat(p.putt) === minPutt && minPutt > 0) wkPts += 25;
+								if (parseFloat(p.hole) === maxHole && maxHole > 0) wkPts += 25;
+								wkPts += (Number(p.hio) || 0);
+								wkPts += (Number(p.albatross) || 0);
+							}
+							p.liveWkPts = wkPts; // Store for Season Standings calculation
 
                             return `<tr>
 							<td>${displayRank}</td>
