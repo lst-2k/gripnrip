@@ -44,37 +44,51 @@
         <div id="season-container"></div>
     </div>
     <script>
+        const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
         let state = { players: [], showR3R4: false, par: 72, venue: '' };
+
         async function loadData() {
             try {
                 const response = await fetch('data.json?t=' + Date.now());
                 state = await response.json();
                 render();
-            } catch (e) { document.getElementById('div-container').innerHTML = "<div style='padding:40px; text-align:center;'>Waiting for tournament data...</div>"; }
+            } catch (e) { 
+                document.getElementById('div-container').innerHTML = "<div style='padding:40px; text-align:center;'>Waiting for tournament data...</div>"; 
+            }
         }
+
         function getScore(p) {
             let t = (Number(p.r1)||0) + (Number(p.r2)||0);
             if(state.showR3R4) t += (Number(p.r3)||0) + (Number(p.r4)||0);
             return t;
         }
+
         function countRounds(p) {
             let c = 0; if (Number(p.r1) > 0) c++; if (Number(p.r2) > 0) c++;
             if (state.showR3R4) { if (Number(p.r3) > 0) c++; if (Number(p.r4) > 0) c++; }
             return c;
         }
+
         const getPlatIcon = (p) => {
             if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
             if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
             return '<i class="fa-brands fa-steam"></i>';
         };
+
         function render() {
             document.getElementById('course-venue').innerText = state.venue;
             document.getElementById('course-par').innerText = state.par;
             const container = document.getElementById('div-container');
             container.innerHTML = '';
+
             [1, 2, 3].forEach(divNum => {
                 let dps = state.players.filter(p => String(p.division) === String(divNum));
                 dps.sort((a,b) => (countRounds(b) - countRounds(a)) || (getScore(a) - getScore(b)));
+
+                // Calculate bonuses for the division
+                const minPutt = Math.min(...dps.filter(p => parseFloat(p.putt) > 0).map(p => parseFloat(p.putt)));
+                const maxHole = Math.max(...dps.map(p => parseFloat(p.hole) || 0));
+
                 const divBox = document.createElement('div');
                 divBox.innerHTML = `
                 <div class="div-header div-${divNum}">Division ${divNum}</div>
@@ -91,6 +105,20 @@
                         <tbody>${dps.map((p, idx) => {
                             const score = getScore(p); const rds = countRounds(p); const toPar = score - (state.par * rds);
                             const parText = rds === 0 ? '-' : (toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar));
+                            
+                            // Calculate Live Weekly Points
+                            let wkPts = 0;
+                            if (rds >= (state.showR3R4 ? 4 : 2)) {
+                                wkPts = ptsMap[idx] || 5;
+                                if (parseFloat(p.putt) === minPutt && minPutt > 0) wkPts += 25;
+                                if (parseFloat(p.hole) === maxHole && maxHole > 0) wkPts += 25;
+                                if (Number(p.hio) > 0) wkPts += (Number(p.hio) * 50);
+                                if (Number(p.albatross) > 0) wkPts += (Number(p.albatross) * 50);
+                            }
+                            
+                            // Store live pts in player object for season render
+                            p.liveWkPts = wkPts;
+
                             return `<tr>
 							<td>${rds > 0 ? (idx + 1) : '-'}</td>
 							<td><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span><span>${p.name}</span></div></td>
@@ -104,7 +132,7 @@
 							<td>${p.hole ? p.hole + 'yd' : '-'}</td>
 							<td style="background: rgba(212, 175, 55, 0.1); font-weight:bold; color:${p.hio > 0 ? '#b8860b' : '#ccc'}">${p.hio || '-'}</td>
 							<td style="background: rgba(212, 175, 55, 0.1); font-weight:bold; color:${p.albatross > 0 ? '#b8860b' : '#ccc'}">${p.albatross || '-'}</td>
-							<td class="pts-col">-</td>
+							<td class="pts-col">${wkPts > 0 ? wkPts : '-'}</td>
 						</tr>`;
                         }).join('')}</tbody>
                     </table>
@@ -113,23 +141,32 @@
             });
             renderSeason();
         }
+
         function renderSeason() {
             const container = document.getElementById('season-container');
             container.innerHTML = '';
             [1, 2, 3].forEach(divNum => {
                 let dps = state.players.filter(p => String(p.division) === String(divNum));
-                dps.sort((a,b) => (b.seasonPts || 0) - (a.seasonPts || 0));
+                // Sort by current season points + any live weekly points earned
+                dps.sort((a,b) => ((b.seasonPts || 0) + (b.liveWkPts || 0)) - ((a.seasonPts || 0) + (a.liveWkPts || 0)));
+                
                 if (dps.length === 0) return;
                 const rowsHtml = dps.map((p, idx) => {
+                    let totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
                     let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '<span class="steady">—</span>')) : '<span class="steady">—</span>';
-                    return `<tr><td>${changeIcon}</td><td>${idx+1}</td><td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td><td class="pts-col">${p.seasonPts || 0}</td></tr>`;
+                    return `<tr><td>${changeIcon}</td><td>${idx+1}</td><td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td><td class="pts-col">${totalPts}</td></tr>`;
                 }).join('');
+                
                 const divBox = document.createElement('div');
                 divBox.innerHTML = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div><div class="table-wrapper"><table><thead><tr><th style="width:50px">+/-</th><th style="width:50px">RANK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th style="width:80px">PTS</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
                 container.appendChild(divBox);
             });
         }
+
+        // Initial Load
         loadData();
+        // Check for updates every 30 seconds
+        setInterval(loadData, 30000);
     </script>
 </body>
 </html>
