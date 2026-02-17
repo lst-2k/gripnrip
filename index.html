@@ -34,35 +34,41 @@
     .season-header { background: #7C7C7C; color: white; padding: 12px; font-size: 20px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--gold); }
     .hidden { display: none !important; }
 	
-/* Center and narrow the standings containers */
+/* Center the standings but let them expand to match the top container */
 #season-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 20px;
+    width: 100%;
+    max-width: 1600px; /* Matches your main container */
+    margin: 0 auto;
 }
 
 .standings-box {
-    width: 100%;
-    max-width: 380px; /* Kept very narrow */
-    margin: 0 auto;
+    width: 100%; /* Spans full width of container */
     background: white;
-    border-radius: 8px;
-    overflow: hidden; /* Prevents stray scrollbars */
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
+/* Narrow the +/- and RNK columns to 3 characters wide */
+.col-narrow {
+    width: 35px;
+    text-align: center;
+    padding: 8px 2px !important;
+}
+
+/* Player column will now take up the bulk of the horizontal space */
 .standings-name-cell {
     text-align: left;
-    padding-left: 10px !important;
-    width: 130px; /* Fixed narrow width for names */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    padding-left: 15px !important;
 }
 
 .standings-box td, .standings-box th {
-    padding: 6px 2px;
-    font-size: 13px;
+    padding: 12px 6px;
+    font-size: 15px;
 }
 </style>
 </head>
@@ -214,7 +220,7 @@ function renderSeason() {
             const totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
             const accumToPar = p.seasonToPar || 0;
             const parDisplay = accumToPar === 0 ? 'E' : (accumToPar > 0 ? '+' + accumToPar : accumToPar);
-            const parColor = accumToPar < 0 ? 'red' : 'black';
+            const parColor = accumToPar < 0 ? 'red' : (accumToPar > 0 ? 'black' : '#999');
             const totalEvents = (p.seasonEvents || 0) + (countRounds(p) > 0 ? 1 : 0);
 
             const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
@@ -223,35 +229,33 @@ function renderSeason() {
 
             let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '▲' : (idx + 1 > p.prevRank ? '▼' : '—')) : '—';
             
-  return `<tr>
-    <td style="width:30px">${changeIcon}</td>
-    <td style="width:35px">${displayRank}</td>
-    <td class="standings-name-cell">
-        <div class="name-col-cell">
-            <span>${getPlatIcon(p.platform)}</span>${p.name}
-        </div>
-    </td>
-    <td style="width:40px; font-weight:bold; color:${parColor}">${parDisplay}</td>
-    <td style="width:35px">${totalEvents}</td>
-    <td style="width:50px" class="pts-col">${totalPts}</td>
-</tr>`;
+            return `<tr>
+                <td class="col-narrow">${changeIcon}</td>
+                <td class="col-narrow">${displayRank}</td>
+                <td class="standings-name-cell"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                <td style="width:60px; font-weight:bold; color:${parColor}">${parDisplay}</td>
+                <td style="width:50px">${totalEvents}</td>
+                <td style="width:70px" class="pts-col">${totalPts}</td>
+            </tr>`;
         }).join('');
         
-divBox.innerHTML = `
-    <div class="div-header div-${divNum}" style="font-size:14px; padding:8px;">Division ${divNum} Standings</div>
-    <table style="table-layout: fixed; width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th style="width:30px">+/-</th>
-                <th style="width:35px">RNK</th>
-                <th style="width:130px; text-align:left; padding-left:10px;">PLAYER</th>
-                <th style="width:40px">ACC</th>
-                <th style="width:35px">EV</th>
-                <th style="width:50px" class="pts-col">PTS</th>
-            </tr>
-        </thead>
-        <tbody>${rowsHtml}</tbody>
-    </table>`;
+        divBox.innerHTML = `
+            <div class="div-header div-${divNum}" style="font-size:18px; padding:15px;">Division ${divNum} Standings</div>
+            <div class="table-wrapper">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th class="col-narrow">+/-</th>
+                            <th class="col-narrow">RNK</th>
+                            <th style="text-align:left; padding-left:15px;">PLAYER</th>
+                            <th style="width:60px">ACC</th>
+                            <th style="width:50px">EV</th>
+                            <th style="width:70px" class="pts-col">PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+            </div>`;
         
         container.appendChild(divBox);
     });
