@@ -34,34 +34,40 @@
     .season-header { background: #7C7C7C; color: white; padding: 12px; font-size: 20px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--gold); }
     .hidden { display: none !important; }
 	
-		/* Container for standings remains vertical but centered */
-	#season-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center; /* This centers the tables */
-		gap: 20px;
-		padding: 20px;
-	}
+	/* Center the standings container and limit overall width */
+#season-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+}
 
-	/* Limit Standings tables to 50% width or 500px max */
-	.standings-box {
-		width: 50%;
-		min-width: 320px; /* Essential for mobile view */
-		max-width: 500px;
-		background: white;
-		border-radius: 8px;
-		box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-		overflow: hidden;
-	}
+/* The outer box for each division */
+.standings-box {
+    width: 100%;
+    max-width: 420px; /* Reduced max-width to keep columns tight */
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
 
-	/* Tighten the text for the smaller width */
-	.standings-box table {
-		font-size: 13px;
-	}
+/* Tighten the Name column so it doesn't create a massive gap */
+.standings-name-col {
+    text-align: left;
+    padding-left: 10px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* We don't set a fixed width here so it can handle different name lengths, 
+       but the table-layout and other fixed columns will keep it contained */
+}
 
-	.standings-box td, .standings-box th {
-		padding: 8px 4px;
-	}
+.standings-box td, .standings-box th {
+    padding: 6px 4px;
+    font-size: 13px;
+}
 </style>
 </head>
 <body>
@@ -229,28 +235,31 @@ function renderSeason() {
 
             let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '▲' : (idx + 1 > p.prevRank ? '▼' : '—')) : '—';
             
-            return `<tr>
+ return `<tr>
                 <td style="width:30px">${changeIcon}</td>
                 <td style="width:35px">${displayRank}</td>
-                <td style="text-align:left;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                <td style="width:45px; font-weight:bold; color:${parColor}">${parDisplay}</td>
-                <td style="width:35px">${totalEvents}</td>
-                <td style="width:50px" class="pts-col">${totalPts}</td>
+                <td class="standings-name-col">
+                    <div class="name-col-cell">
+                        <span>${getPlatIcon(p.platform)}</span>${p.name}
+                    </div>
+                </td>
+                <td style="width:40px; font-weight:bold; color:${parColor}">${parDisplay}</td>
+                <td style="width:30px">${totalEvents}</td>
+                <td style="width:45px" class="pts-col">${totalPts}</td>
             </tr>`;
         }).join('');
         
-        divBox.innerHTML = `
-            <div class="div-header div-${divNum}" style="font-size:15px; padding:10px;">Division ${divNum} Standings</div>
+divBox.innerHTML = `
+            <div class="div-header div-${divNum}" style="font-size:14px; padding:8px;">Division ${divNum} Standings</div>
             <div class="table-wrapper">
                 <table style="table-layout: fixed; width: 100%;">
                     <thead>
                         <tr>
                             <th style="width:30px">+/-</th>
                             <th style="width:35px">RNK</th>
-                            <th style="text-align:left;">PLAYER</th>
-                            <th style="width:45px">ACC</th>
-                            <th style="width:35px">EV</th>
-                            <th style="width:50px" class="pts-col">PTS</th>
+                            <th style="text-align:left; padding-left:10px;">PLAYER</th> <th style="width:40px">ACC</th>
+                            <th style="width:30px">EV</th>
+                            <th style="width:45px" class="pts-col">PTS</th>
                         </tr>
                     </thead>
                     <tbody>${rowsHtml}</tbody>
