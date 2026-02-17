@@ -3,114 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LST-74 Grip&Rip Divisional Season</title>
+    <title>Grip & Rip Divisional Season</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
             --info-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%);
+            --promo-bg: rgba(40, 167, 69, 0.15);
+            --relegate-bg: rgba(220, 53, 69, 0.12);
         }
-        body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; overflow-x: hidden; }
-        .leaderboard-container { max-width: 1600px; margin: 0 auto 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .header { background: var(--header-grad); color: white; padding: 25px 15px; text-align: center; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .info-bar { display: flex; justify-content: center; gap: 20px; background: var(--info-grad); color: #fff; padding: 15px; border-bottom: 1px solid #444; font-size: 14px; }
-        .editable-label { color: var(--gold); font-weight: 800; margin-right: 5px; text-transform: uppercase; }
-        .div-header { color: white; padding: 12px 15px; font-size: 20px; font-weight: bold; text-transform: uppercase; text-align: center; letter-spacing: 1px; }
+        body { background-color: #f0f2f5; margin: 20px; font-family: 'Segoe UI', sans-serif; font-size: 18px; }
+        .leaderboard-container { max-width: 1600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 40px; }
+        
+        .header { background: var(--header-grad); color: white; padding: 30px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 4px solid var(--gold); }
+        .header img { position: absolute; left: 25px; height: 55px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .header-title { font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+        .info-bar { display: flex; justify-content: center; gap: 40px; background: var(--info-grad); color: #fff; padding: 20px; border-bottom: 1px solid #444; }
+        .editable-label { color: var(--gold); font-weight: 800; font-size: 16px; margin-right: 10px; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
+        [contenteditable="true"] { font-size: 22px; font-weight: 600; outline: none; border-bottom: 1px dashed #777; padding: 2px 8px; color: white; }
+
+        input[type=number] { -moz-appearance: textfield; width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 8px 2px; text-align: center; font-size: 18px; outline: none; font-weight: 600; background: transparent; }
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number]:focus { border-color: var(--gold); background: #fffde7; border-width: 2px; }
+
+        .div-header { position: sticky; top: 0; z-index: 100; color: white; padding: 15px 25px; font-size: 24px; font-weight: bold; text-transform: uppercase; text-align: center; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 1000px; } 
-        thead th { background: #f4f4f4; font-size: 11px; padding: 12px 5px; text-transform: uppercase; border-bottom: 2px solid #ddd; }
-        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; white-space: nowrap; }
-        .name-col-cell { display: flex; align-items: center; gap: 10px; text-align: left; padding-left: 10px; }
-        .pts-col { font-weight: 900; color: #333; background: #fafafa; }
-        .season-header { background: #7C7C7C; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--gold); }
+        .season-header { background: #7C7C7C; color: white; padding: 20px; font-size: 28px; font-weight: 900; text-align: center; text-transform: uppercase; }
+
+        thead th { position: sticky; top: 58px; z-index: 99; background: #f4f4f4; font-size: 13px; padding: 12px 4px; text-transform: uppercase; border-bottom: 2px solid #ddd; color: #444; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 18px; }
+        
+        .name-header { text-align: left !important; padding-left: 55px !important; } 
+        .name-col-cell { display: flex; align-items: center; gap: 12px; text-align: left; padding-left: 20px; border-bottom: none; }
+        
+        .row-promo { background-color: var(--promo-bg); }
+        .row-relegate { background-color: var(--relegate-bg); }
+        
+        .pts-col { font-weight: 900; color: #333; width: 80px; font-size: 20px; }
+        .change-col { width: 60px; font-weight: bold; font-size: 14px; }
         .up { color: #28a745; } .down { color: #dc3545; } .steady { color: #999; }
+
+        .plat-icon { cursor: pointer; width: 24px; flex-shrink: 0; text-align: center; font-size: 20px; }
+        .fa-xbox { color: #107C10; } .fa-playstation { color: #003087; } .fa-steam { color: #171a21; }
+
+        .delete-btn { color: #cc0000; cursor: pointer; opacity: 0; transition: 0.2s; font-size: 16px; margin-left: auto; margin-right: 15px; }
+        tr:hover .delete-btn { opacity: 1; }
+
+        .controls { padding: 20px; background: #eee; display: flex; justify-content: center; gap: 15px; border-bottom: 1px solid #ddd; flex-wrap: wrap; }
+        .controls button { padding: 12px 20px; cursor: pointer; font-weight: bold; border: none; border-radius: 6px; background: #444; color: white; transition: 0.2s; font-size: 16px; }
+        .controls button:hover { transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .btn-ss { background: #17a2b8 !important; }
+
+        .player-input { padding: 25px; background: #fafafa; text-align: center; border-bottom: 1px solid #ddd; }
+        .player-input input, .player-input select { padding: 12px; margin: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        
+        body.ss-mode .controls, body.ss-mode .player-input, body.ss-mode .delete-btn { display: none !important; }
+        body.ss-mode input[type=number] { border: none !important; pointer-events: none; }
+        body.ss-mode [contenteditable="true"] { border: none !important; }
+        
+        #exit-ss { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #ff4444; color: white; border: none; padding: 15px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .hidden { display: none !important; }
     </style>
 </head>
-<body>
+<body onkeydown="handleGlobalKey(event)">
+
+    <button id="exit-ss" onclick="toggleSSMode()"><i class="fa-solid fa-eye-slash"></i> Exit Preview</button>
+
     <div id="main-container" class="leaderboard-container">
-        <div class="header"><div class="header-title">LST-74 Grip&Rip Divisional Season</div></div>
-        <div class="info-bar">
-            <div class="info-item"><span class="editable-label">Venue:</span><span id="course-venue">...</span></div>
-            <div class="info-item"><span class="editable-label">Par:</span><span id="course-par">--</span></div>
+        <div class="header">
+            <img src="2k25 logo.png" alt="2K25 Logo">
+            <div class="header-title">Grip & Rip Divisional Season</div>
         </div>
+        
+        <div class="info-bar">
+            <div class="info-item"><span class="editable-label">Venue</span><span id="course-venue" contenteditable="true" oninput="render()">TPC Sawgrass</span></div>
+            <div class="info-item"><span class="editable-label">Par</span><span id="course-par" contenteditable="true" oninput="render()">72</span></div>
+        </div>
+
+        <div class="player-input" id="admin-input-box">
+            <input type="text" id="new-name" placeholder="Name">
+            <select id="new-platform"><option value="xbox">Xbox</option><option value="playstation">PS</option><option value="steam">Steam</option></select>
+            <select id="new-div"><option value="1">Div 1</option><option value="2">Div 2</option><option value="3">Div 3</option></select>
+            <button onclick="addPlayer()" style="background:#228B22; color:white; border:none; padding:12px 25px; border-radius:6px; font-weight:bold; cursor:pointer; font-size:16px;">Add Player</button>
+        </div>
+
+        <div class="controls" id="admin-controls">
+            <button class="btn-ss" onclick="toggleSSMode()"><i class="fa-solid fa-camera"></i> Screenshot Mode</button>
+            <button style="background:#007bff;" onclick="startNewTournament()"><i class="fa-solid fa-trophy"></i> New Tournament</button>
+            <button style="background:#6f42c1;" onclick="purgeDivisions()"><i class="fa-solid fa-arrows-up-down"></i> Purge & Promote</button>
+            <button onclick="render()"><i class="fa-solid fa-arrows-rotate"></i> Refresh</button>
+            <button onclick="toggleR3R4()">Toggle R3/R4</button>
+            <button onclick="exportData()"><i class="fa-solid fa-download"></i> Backup</button>
+            <button onclick="importData()"><i class="fa-solid fa-upload"></i> Restore</button>
+        </div>
+
         <div id="div-container"></div>
     </div>
+
     <div class="leaderboard-container">
         <div class="season-header">Season Standings</div>
         <div id="season-container"></div>
     </div>
+
     <script>
-        let state = { players: [], showR3R4: false, par: 72, venue: '' };
-        async function loadData() {
-            try {
-                const response = await fetch('data.json?t=' + Date.now());
-                state = await response.json();
-                render();
-            } catch (e) { document.getElementById('div-container').innerHTML = "<div style='padding:40px; text-align:center;'>Waiting for tournament data...</div>"; }
+        const DB_KEY = 'GR_v62_LivePar';
+        const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
+        let state = JSON.parse(localStorage.getItem(DB_KEY)) || { players: [], showR3R4: false, par: 72, venue: 'TPC Sawgrass' };
+
+        function toggleSSMode() {
+            const isSS = document.body.classList.toggle('ss-mode');
+            document.getElementById('exit-ss').style.display = isSS ? 'block' : 'none';
         }
+
+        function saveState() {
+            state.par = document.getElementById('course-par').innerText;
+            state.venue = document.getElementById('course-venue').innerText;
+            localStorage.setItem(DB_KEY, JSON.stringify(state));
+        }
+
         function getScore(p) {
             let t = (Number(p.r1)||0) + (Number(p.r2)||0);
             if(state.showR3R4) t += (Number(p.r3)||0) + (Number(p.r4)||0);
             return t;
         }
+
         function countRounds(p) {
-            let c = 0; if (Number(p.r1) > 0) c++; if (Number(p.r2) > 0) c++;
+            let c = 0;
+            if (Number(p.r1) > 0) c++; if (Number(p.r2) > 0) c++;
             if (state.showR3R4) { if (Number(p.r3) > 0) c++; if (Number(p.r4) > 0) c++; }
             return c;
         }
-        const getPlatIcon = (p) => {
-            if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
-            if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
-            return '<i class="fa-brands fa-steam"></i>';
-        };
+
         function render() {
-            document.getElementById('course-venue').innerText = state.venue;
-            document.getElementById('course-par').innerText = state.par;
+            saveState();
             const container = document.getElementById('div-container');
             container.innerHTML = '';
+            
             [1, 2, 3].forEach(divNum => {
                 let dps = state.players.filter(p => String(p.division) === String(divNum));
                 dps.sort((a,b) => (countRounds(b) - countRounds(a)) || (getScore(a) - getScore(b)));
+
                 const divBox = document.createElement('div');
-                divBox.innerHTML = `
-                <div class="div-header div-${divNum}">Division ${divNum}</div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr>
-                            <th style="width:50px">POS</th><th style="text-align:left; padding-left:20px; width:180px;">PLAYER</th><th style="width:50px">PAR</th>
-                            <th style="width:50px">R1</th><th style="width:50px">R2</th>
-                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
-                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
-                            <th style="width:60px">TOTAL</th><th style="width:90px">LONG PUTT</th><th style="width:90px">LONG HOLE</th>
-                            <th style="width:80px">HOLE IN ONE</th><th style="width:80px">ALBATROSS</th><th class="pts-col" style="width:60px">PTS</th>
-                        </tr></thead>
-                        <tbody>${dps.map((p, idx) => {
-                            const score = getScore(p); const rds = countRounds(p); const toPar = score - (state.par * rds);
-                            const parText = rds === 0 ? '-' : (toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar));
-                            return `<tr>
-                                <td>${rds > 0 ? (idx + 1) : '-'}</td>
-                                <td><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span><span>${p.name}</span></div></td>
-                                <td style="font-weight:bold; color:${toPar < 0 ? 'red' : 'black'}">${parText}</td>
-                                <td>${p.r1 || '-'}</td><td>${p.r2 || '-'}</td>
-                                <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r3 || '-'}</td>
-                                <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r4 || '-'}</td>
-                                <td style="font-weight:bold">${score > 0 ? score : '-'}</td>
-                                <td>${p.putt ? p.putt + 'ft' : '-'}</td><td>${p.hole ? p.hole + 'yd' : '-'}</td>
-                                <td style="color:${p.hio > 0 ? '#d4af37' : '#999'}; font-weight:bold">${p.hio || '-'}</td>
-                                <td style="color:${p.albatross > 0 ? '#d4af37' : '#999'}; font-weight:bold">${p.albatross || '-'}</td>
-                                <td class="pts-col">-</td>
-                            </tr>`;
-                        }).join('')}</tbody>
-                    </table>
-                </div>`;
+                divBox.innerHTML = `<div class="div-header div-${divNum}">Division ${divNum}</div>
+                <table><thead><tr>
+                    <th style="width:60px">POS</th><th style="width:280px" class="name-header">PLAYER</th>
+                    <th style="width:60px">PAR</th><th style="width:70px">R1</th><th style="width:70px">R2</th>
+                    <th style="width:70px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
+                    <th style="width:70px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
+                    <th style="width:100px">TOTAL</th><th style="width:100px">PUTT</th><th style="width:100px">HOLE</th>
+                    <th style="width:70px">HIO</th><th style="width:70px">ALBY</th>
+                    <th class="pts-col">PTS</th>
+                </tr></thead><tbody id="div-body-${divNum}"></tbody></table>`;
                 container.appendChild(divBox);
+
+                const tbody = document.getElementById(`div-body-${divNum}`);
+                dps.forEach((p, idx) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${countRounds(p) > 0 ? (idx + 1) : '-'}</td>
+                        <td><div class="name-col-cell"><span class="plat-icon" onclick="cyclePlatform('${p.name}')">${getPlatIcon(p.platform)}</span><span>${p.name}</span><i class="fa-solid fa-trash-can delete-btn" onclick="delPlayer('${p.name}')"></i></div></td>
+                        <td id="par-${p.name.replace(/\s+/g, '')}" style="font-weight:bold">E</td>
+                        <td><input type="number" class="nav-in" data-p="${p.name}" data-f="r1" value="${p.r1}"></td>
+                        <td><input type="number" class="nav-in" data-p="${p.name}" data-f="r2" value="${p.r2}"></td>
+                        <td class="${state.showR3R4 ? '' : 'hidden'}"><input type="number" class="nav-in" data-p="${p.name}" data-f="r3" value="${p.r3}"></td>
+                        <td class="${state.showR3R4 ? '' : 'hidden'}"><input type="number" class="nav-in" data-p="${p.name}" data-f="r4" value="${p.r4}"></td>
+                        <td id="total-${p.name.replace(/\s+/g, '')}" style="font-weight:bold">-</td>
+                        <td><input type="number" step="0.01" class="nav-in" data-p="${p.name}" data-f="putt" value="${p.putt}"></td>
+                        <td><input type="number" step="0.01" class="nav-in" data-p="${p.name}" data-f="hole" value="${p.hole}"></td>
+                        <td><input type="number" class="nav-in" data-p="${p.name}" data-f="hio" value="${p.hio || ''}"></td>
+                        <td><input type="number" class="nav-in" data-p="${p.name}" data-f="albatross" value="${p.albatross || ''}"></td>
+                        <td class="pts-col">-</td>
+                    `;
+                    tbody.appendChild(tr);
+                    updateLiveStats(p);
+                });
             });
             renderSeason();
+            bindInputs();
         }
+
+        function updateLiveStats(p) {
+            const score = getScore(p);
+            const rds = countRounds(p);
+            const parVal = Number(state.par) || 72;
+            const toPar = score - (parVal * rds);
+            
+            const totalEl = document.getElementById(`total-${p.name.replace(/\s+/g, '')}`);
+            const parEl = document.getElementById(`par-${p.name.replace(/\s+/g, '')}`);
+            
+            if (totalEl) totalEl.innerText = score > 0 ? score : '-';
+            if (parEl) {
+                if (rds === 0) { parEl.innerText = '-'; }
+                else {
+                    parEl.innerText = toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar);
+                    parEl.style.color = toPar < 0 ? 'red' : 'black';
+                }
+            }
+        }
+
+        function bindInputs() {
+            document.querySelectorAll('.nav-in').forEach(el => {
+                el.oninput = () => {
+                    const p = state.players.find(x => x.name === el.dataset.p);
+                    p[el.dataset.f] = el.value;
+                    updateLiveStats(p);
+                    localStorage.setItem(DB_KEY, JSON.stringify(state));
+                };
+                el.onfocus = () => el.select();
+            });
+        }
+
+        const getPlatIcon = (p) => {
+            if (p === 'xbox') return '<i class="fa-brands fa-xbox"></i>';
+            if (p === 'playstation') return '<i class="fa-brands fa-playstation"></i>';
+            return '<i class="fa-brands fa-steam"></i>';
+        };
+
         function renderSeason() {
             const container = document.getElementById('season-container');
             container.innerHTML = '';
@@ -119,15 +231,109 @@
                 dps.sort((a,b) => (b.seasonPts || 0) - (a.seasonPts || 0));
                 if (dps.length === 0) return;
                 const rowsHtml = dps.map((p, idx) => {
-                    let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '<span class="steady">—</span>')) : '<span class="steady">—</span>';
-                    return `<tr><td>${changeIcon}</td><td>${idx+1}</td><td style="text-align:left; padding-left:20px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td><td class="pts-col">${p.seasonPts || 0}</td></tr>`;
+                    let previewClass = (idx < 2 && divNum > 1) ? 'row-promo' : (idx >= dps.length - 2 && divNum < 3) ? 'row-relegate' : '';
+                    let changeIcon = '<span class="steady">—</span>';
+                    if (p.prevRank) {
+                        if (idx + 1 < p.prevRank) changeIcon = '<span class="up">▲</span>';
+                        else if (idx + 1 > p.prevRank) changeIcon = '<span class="down">▼</span>';
+                    }
+                    return `<tr class="${previewClass}">
+                        <td class="change-col">${changeIcon}</td><td>${idx+1}</td>
+                        <td><div class="name-col-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                        <td class="pts-col">${p.seasonPts || 0}</td><td>${p.seasonEvents || 0}</td>
+                    </tr>`;
                 }).join('');
                 const divBox = document.createElement('div');
-                divBox.innerHTML = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div><div class="table-wrapper"><table><thead><tr><th style="width:50px">+/-</th><th style="width:50px">RANK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th style="width:80px">PTS</th></tr></thead><tbody>${rowsHtml}</tbody></table></div>`;
+                divBox.innerHTML = `<div class="div-header div-${divNum}" style="font-size:18px; padding:8px 25px;">Div ${divNum} Standings</div>
+                <table><thead><tr><th class="change-col">+/-</th><th style="width:80px">RANK</th><th style="width:300px" class="name-header">PLAYER</th><th>TOTAL PTS</th><th>EVENTS</th></tr></thead><tbody>${rowsHtml}</tbody></table>`;
                 container.appendChild(divBox);
             });
         }
-        loadData();
+
+        function startNewTournament() {
+            if (!confirm("Add points to Season Standings?")) return;
+            [1,2,3].forEach(divNum => {
+                let dps = state.players.filter(p => String(p.division) === String(divNum)).sort((a,b) => (b.seasonPts || 0) - (a.seasonPts || 0));
+                dps.forEach((p, idx) => p.prevRank = idx + 1);
+            });
+            [1, 2, 3].forEach(divNum => {
+                let dps = state.players.filter(p => String(p.division) === String(divNum)).sort((a,b) => (countRounds(b) - countRounds(a)) || (getScore(a) - getScore(b)));
+                const minPutt = Math.min(...dps.filter(p => parseFloat(p.putt) > 0).map(p => parseFloat(p.putt)));
+                const maxHole = Math.max(...dps.map(p => parseFloat(p.hole) || 0));
+                dps.forEach((p, idx) => {
+                    if (countRounds(p) >= (state.showR3R4 ? 4 : 2)) {
+                        let wkPts = ptsMap[idx] || 5;
+                        if (parseFloat(p.putt) === minPutt && minPutt > 0) wkPts += 25;
+                        if (parseFloat(p.hole) === maxHole && maxHole > 0) wkPts += 25;
+                        
+                        // AWARD 50 POINTS PER HIO OR ALBATROSS
+                        if (Number(p.hio) > 0) wkPts += (Number(p.hio) * 50);
+                        if (Number(p.albatross) > 0) wkPts += (Number(p.albatross) * 50);
+
+                        p.seasonPts = (p.seasonPts || 0) + wkPts;
+                        p.seasonEvents = (p.seasonEvents || 0) + 1;
+                    }
+                    // Reset weekly stats
+                    p.r1 = p.r2 = p.r3 = p.r4 = p.putt = p.hole = p.hio = p.albatross = '';
+                });
+            });
+            render();
+        }
+
+        function purgeDivisions() {
+            if (!confirm("Season Purge: Reset points & ranks. Continue?")) return;
+            let pDivs = { 1: [], 2: [], 3: [] };
+            [1,2,3].forEach(d => pDivs[d] = state.players.filter(p => String(p.division) === String(d)).sort((a,b) => (b.seasonPts || 0) - (a.seasonPts || 0)));
+            pDivs[1].slice(-2).forEach(p => p.division = 2);
+            pDivs[2].slice(0, 2).forEach(p => p.division = 1);
+            pDivs[2].slice(-2).forEach(p => p.division = 3);
+            pDivs[3].slice(0, 2).forEach(p => p.division = 2);
+            state.players.forEach(p => { p.seasonPts = 0; p.seasonEvents = 0; p.prevRank = null; });
+            render();
+        }
+
+        function handleGlobalKey(e) {
+            const active = document.activeElement;
+            if (!active.classList.contains('nav-in')) return;
+            const inputs = Array.from(document.querySelectorAll('.nav-in:not(.hidden)'));
+            const index = inputs.indexOf(active);
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter'].includes(e.key)) {
+                e.preventDefault(); 
+                if (e.key === 'ArrowRight' || e.key === 'Tab' || e.key === 'Enter') { if (inputs[index+1]) inputs[index+1].focus(); } 
+                else if (e.key === 'ArrowLeft') { if (inputs[index-1]) inputs[index-1].focus(); } 
+                else if (e.key === 'ArrowDown') { const nxt = inputs.slice(index+1).find(i => i.dataset.f === active.dataset.f); if (nxt) nxt.focus(); } 
+                else if (e.key === 'ArrowUp') { const prv = inputs.slice(0, index).reverse().find(i => i.dataset.f === active.dataset.f); if (prv) prv.focus(); }
+            }
+        }
+
+        function cyclePlatform(name) {
+            const p = state.players.find(x => x.name === name);
+            const flow = { 'xbox': 'playstation', 'playstation': 'steam', 'steam': 'xbox' };
+            p.platform = flow[p.platform] || 'xbox';
+            render();
+        }
+
+        function addPlayer() {
+            const n = document.getElementById('new-name'); if(!n.value) return;
+            // Updated to include hio and albatross
+            state.players.push({ 
+                name: n.value, 
+                platform: document.getElementById('new-platform').value, 
+                division: document.getElementById('new-div').value, 
+                r1:'', r2:'', r3:'', r4:'', 
+                putt:'', hole:'', 
+                hio:'', albatross:'', 
+                seasonPts:0, seasonEvents:0, prevRank: null 
+            });
+            n.value = ''; render();
+        }
+
+        function delPlayer(name) { if(confirm(`Remove ${name}?`)) { state.players = state.players.filter(p => p.name !== name); render(); }}
+        function toggleR3R4() { state.showR3R4 = !state.showR3R4; render(); }
+        function exportData() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `GR_Season.json`; a.click(); }
+        function importData() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = f => { state = JSON.parse(f.target.result); render(); }; r.readAsText(e.target.files[0]); }; i.click(); }
+
+        render();
     </script>
 </body>
 </html>
