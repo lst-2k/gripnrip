@@ -3,212 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LST-74 Grip&Rip Divisional Season</title>
+    <title>Grip & Rip League Standings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
-            --info-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%);
-            --promo-bg: rgba(40, 167, 69, 0.15);
-            --relegate-bg: rgba(220, 53, 69, 0.12);
+            --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
+            --red: #dc3545; --green: #28a745;
         }
-        body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; overflow-x: hidden; }
-        .leaderboard-container { max-width: 1600px; margin: 0 auto 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .header { background: var(--header-grad); color: white; padding: 25px 15px; text-align: center; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 22px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        .info-bar { display: flex; justify-content: center; gap: 20px; background: var(--info-grad); color: #fff; padding: 15px; border-bottom: 1px solid #444; font-size: 14px; }
-        .editable-label { color: var(--gold); font-weight: 800; margin-right: 5px; text-transform: uppercase; }
-        .div-header { color: white; padding: 12px 15px; font-size: 20px; font-weight: bold; text-transform: uppercase; text-align: center; letter-spacing: 1px; }
-        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
+        body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; }
+        .leaderboard-container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 20px; }
+        .header { background: var(--header-grad); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--gold); }
+        .header-title { font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; } 
-        thead th { background: #f4f4f4; font-size: 11px; padding: 12px 5px; text-transform: uppercase; border-bottom: 2px solid #ddd; }
-        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; white-space: nowrap; }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+        .info-item { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 5px; }
+        .label { color: var(--gold); font-weight: bold; margin-right: 5px; text-transform: uppercase; }
+
+        .div-header { background: #444; color: white; padding: 12px; font-size: 18px; font-weight: bold; text-transform: uppercase; text-align: center; }
+        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
         
-        .name-col-cell { display: flex; align-items: center; gap: 10px; text-align: left; padding-left: 10px; }
-        .pts-col { font-weight: 900; color: #333; background: #fafafa; }
-        .season-header { background: #7C7C7C; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 2px solid var(--gold); }
+        table { width: 100%; border-collapse: collapse; font-size: 16px; }
+        th { background: #f8f9fa; padding: 10px; font-size: 12px; color: #666; text-transform: uppercase; }
+        td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #eee; }
         
-        /* Standings Specific Styles */
-        #season-container { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; }
-        .standings-box { width: 100%; background: white; border-radius: 0; overflow: hidden; }
-        .col-narrow { width: 35px; text-align: center; padding: 12px 2px !important; }
-        .col-stat { width: 60px; text-align: center; }
-        .up { color: #28a745; } .down { color: #dc3545; } .steady { color: #999; }
-        .hidden { display: none !important; }
+        .name-cell { display: flex; align-items: center; text-align: left; font-weight: 600; }
+        .plat-icon { margin-right: 10px; width: 20px; text-align: center; }
+        
+        .up { color: var(--green); } .down { color: var(--red); }
+        .pts-col { font-weight: 800; color: #0047AB; }
+        .sig-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; margin-left: 10px; vertical-align: middle; }
     </style>
 </head>
 <body>
-    <div id="main-container" class="leaderboard-container">
-        <div class="header"><div class="header-title">LST-74 Grip&Rip Divisional Season</div></div>
-        <div class="info-bar">
-            <div class="info-item"><span class="editable-label">Venue:</span><span id="course-venue">...</span></div>
-            <div class="info-item"><span class="editable-label">Par:</span><span id="course-par">--</span></div>
-        </div>
-        <div id="div-container"></div>
-    </div>
+
     <div class="leaderboard-container">
-        <div class="season-header">Season Standings</div>
-        <div id="season-container"></div>
+        <div class="header">
+            <div class="header-title">Grip & Rip Leaderboard</div>
+        </div>
+        <div class="info-bar" id="meta-info">Loading season data...</div>
+        <div id="display-content"></div>
     </div>
-    <script>
-        const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
-        let state = { players: [], showR3R4: false, par: 72, venue: '' };
 
-        async function loadData() {
-            try {
-                const response = await fetch('data.json?t=' + Date.now());
-                state = await response.json();
-                render();
-            } catch (e) { 
-                document.getElementById('div-container').innerHTML = "<div style='padding:40px; text-align:center;'>Waiting for data...</div>"; 
-            }
+<script>
+    const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
+
+    async function loadData() {
+        try {
+            // This pulls the JSON file from the same folder on GitHub
+            const response = await fetch('GR_Backup.json');
+            const state = await response.json();
+            render(state);
+        } catch (e) {
+            document.getElementById('meta-info').innerHTML = "Error loading data. Make sure GR_Backup.json is uploaded.";
         }
+    }
 
-        function getScore(p) {
-            let t = (Number(p.r1)||0) + (Number(p.r2)||0);
-            if(state.showR3R4) t += (Number(p.r3)||0) + (Number(p.r4)||0);
-            return t;
-        }
+    function getNum(val) {
+        if (!val || val === '' || val === '-' || val === '.') return null;
+        return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
+    }
 
-        function countRounds(p) {
-            let c = 0; if (Number(p.r1) > 0) c++; if (Number(p.r2) > 0) c++;
-            if (state.showR3R4) { if (Number(p.r3) > 0) c++; if (Number(p.r4) > 0) c++; }
-            return c;
-        }
+    function calculateLivePoints(player, divisionPlayers, isSig) {
+        const score = getNum(player.toPar);
+        if (score === null) return 0;
+        const multiplier = isSig ? 2 : 1;
+        const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
+        const firstTieIdx = scoredPlayers.findIndex(p => getNum(p.toPar) === score);
+        
+        let pts = (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? (ptsMap[firstTieIdx] * multiplier) : (5 * multiplier);
+        
+        const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null && v > 0);
+        const minPutt = validPutts.length ? Math.min(...validPutts) : null;
+        const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null && v > 0);
+        const maxHole = validHoles.length ? Math.max(...validHoles) : null;
+        
+        if (getNum(player.putt) === minPutt && minPutt !== null) pts += (25 * multiplier);
+        if (getNum(player.hole) === maxHole && maxHole !== null) pts += (25 * multiplier);
+        pts += (parseInt(player.hio) || 0) * 50;
+        pts += (parseInt(player.albatross) || 0) * 50;
+        return pts;
+    }
 
-        const getPlatIcon = (p) => {
-            if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
-            if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
-            return '<i class="fa-brands fa-steam"></i>';
-        };
+    function render(state) {
+        const meta = document.getElementById('meta-info');
+        meta.innerHTML = `
+            <div class="info-item"><span class="label">Season</span>${state.season}</div>
+            <div class="info-item"><span class="label">Week</span>${state.week}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue} ${state.isSignature ? '<span class="sig-badge">SIGNATURE</span>' : ''}</div>
+            <div class="info-item"><span class="label">Par</span>${state.par}</div>
+        `;
 
-        function render() {
-            document.getElementById('course-venue').innerText = state.venue;
-            document.getElementById('course-par').innerText = state.par;
-            const container = document.getElementById('div-container');
-            container.innerHTML = '';
+        const container = document.getElementById('display-content');
+        container.innerHTML = '';
 
-            [1, 2, 3].forEach(divNum => {
-                let dps = state.players.filter(p => String(p.division) === String(divNum));
-                dps.sort((a,b) => (countRounds(b) - countRounds(a)) || (getScore(a) - getScore(b)));
+        [1, 2, 3].forEach(divNum => {
+            let dps = state.players.filter(p => String(p.division) === String(divNum));
+            let scored = dps.filter(p => getNum(p.toPar) !== null);
+            let minScore = scored.length > 0 ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
 
-                const minPutt = Math.min(...dps.filter(p => parseFloat(p.putt) > 0).map(p => parseFloat(p.putt)));
-                const maxHole = Math.max(...dps.map(p => parseFloat(p.hole) || 0));
+            let list = dps.map(p => {
+                const histScore = (p.history || []).reduce((s, v) => s + (Number(v) || 0), 0);
+                const currScore = getNum(p.toPar);
+                const livePts = calculateLivePoints(p, dps, state.isSignature);
+                return { 
+                    p, 
+                    accum: histScore + (currScore !== null ? currScore : 0),
+                    totalPts: (p.seasonPts || 0) + livePts,
+                    liveWins: (p.wins || 0) + (currScore !== null && currScore === minScore ? 1 : 0),
+                    liveEvents: (p.events || 0) + (currScore !== null ? 1 : 0)
+                };
+            }).sort((a,b) => b.totalPts - a.totalPts || a.accum - b.accum);
 
-                const divBox = document.createElement('div');
-                divBox.innerHTML = `
-                <div class="div-header div-${divNum}">Division ${divNum}</div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr>
-                            <th style="width:50px">POS</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th style="width:50px">PAR</th>
-                            <th style="width:50px">R1</th><th style="width:50px">R2</th>
-                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R3</th>
-                            <th style="width:50px" class="${state.showR3R4 ? '' : 'hidden'}">R4</th>
-                            <th style="width:60px">TOTAL</th><th style="width:80px">PUTT</th><th style="width:80px">HOLE</th>
-                            <th style="width:60px">HIO</th><th style="width:60px">ALBA</th><th class="pts-col" style="width:60px">PTS</th>
-                        </tr></thead>
-                        <tbody>${dps.map((p, idx) => {
-                            const score = getScore(p); const rds = countRounds(p); const toPar = score - (state.par * rds);
-                            const parText = rds === 0 ? '-' : (toPar === 0 ? 'E' : (toPar > 0 ? '+' + toPar : toPar));
-                            
-                            const firstTieIdx = dps.findIndex(x => getScore(x) === score && countRounds(x) === rds);
-                            const tieCount = dps.filter(x => getScore(x) === score && countRounds(x) === rds).length;
-                            const displayRank = (rds > 0) ? (tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1)) : '-';
+            if (list.length === 0) return;
 
-                            let wkPts = 0;
-                            if (rds >= (state.showR3R4 ? 4 : 2)) {
-                                wkPts = ptsMap[firstTieIdx] || 5;
-                                if (parseFloat(p.putt) === minPutt && minPutt > 0) wkPts += 25;
-                                if (parseFloat(p.hole) === maxHole && maxHole > 0) wkPts += 25;
-                                wkPts += (Number(p.hio) || 0);
-                                wkPts += (Number(p.albatross) || 0);
-                            }
-                            p.liveWkPts = wkPts;
+            let rows = list.map((item, idx) => {
+                const p = item.p;
+                const movement = !p.prevRank ? '—' : (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '—'));
+                return `<tr>
+                    <td>${movement}</td>
+                    <td>${idx + 1}</td>
+                    <td><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
+                    <td style="color:${item.accum <= 0 ? 'var(--green)' : 'black'}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
+                    <td class="pts-col">${item.totalPts}</td>
+                    <td>${item.liveWins}</td>
+                    <td>${item.liveEvents}</td>
+                </tr>`;
+            }).join('');
 
-                            return `<tr>
-                                <td>${displayRank}</td>
-                                <td><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span><span>${p.name}</span></div></td>
-                                <td style="font-weight:bold; color:${toPar < 0 ? 'red' : 'black'}">${parText}</td>
-                                <td>${p.r1 || '-'}</td>
-                                <td>${p.r2 || '-'}</td>
-                                <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r3 || '-'}</td>
-                                <td class="${state.showR3R4 ? '' : 'hidden'}">${p.r4 || '-'}</td>
-                                <td style="font-weight:bold">${score > 0 ? score : '-'}</td>
-                                <td>${p.putt ? p.putt + 'ft' : '-'}</td>
-                                <td>${p.hole ? p.hole + 'yd' : '-'}</td>
-                                <td style="color:${p.hio > 0 ? '#b8860b' : '#ccc'}">${p.hio || '-'}</td>
-                                <td style="color:${p.albatross > 0 ? '#b8860b' : '#ccc'}">${p.albatross || '-'}</td>
-                                <td class="pts-col">${wkPts > 0 ? wkPts : '-'}</td>
-                            </tr>`;
-                        }).join('')}</tbody>
-                    </table>
-                </div>`;
-                container.appendChild(divBox);
-            });
-            renderSeason();
-        }
+            container.innerHTML += `
+                <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
+                <table>
+                    <thead><tr><th>+/-</th><th>RK</th><th style="text-align:left">Player</th><th>Accum</th><th>Pts</th><th>W</th><th>Ev</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        });
+    }
 
-        function renderSeason() {
-            const container = document.getElementById('season-container');
-            container.innerHTML = '';
-            [1, 2, 3].forEach(divNum => {
-                let dps = state.players.filter(p => String(p.division) === String(divNum));
-                dps.sort((a,b) => ((b.seasonPts || 0) + (b.liveWkPts || 0)) - ((a.seasonPts || 0) + (a.liveWkPts || 0)));
-                
-                if (dps.length === 0) return;
-                const rowsHtml = dps.map((p, idx) => {
-                    let totalPts = (p.seasonPts || 0) + (p.liveWkPts || 0);
-                    const accumToPar = p.seasonToPar || 0;
-                    const parDisplay = accumToPar === 0 ? 'E' : (accumToPar > 0 ? '+' + accumToPar : accumToPar);
-                    const parColor = accumToPar < 0 ? 'red' : (accumToPar > 0 ? 'black' : '#999');
-                    const totalEvents = (p.seasonEvents || 0) + (countRounds(p) > 0 ? 1 : 0);
+    function getPlatIcon(p) {
+        if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
+        if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
+        return '<i class="fa-brands fa-steam" style="color:#171a21"></i>';
+    }
 
-                    const firstTieIdx = dps.findIndex(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts);
-                    const tieCount = dps.filter(x => ((x.seasonPts || 0) + (x.liveWkPts || 0)) === totalPts).length;
-                    const displayRank = tieCount > 1 ? 'T' + (firstTieIdx + 1) : (idx + 1);
-
-                    let changeIcon = (p.prevRank) ? (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '<span class="steady">—</span>')) : '<span class="steady">—</span>';
-                    
-                    return `<tr>
-                        <td class="col-narrow">${changeIcon}</td>
-                        <td class="col-narrow">${displayRank}</td>
-                        <td style="text-align:left; padding-left:15px;"><div class="name-col-cell"><span>${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                        <td class="col-stat" style="font-weight:bold; color:${parColor}">${parDisplay}</td>
-                        <td class="col-stat">${totalEvents}</td>
-                        <td class="col-stat pts-col">${totalPts}</td>
-                    </tr>`;
-                }).join('');
-                
-                const divBox = document.createElement('div');
-                divBox.className = 'standings-box';
-                divBox.innerHTML = `
-                    <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
-                    <div class="table-wrapper">
-                        <table style="width: 100%;">
-                            <thead>
-                                <tr>
-                                    <th class="col-narrow">+/-</th>
-                                    <th class="col-narrow">RNK</th>
-                                    <th style="text-align:left; padding-left:15px;">PLAYER</th>
-                                    <th class="col-stat">ACC</th>
-                                    <th class="col-stat">EV</th>
-                                    <th class="col-stat pts-col">PTS</th>
-                                </tr>
-                            </thead>
-                            <tbody>${rowsHtml}</tbody>
-                        </table>
-                    </div>`;
-                container.appendChild(divBox);
-            });
-        }
-
-        loadData();
-        setInterval(loadData, 30000);
-    </script>
+    loadData();
+</script>
 </body>
-
 </html>
