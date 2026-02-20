@@ -26,23 +26,21 @@
         .div-header { color: white; padding: 10px; font-size: 16px; font-weight: bold; text-transform: uppercase; text-align: left; padding-left: 15px; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
         
+        /* FULL TABLE SCROLL */
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 780px; table-layout: fixed; }
+        table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 750px; table-layout: fixed; }
         
-        th { background: #f8f9fa; padding: 12px 10px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; position: sticky; top: 0; }
+        th { background: #f8f9fa; padding: 12px 10px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
         td { padding: 14px 10px; text-align: center; border-bottom: 1px solid #eee; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        .w-pos { width: 50px; }
-        .w-name { width: 220px; } /* Increased to account for icon gap */
-        .w-score { width: 90px; }
-        .w-bonus { width: 90px; }
-        .w-pts { width: 100px; }
+        /* Column Widths */
+        .w-pos { width: 60px; }
+        .w-name { width: 230px; }
+        .w-score { width: 95px; }
+        .w-bonus { width: 95px; }
+        .w-pts { width: 110px; }
 
-        .sticky-col { position: sticky; left: 0; background: white; z-index: 10; border-right: 2px solid #f0f0f0; }
-        th.sticky-col { background: #f8f9fa; z-index: 11; }
-        tr:hover td.sticky-col { background: #f9f9f9; }
-
-        .name-cell { display: flex; align-items: center; text-align: left; font-weight: 700; padding-left: 5px; }
+        .name-cell { display: flex; align-items: center; text-align: left; font-weight: 700; }
         .plat-icon { margin-right: 18px; width: 22px; text-align: center; font-size: 18px; display: inline-flex; justify-content: center; align-items: center; }
         
         .pts-col { font-weight: 900; color: #0047AB; font-size: 17px; background: rgba(0,71,171,0.04); }
@@ -126,7 +124,7 @@
                 const lp = calculateLivePoints(p, dps, state.isSignature);
                 return `<tr>
                     <td class="w-pos">${score !== null ? (idx + 1) : '-'}</td>
-                    <td class="w-name sticky-col"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
+                    <td class="w-name"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
                     <td class="w-score" style="font-weight:700; color:${score <= 0 ? 'var(--green)' : 'black'}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
                     <td class="w-bonus">${p.putt || '--'}</td>
                     <td class="w-bonus">${p.hole || '--'}</td>
@@ -138,7 +136,7 @@
                 <div class="div-header div-${divNum}">Division ${divNum} Round</div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th class="w-pos">POS</th><th class="w-name sticky-col">PLAYER</th><th class="w-score">TO PAR</th><th class="w-bonus">PUTT</th><th class="w-bonus">SHOT</th><th class="w-pts pts-col">LIVE PTS</th></tr></thead>
+                        <thead><tr><th class="w-pos">POS</th><th class="w-name">PLAYER</th><th class="w-score">TO PAR</th><th class="w-bonus">PUTT</th><th class="w-bonus">SHOT</th><th class="w-pts pts-col">LIVE PTS</th></tr></thead>
                         <tbody>${roundRows}</tbody>
                     </table>
                 </div>`;
@@ -158,7 +156,7 @@
                 const movement = !p.prevRank ? '—' : (rk < p.prevRank ? '<span class="up">▲</span>' : (rk > p.prevRank ? '<span class="down">▼</span>' : '—'));
                 return `<tr>
                     <td class="w-pos">${movement}</td><td class="w-pos">${rk}</td>
-                    <td class="w-name sticky-col"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
+                    <td class="w-name"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
                     <td class="w-score" style="color:${item.accum <= 0 ? 'var(--green)' : 'black'}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
                     <td class="w-pts pts-col">${item.totalPts}</td>
                     <td class="w-bonus">${item.liveWins}</td>
@@ -169,7 +167,7 @@
                 <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th class="w-pos">+/-</th><th class="w-pos">RK</th><th class="w-name sticky-col">PLAYER</th><th class="w-score">ACCUM</th><th class="w-pts pts-col">PTS</th><th class="w-bonus">WINS</th></tr></thead>
+                        <thead><tr><th class="w-pos">+/-</th><th class="w-pos">RK</th><th class="w-name">PLAYER</th><th class="w-score">ACCUM</th><th class="w-pts pts-col">PTS</th><th class="w-bonus">WINS</th></tr></thead>
                         <tbody>${seasonRows}</tbody>
                     </table>
                 </div>`;
