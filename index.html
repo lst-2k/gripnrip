@@ -3,56 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip League Standings</title>
+    <title>LST-74 Grip & Rip Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
-            --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
+            --header-grad: linear-gradient(135deg, #1a1a1a 0%, #444 100%); 
             --red: #dc3545; --green: #28a745;
-            --promo-bg: rgba(40, 167, 69, 0.1);
-            --releg-bg: rgba(220, 53, 69, 0.1);
+            --promo-bg: rgba(40, 167, 69, 0.08);
+            --releg-bg: rgba(220, 53, 69, 0.08);
         }
-        body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
-        .leaderboard-container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
+        body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .leaderboard-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
         
-        .header { background: var(--header-grad); color: white; padding: 25px; text-align: center; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .header { background: var(--header-grad); color: white; padding: 30px 20px; text-align: center; border-bottom: 5px solid var(--gold); }
+        .header-title { font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
         
-        .info-bar { background: #2d2d2d; color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; font-size: 14px; }
-        .info-item { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 5px; border-left: 3px solid var(--gold); }
-        .label { color: var(--gold); font-weight: bold; margin-right: 5px; text-transform: uppercase; font-size: 11px; }
+        .info-bar { background: #2d2d2d; color: #fff; padding: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+        .info-item { background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 5px; border-left: 3px solid var(--gold); display: flex; align-items: center; gap: 8px; }
+        .label { color: var(--gold); font-weight: bold; text-transform: uppercase; font-size: 11px; }
 
-        .section-title { background: #333; color: white; padding: 12px; font-size: 18px; font-weight: 900; text-align: center; text-transform: uppercase; }
-        .div-header { color: white; padding: 10px; font-size: 16px; font-weight: bold; text-transform: uppercase; }
+        .section-title { background: #333; color: white; padding: 15px; font-size: 20px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .div-header { color: white; padding: 12px; font-size: 18px; font-weight: bold; text-transform: uppercase; text-align: center; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
         
         .table-wrapper { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { background: #f8f9fa; padding: 12px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
-        td { padding: 14px 10px; text-align: center; border-bottom: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { background: #f8f9fa; padding: 15px 10px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
+        td { padding: 15px 10px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; }
         
-        .promo-row { background-color: var(--promo-bg) !important; border-left: 4px solid var(--green); }
-        .releg-row { background-color: var(--releg-bg) !important; border-left: 4px solid var(--red); }
-        .promo-text { color: var(--green); font-weight: 800; font-size: 10px; display: block; margin-top: 2px; }
-        .releg-text { color: var(--red); font-weight: 800; font-size: 10px; display: block; margin-top: 2px; }
+        .promo-row { background-color: var(--promo-bg) !important; box-shadow: inset 4px 0 0 var(--green); }
+        .releg-row { background-color: var(--releg-bg) !important; box-shadow: inset 4px 0 0 var(--red); }
+        .status-badge { font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; display: block; margin-top: 4px; width: fit-content; margin-inline: auto; }
+        .promo-badge { background: var(--green); color: white; }
+        .releg-badge { background: var(--red); color: white; }
 
-        .pts-col { font-weight: 900; color: #0047AB; font-size: 17px; background: rgba(0,71,171,0.04); }
-        .sig-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; margin-left: 8px; }
+        .pts-col { font-weight: 900; color: #0047AB; font-size: 16px; background: rgba(0,71,171,0.03); }
+        .platform-icon { margin-right: 8px; width: 20px; }
+        .sig-tag { background: var(--gold); color: black; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 12px; margin-left: 10px; }
     </style>
 </head>
 <body>
 
     <div class="leaderboard-container">
         <div class="header">
-            <div class="header-title">Grip & Rip League</div>
+            <div class="header-title">LST-74 Grip & Rip Divisional Leaderboard</div>
         </div>
-        <div class="info-bar" id="meta-info">Syncing clubhouse data...</div>
+        <div class="info-bar" id="meta-info">Loading League Data...</div>
 
-        <div class="section-title"><i class="fa-solid fa-flag-checkered"></i> Current Tournament</div>
+        <div class="section-title"><i class="fa-solid fa-trophy"></i> Live Tournament</div>
         <div id="current-tournament-content"></div>
 
-        <div class="section-title" style="margin-top:20px;"><i class="fa-solid fa-award"></i> Season Standings</div>
+        <div class="section-title" style="margin-top:20px;"><i class="fa-solid fa-ranking-star"></i> Season Standings</div>
         <div id="season-standings-content"></div>
     </div>
 
@@ -74,39 +76,38 @@
         return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
     }
 
+    function getPlatformIcon(plat) {
+        if (plat === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107c10"></i>';
+        if (plat === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003791"></i>';
+        return '<i class="fa-solid fa-desktop" style="color:#666"></i>';
+    }
+
     function calculateLivePoints(player, divisionPlayers, isSig) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
-
         let pointsBeforeMultiplier = 0;
         const multiplier = (isSig === true || isSig === 'true') ? 2 : 1;
 
-        // 1. Rank
         const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
         const firstTieIdx = scoredPlayers.findIndex(p => getNum(p.toPar) === score);
         pointsBeforeMultiplier += (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? ptsMap[firstTieIdx] : 5;
 
-        // 2. Putt Bonus
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null && v > 0);
         const minPutt = validPutts.length ? Math.min(...validPutts) : null;
         if (getNum(player.putt) !== null && getNum(player.putt) === minPutt) pointsBeforeMultiplier += 25;
 
-        // 3. Shot Bonus
         const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null && v > 0);
         const maxHole = validHoles.length ? Math.max(...validHoles) : null;
         if (getNum(player.hole) !== null && getNum(player.hole) === maxHole) pointsBeforeMultiplier += 25;
 
-        let total = pointsBeforeMultiplier * multiplier;
-        total += (parseInt(player.hio) || 0) * 50;
-        total += (parseInt(player.albatross) || 0) * 50;
-
-        return total;
+        return (pointsBeforeMultiplier * multiplier) + ((parseInt(player.hio)||0)*50) + ((parseInt(player.albatross)||0)*50);
     }
 
     function render(state) {
         document.getElementById('meta-info').innerHTML = `
+            <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
             <div class="info-item"><span class="label">Week</span>${state.week}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue}${state.isSignature ? '<span class="sig-badge">SIGNATURE</span>' : ''}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue}${state.isSignature ? '<span class="sig-tag">SIGNATURE EVENT</span>' : ''}</div>
         `;
 
         const currentDiv = document.getElementById('current-tournament-content');
@@ -117,40 +118,43 @@
             let dps = state.players.filter(p => Number(p.division) === divNum);
             if (dps.length === 0) return;
 
-            // --- CURRENT ROUND ---
+            // LIVE ROUND
             let roundRows = [...dps].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999)).map((p, idx) => {
                 const score = getNum(p.toPar);
-                const lp = calculateLivePoints(p, dps, state.isSignature);
                 return `<tr>
                     <td>${score !== null ? (idx + 1) : '-'}</td>
-                    <td style="text-align:left; font-weight:700;">${p.name}</td>
+                    <td style="text-align:left">${getPlatformIcon(p.platform)} <strong>${p.name}</strong></td>
                     <td style="font-weight:700; color:${score <= 0 ? 'var(--green)' : 'black'}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
                     <td>${p.putt || '--'}</td><td>${p.hole || '--'}</td>
-                    <td class="pts-col">${lp}</td>
+                    <td class="pts-col">${calculateLivePoints(p, dps, state.isSignature)}</td>
                 </tr>`;
             }).join('');
 
             currentDiv.innerHTML += `
                 <div class="div-header div-${divNum}">Division ${divNum}</div>
                 <div class="table-wrapper"><table>
-                    <thead><tr><th>POS</th><th style="text-align:left">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th class="pts-col">LIVE PTS</th></tr></thead>
+                    <thead><tr><th>POS</th><th style="text-align:left">PLAYER</th><th>TO PAR</th><th>PUTTS</th><th>SHOT</th><th class="pts-col">LIVE PTS</th></tr></thead>
                     <tbody>${roundRows}</tbody>
                 </table></div>`;
 
-            // --- SEASON STANDINGS ---
+            // SEASON STANDINGS
             let seasonList = dps.map(p => {
-                const livePts = calculateLivePoints(p, dps, state.isSignature);
-                return { p, totalPts: (Number(p.seasonPts) || 0) + livePts };
-            }).sort((a,b) => b.totalPts - a.totalPts);
+                const lp = calculateLivePoints(p, dps, state.isSignature);
+                const agg = (p.history || []).reduce((a, b) => a + (Number(b) || 0), 0);
+                const played = (p.history || []).length + (getNum(p.toPar) !== null ? 1 : 0);
+                return { p, totalPts: (Number(p.seasonPts) || 0) + lp, agg, played, wins: p.wins || 0 };
+            }).sort((a,b) => b.totalPts - a.totalPts || a.agg - b.agg);
 
             let seasonRows = seasonList.map((item, idx) => {
-                let rowClass = ""; let statusLabel = "";
-                if (divNum < 3 && idx >= seasonList.length - 2) { rowClass = "releg-row"; statusLabel = '<span class="releg-text">RELEGATION</span>'; }
-                if (divNum > 1 && idx < 2) { rowClass = "promo-row"; statusLabel = '<span class="promo-text">PROMOTION</span>'; }
+                let rCls = ""; let bdg = "";
+                if (divNum < 3 && idx >= seasonList.length - 2) { rCls = "releg-row"; bdg = '<span class="status-badge releg-badge">DANGER</span>'; }
+                if (divNum > 1 && idx < 2) { rCls = "promo-row"; bdg = '<span class="status-badge promo-badge">PROMOTION</span>'; }
 
-                return `<tr class="${rowClass}">
+                return `<tr class="${rCls}">
                     <td>${idx + 1}</td>
-                    <td style="text-align:left; font-weight:700;">${item.p.name}${statusLabel}</td>
+                    <td style="text-align:left">${getPlatformIcon(item.p.platform)} <strong>${item.p.name}</strong>${bdg}</td>
+                    <td style="color:${item.agg <= 0 ? 'var(--green)' : 'black'}">${item.agg === 0 ? 'E' : (item.agg > 0 ? '+'+item.agg : item.agg)}</td>
+                    <td>${item.played}</td><td>${item.wins}</td>
                     <td class="pts-col">${item.totalPts}</td>
                 </tr>`;
             }).join('');
@@ -158,12 +162,11 @@
             seasonDiv.innerHTML += `
                 <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
                 <div class="table-wrapper"><table>
-                    <thead><tr><th>RANK</th><th style="text-align:left">PLAYER</th><th class="pts-col">TOTAL PTS</th></tr></thead>
+                    <thead><tr><th>RANK</th><th style="text-align:left">PLAYER</th><th>AGG</th><th>PLAYED</th><th>WINS</th><th class="pts-col">TOTAL PTS</th></tr></thead>
                     <tbody>${seasonRows}</tbody>
                 </table></div>`;
         });
     }
-
     loadData();
 </script>
 </body>
