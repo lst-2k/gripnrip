@@ -9,11 +9,12 @@
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(135deg, #1a1a1a 0%, #444 100%); 
-            --red: #dc3545; --green: #28a745;
+            --under-par: #dc3545; /* Red for Under Par */
+            --over-par: #333;
             --promo-bg: rgba(40, 167, 69, 0.12);
             --releg-bg: rgba(220, 53, 69, 0.12);
         }
-        body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
         .leaderboard-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
         
         .header { background: var(--header-grad); color: white; padding: 30px 20px; text-align: center; border-bottom: 5px solid var(--gold); }
@@ -32,12 +33,11 @@
         th { background: #f8f9fa; padding: 15px 10px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
         td { padding: 15px 10px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; }
         
-        /* Updated Rows - Removed Text Badges, Kept Colors */
-        .promo-row { background-color: var(--promo-bg) !important; box-shadow: inset 6px 0 0 var(--green); }
-        .releg-row { background-color: var(--releg-bg) !important; box-shadow: inset 6px 0 0 var(--red); }
+        .promo-row { background-color: var(--promo-bg) !important; box-shadow: inset 6px 0 0 #28a745; }
+        .releg-row { background-color: var(--releg-bg) !important; box-shadow: inset 6px 0 0 #dc3545; }
 
         .pts-col { font-weight: 900; color: #0047AB; font-size: 16px; background: rgba(0,71,171,0.03); }
-        .platform-icon { margin-right: 8px; width: 20px; }
+        .platform-icon { margin-right: 8px; font-size: 16px; }
         .sig-tag { background: var(--gold); color: black; padding: 2px 8px; border-radius: 4px; font-weight: 900; font-size: 12px; margin-left: 10px; }
     </style>
 </head>
@@ -61,6 +61,7 @@
 
     async function loadData() {
         try {
+            // Added Cache Busting to ensure Venue/Week update instantly
             const response = await fetch('GR_Backup.json?t=' + Date.now());
             const state = await response.json();
             render(state);
@@ -71,7 +72,8 @@
 
     function getNum(val) {
         if (!val || val === '' || val === '-' || val === '.') return null;
-        return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
+        let n = (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
+        return isNaN(n) ? null : n;
     }
 
     function getPlatformIcon(plat) {
@@ -83,29 +85,28 @@
     function calculateLivePoints(player, divisionPlayers, isSig) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
-        let pointsBeforeMultiplier = 0;
+        let ptsBase = 0;
         const multiplier = (isSig === true || isSig === 'true') ? 2 : 1;
 
-        const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
-        const firstTieIdx = scoredPlayers.findIndex(p => getNum(p.toPar) === score);
-        pointsBeforeMultiplier += (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? ptsMap[firstTieIdx] : 5;
+        const scored = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
+        const idx = scored.findIndex(p => getNum(p.toPar) === score);
+        ptsBase += (idx !== -1 && idx < ptsMap.length) ? ptsMap[idx] : 5;
 
-        const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null && v > 0);
-        const minPutt = validPutts.length ? Math.min(...validPutts) : null;
-        if (getNum(player.putt) !== null && getNum(player.putt) === minPutt) pointsBeforeMultiplier += 25;
+        const pVal = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null && v > 0);
+        if (getNum(player.putt) === Math.min(...pVal) && pVal.length) ptsBase += 25;
 
-        const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null && v > 0);
-        const maxHole = validHoles.length ? Math.max(...validHoles) : null;
-        if (getNum(player.hole) !== null && getNum(player.hole) === maxHole) pointsBeforeMultiplier += 25;
+        const hVal = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null && v > 0);
+        if (getNum(player.hole) === Math.max(...hVal) && hVal.length) ptsBase += 25;
 
-        return (pointsBeforeMultiplier * multiplier) + ((parseInt(player.hio)||0)*50) + ((parseInt(player.albatross)||0)*50);
+        return (ptsBase * multiplier) + ((parseInt(player.hio)||0)*50) + ((parseInt(player.albatross)||0)*50);
     }
 
     function render(state) {
+        // FIXED META DATA DISPLAY
         document.getElementById('meta-info').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
-            <div class="info-item"><span class="label">Week</span>${state.week}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue}${state.isSignature ? '<span class="sig-tag">SIGNATURE EVENT</span>' : ''}</div>
+            <div class="info-item"><span class="label">Season</span>${state.season || '1'}</div>
+            <div class="info-item"><span class="label">Week</span>${state.week || '1'}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue || 'TBD'}${state.isSignature ? '<span class="sig-tag">SIGNATURE EVENT</span>' : ''}</div>
         `;
 
         const currentDiv = document.getElementById('current-tournament-content');
@@ -119,10 +120,12 @@
             // LIVE ROUND
             let roundRows = [...dps].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999)).map((p, idx) => {
                 const score = getNum(p.toPar);
+                // Golf Color Logic: Red for under par, Black for over/even
+                const scoreColor = (score !== null && score < 0) ? 'var(--under-par)' : 'var(--over-par)';
                 return `<tr>
                     <td>${score !== null ? (idx + 1) : '-'}</td>
                     <td style="text-align:left">${getPlatformIcon(p.platform)} <strong>${p.name}</strong></td>
-                    <td style="font-weight:700; color:${score <= 0 ? 'var(--green)' : 'black'}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
+                    <td style="font-weight:700; color:${scoreColor}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
                     <td>${p.putt || '--'}</td><td>${p.hole || '--'}</td>
                     <td class="pts-col">${calculateLivePoints(p, dps, state.isSignature)}</td>
                 </tr>`;
@@ -135,7 +138,7 @@
                     <tbody>${roundRows}</tbody>
                 </table></div>`;
 
-            // SEASON STANDINGS
+            // STANDINGS
             let seasonList = dps.map(p => {
                 const lp = calculateLivePoints(p, dps, state.isSignature);
                 const agg = (p.history || []).reduce((a, b) => a + (Number(b) || 0), 0);
@@ -144,14 +147,13 @@
             }).sort((a,b) => b.totalPts - a.totalPts || a.agg - b.agg);
 
             let seasonRows = seasonList.map((item, idx) => {
-                let rCls = "";
-                if (divNum < 3 && idx >= seasonList.length - 2) { rCls = "releg-row"; }
-                if (divNum > 1 && idx < 2) { rCls = "promo-row"; }
-
+                let rCls = (divNum < 3 && idx >= seasonList.length - 2) ? "releg-row" : (divNum > 1 && idx < 2) ? "promo-row" : "";
+                const aggColor = (item.agg < 0) ? 'var(--under-par)' : 'var(--over-par)';
+                
                 return `<tr class="${rCls}">
                     <td>${idx + 1}</td>
                     <td style="text-align:left">${getPlatformIcon(item.p.platform)} <strong>${item.p.name}</strong></td>
-                    <td style="color:${item.agg <= 0 ? 'var(--green)' : 'black'}">${item.agg === 0 ? 'E' : (item.agg > 0 ? '+'+item.agg : item.agg)}</td>
+                    <td style="font-weight:700; color:${aggColor}">${item.agg === 0 ? 'E' : (item.agg > 0 ? '+'+item.agg : item.agg)}</td>
                     <td>${item.played}</td><td>${item.wins}</td>
                     <td class="pts-col">${item.totalPts}</td>
                 </tr>`;
