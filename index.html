@@ -10,8 +10,8 @@
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(135deg, #1a1a1a 0%, #444 100%); 
             --red: #dc3545; --green: #28a745;
-            --promo-bg: rgba(40, 167, 69, 0.08);
-            --releg-bg: rgba(220, 53, 69, 0.08);
+            --promo-bg: rgba(40, 167, 69, 0.12);
+            --releg-bg: rgba(220, 53, 69, 0.12);
         }
         body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .leaderboard-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
@@ -32,11 +32,9 @@
         th { background: #f8f9fa; padding: 15px 10px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
         td { padding: 15px 10px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; }
         
-        .promo-row { background-color: var(--promo-bg) !important; box-shadow: inset 4px 0 0 var(--green); }
-        .releg-row { background-color: var(--releg-bg) !important; box-shadow: inset 4px 0 0 var(--red); }
-        .status-badge { font-size: 9px; font-weight: 900; padding: 2px 6px; border-radius: 4px; display: block; margin-top: 4px; width: fit-content; margin-inline: auto; }
-        .promo-badge { background: var(--green); color: white; }
-        .releg-badge { background: var(--red); color: white; }
+        /* Updated Rows - Removed Text Badges, Kept Colors */
+        .promo-row { background-color: var(--promo-bg) !important; box-shadow: inset 6px 0 0 var(--green); }
+        .releg-row { background-color: var(--releg-bg) !important; box-shadow: inset 6px 0 0 var(--red); }
 
         .pts-col { font-weight: 900; color: #0047AB; font-size: 16px; background: rgba(0,71,171,0.03); }
         .platform-icon { margin-right: 8px; width: 20px; }
@@ -146,13 +144,13 @@
             }).sort((a,b) => b.totalPts - a.totalPts || a.agg - b.agg);
 
             let seasonRows = seasonList.map((item, idx) => {
-                let rCls = ""; let bdg = "";
-                if (divNum < 3 && idx >= seasonList.length - 2) { rCls = "releg-row"; bdg = '<span class="status-badge releg-badge">DANGER</span>'; }
-                if (divNum > 1 && idx < 2) { rCls = "promo-row"; bdg = '<span class="status-badge promo-badge">PROMOTION</span>'; }
+                let rCls = "";
+                if (divNum < 3 && idx >= seasonList.length - 2) { rCls = "releg-row"; }
+                if (divNum > 1 && idx < 2) { rCls = "promo-row"; }
 
                 return `<tr class="${rCls}">
                     <td>${idx + 1}</td>
-                    <td style="text-align:left">${getPlatformIcon(item.p.platform)} <strong>${item.p.name}</strong>${bdg}</td>
+                    <td style="text-align:left">${getPlatformIcon(item.p.platform)} <strong>${item.p.name}</strong></td>
                     <td style="color:${item.agg <= 0 ? 'var(--green)' : 'black'}">${item.agg === 0 ? 'E' : (item.agg > 0 ? '+'+item.agg : item.agg)}</td>
                     <td>${item.played}</td><td>${item.wins}</td>
                     <td class="pts-col">${item.totalPts}</td>
