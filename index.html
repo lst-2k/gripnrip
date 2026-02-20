@@ -13,37 +13,48 @@
             --red: #dc3545; --green: #28a745;
         }
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; }
-        .leaderboard-container { max-width: 1000px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 20px; }
-        .header { background: var(--header-grad); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .leaderboard-container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
+        .header { background: var(--header-grad); color: white; padding: 25px; text-align: center; border-bottom: 4px solid var(--gold); }
+        .header-title { font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         
-        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 14px; }
-        .info-item { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 5px; }
-        .label { color: var(--gold); font-weight: bold; margin-right: 5px; text-transform: uppercase; }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; font-size: 15px; border-bottom: 2px solid #333; }
+        .info-item { background: rgba(255,255,255,0.1); padding: 6px 15px; border-radius: 5px; border-left: 3px solid var(--gold); }
+        .label { color: var(--gold); font-weight: bold; margin-right: 8px; text-transform: uppercase; font-size: 12px; }
 
-        .div-header { background: #444; color: white; padding: 12px; font-size: 18px; font-weight: bold; text-transform: uppercase; text-align: center; }
+        .section-title { background: #333; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        .div-header { color: white; padding: 10px; font-size: 18px; font-weight: bold; text-transform: uppercase; text-align: left; padding-left: 20px; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
         
-        table { width: 100%; border-collapse: collapse; font-size: 16px; }
-        th { background: #f8f9fa; padding: 10px; font-size: 12px; color: #666; text-transform: uppercase; }
-        td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; font-size: 16px; table-layout: fixed; }
+        th { background: #f8f9fa; padding: 12px 5px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
+        td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #eee; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        .name-cell { display: flex; align-items: center; text-align: left; font-weight: 600; }
-        .plat-icon { margin-right: 10px; width: 20px; text-align: center; }
+        .name-cell { display: flex; align-items: center; text-align: left; font-weight: 700; padding-left: 10px; }
+        .plat-icon { margin-right: 12px; width: 20px; text-align: center; font-size: 18px; }
         
-        .up { color: var(--green); } .down { color: var(--red); }
-        .pts-col { font-weight: 800; color: #0047AB; }
-        .sig-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; margin-left: 10px; vertical-align: middle; }
+        .pts-col { font-weight: 900; color: #0047AB; font-size: 18px; }
+        .up { color: var(--green); font-weight: bold; } .down { color: var(--red); font-weight: bold; }
+        .sig-badge { background: var(--gold); color: #000; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 900; margin-left: 10px; }
+        
+        @media (max-width: 600px) {
+            th, td { font-size: 14px; }
+            .hide-mobile { display: none; }
+        }
     </style>
 </head>
 <body>
 
     <div class="leaderboard-container">
         <div class="header">
-            <div class="header-title">Grip & Rip Leaderboard</div>
+            <div class="header-title">Grip & Rip League</div>
         </div>
-        <div class="info-bar" id="meta-info">Loading season data...</div>
-        <div id="display-content"></div>
+        <div class="info-bar" id="meta-info">Syncing with clubhouse...</div>
+
+        <div class="section-title"><i class="fa-solid fa-flag"></i> Current Tournament</div>
+        <div id="current-tournament-content"></div>
+
+        <div class="section-title" style="margin-top:20px;"><i class="fa-solid fa-trophy"></i> Season Standings</div>
+        <div id="season-standings-content"></div>
     </div>
 
 <script>
@@ -51,12 +62,11 @@
 
     async function loadData() {
         try {
-            // This pulls the JSON file from the same folder on GitHub
             const response = await fetch('GR_Backup.json');
             const state = await response.json();
             render(state);
         } catch (e) {
-            document.getElementById('meta-info').innerHTML = "Error loading data. Make sure GR_Backup.json is uploaded.";
+            document.getElementById('meta-info').innerHTML = "Check back soon for Round 1 data!";
         }
     }
 
@@ -87,23 +97,49 @@
     }
 
     function render(state) {
-        const meta = document.getElementById('meta-info');
-        meta.innerHTML = `
+        document.getElementById('meta-info').innerHTML = `
             <div class="info-item"><span class="label">Season</span>${state.season}</div>
             <div class="info-item"><span class="label">Week</span>${state.week}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue} ${state.isSignature ? '<span class="sig-badge">SIGNATURE</span>' : ''}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue} ${state.isSignature ? '<span class="sig-badge">SIGNATURE EVENT</span>' : ''}</div>
             <div class="info-item"><span class="label">Par</span>${state.par}</div>
         `;
 
-        const container = document.getElementById('display-content');
-        container.innerHTML = '';
+        const currentDiv = document.getElementById('current-tournament-content');
+        const seasonDiv = document.getElementById('season-standings-content');
+        currentDiv.innerHTML = '';
+        seasonDiv.innerHTML = '';
 
         [1, 2, 3].forEach(divNum => {
             let dps = state.players.filter(p => String(p.division) === String(divNum));
+            if (dps.length === 0) return;
+
+            // 1. Current Tournament Logic
+            let roundList = [...dps].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
+            let roundRows = roundList.map((p, idx) => {
+                const score = getNum(p.toPar);
+                const lp = calculateLivePoints(p, dps, state.isSignature);
+                return `<tr>
+                    <td style="width:40px">${score !== null ? (idx + 1) : '-'}</td>
+                    <td style="width:200px"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
+                    <td style="font-weight:bold; color:${score <= 0 ? 'var(--green)' : 'black'}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
+                    <td>${p.putt || '--'}</td>
+                    <td>${p.hole || '--'}</td>
+                    <td class="pts-col">${score !== null ? lp : 0}</td>
+                </tr>`;
+            }).join('');
+
+            currentDiv.innerHTML += `
+                <div class="div-header div-${divNum}">Division ${divNum} Round</div>
+                <table>
+                    <thead><tr><th style="width:40px">POS</th><th style="width:200px; text-align:left; padding-left:10px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th class="pts-col">PTS</th></tr></thead>
+                    <tbody>${roundRows}</tbody>
+                </table>`;
+
+            // 2. Season Standings Logic
             let scored = dps.filter(p => getNum(p.toPar) !== null);
             let minScore = scored.length > 0 ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
 
-            let list = dps.map(p => {
+            let seasonList = dps.map(p => {
                 const histScore = (p.history || []).reduce((s, v) => s + (Number(v) || 0), 0);
                 const currScore = getNum(p.toPar);
                 const livePts = calculateLivePoints(p, dps, state.isSignature);
@@ -116,29 +152,26 @@
                 };
             }).sort((a,b) => b.totalPts - a.totalPts || a.accum - b.accum);
 
-            if (list.length === 0) return;
-
-            let rows = list.map((item, idx) => {
+            let seasonRows = seasonList.map((item, idx) => {
                 const p = item.p;
-                const movement = !p.prevRank ? '—' : (idx + 1 < p.prevRank ? '<span class="up">▲</span>' : (idx + 1 > p.prevRank ? '<span class="down">▼</span>' : '—'));
+                const rk = idx + 1;
+                const movement = !p.prevRank ? '—' : (rk < p.prevRank ? '<span class="up">▲</span>' : (rk > p.prevRank ? '<span class="down">▼</span>' : '—'));
                 return `<tr>
-                    <td>${movement}</td>
-                    <td>${idx + 1}</td>
-                    <td><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
-                    <td style="color:${item.accum <= 0 ? 'var(--green)' : 'black'}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
+                    <td style="width:40px">${movement}</td>
+                    <td style="width:30px">${rk}</td>
+                    <td style="width:200px"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
+                    <td class="hide-mobile" style="color:${item.accum <= 0 ? 'var(--green)' : 'black'}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
                     <td class="pts-col">${item.totalPts}</td>
                     <td>${item.liveWins}</td>
-                    <td>${item.liveEvents}</td>
                 </tr>`;
             }).join('');
 
-            container.innerHTML += `
-                <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
+            seasonDiv.innerHTML += `
+                <div class="div-header div-${divNum}">Division ${divNum} Season</div>
                 <table>
-                    <thead><tr><th>+/-</th><th>RK</th><th style="text-align:left">Player</th><th>Accum</th><th>Pts</th><th>W</th><th>Ev</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            `;
+                    <thead><tr><th style="width:40px">+/-</th><th style="width:30px">RK</th><th style="width:200px; text-align:left; padding-left:10px;">PLAYER</th><th class="hide-mobile">ACCUM</th><th class="pts-col">PTS</th><th>WINS</th></tr></thead>
+                    <tbody>${seasonRows}</tbody>
+                </table>`;
         });
     }
 
