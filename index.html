@@ -9,61 +9,43 @@
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
-            --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
+            --promo-bg: rgba(40, 167, 69, 0.1);
+            --releg-bg: rgba(220, 53, 69, 0.1);
         }
-        body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; }
         .leaderboard-container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
         
         .header { background: var(--header-grad); color: white; padding: 25px; text-align: center; border-bottom: 4px solid var(--gold); }
         .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
         
-        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; font-size: 14px; border-bottom: 2px solid #333; }
+        .info-bar { background: #2d2d2d; color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; font-size: 14px; }
         .info-item { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 5px; border-left: 3px solid var(--gold); }
         .label { color: var(--gold); font-weight: bold; margin-right: 5px; text-transform: uppercase; font-size: 11px; }
 
-        .section-title { background: #333; color: white; padding: 12px; font-size: 18px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-        .div-header { color: white; padding: 10px; font-size: 16px; font-weight: bold; text-transform: uppercase; text-align: left; padding-left: 15px; }
+        .section-title { background: #333; color: white; padding: 12px; font-size: 18px; font-weight: 900; text-align: center; text-transform: uppercase; }
+        .div-header { color: white; padding: 10px; font-size: 16px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
         
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 800px; table-layout: fixed; }
+        .table-wrapper { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        th { background: #f8f9fa; padding: 12px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
+        td { padding: 14px 10px; text-align: center; border-bottom: 1px solid #eee; }
         
-        th { background: #f8f9fa; padding: 12px 10px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
-        td { padding: 14px 10px; text-align: center; border-bottom: 1px solid #eee; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        .w-pos { width: 60px; }
-        .w-name { width: 250px; } /* Room for the gap */
-        .w-score { width: 95px; }
-        .w-bonus { width: 95px; }
-        .w-pts { width: 110px; }
+        .promo-row { background-color: var(--promo-bg) !important; border-left: 4px solid var(--green); }
+        .releg-row { background-color: var(--releg-bg) !important; border-left: 4px solid var(--red); }
+        .promo-text { color: var(--green); font-weight: 800; font-size: 10px; display: block; margin-top: 2px; }
+        .releg-text { color: var(--red); font-weight: 800; font-size: 10px; display: block; margin-top: 2px; }
 
-        .name-cell { display: flex; align-items: center; text-align: left; font-weight: 700; }
-        
-        /* THE GAP FIX */
-        .plat-icon { 
-            margin-right: 20px; /* Space between icon and name */
-            width: 25px;       /* Fixed width for the icon container */
-            display: inline-flex; 
-            justify-content: center; 
-            align-items: center; 
-            font-size: 18px;
-            flex-shrink: 0;    /* Prevents icon from squashing */
-        }
-        
         .pts-col { font-weight: 900; color: #0047AB; font-size: 17px; background: rgba(0,71,171,0.04); }
-        .up { color: var(--green); font-weight: bold; } .down { color: var(--red); font-weight: bold; }
         .sig-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; margin-left: 8px; }
-
-        .table-wrapper::-webkit-scrollbar { height: 8px; }
-        .table-wrapper::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
     </style>
 </head>
 <body>
 
     <div class="leaderboard-container">
         <div class="header">
-            <div class="header-title">LST-74 Grip & Rip Divisional League</div>
+            <div class="header-title">Grip & Rip League</div>
         </div>
         <div class="info-bar" id="meta-info">Syncing clubhouse data...</div>
 
@@ -79,11 +61,11 @@
 
     async function loadData() {
         try {
-            const response = await fetch('GR_Backup.json');
+            const response = await fetch('GR_Backup.json?t=' + Date.now());
             const state = await response.json();
             render(state);
         } catch (e) {
-            document.getElementById('meta-info').innerHTML = "Clubhouse is currently closed. Check back soon!";
+            document.getElementById('meta-info').innerHTML = "Clubhouse is currently closed.";
         }
     }
 
@@ -95,97 +77,91 @@
     function calculateLivePoints(player, divisionPlayers, isSig) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
-        const multiplier = isSig ? 2 : 1;
+
+        let pointsBeforeMultiplier = 0;
+        const multiplier = (isSig === true || isSig === 'true') ? 2 : 1;
+
+        // 1. Rank
         const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
         const firstTieIdx = scoredPlayers.findIndex(p => getNum(p.toPar) === score);
-        let pts = (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? (ptsMap[firstTieIdx] * multiplier) : (5 * multiplier);
+        pointsBeforeMultiplier += (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? ptsMap[firstTieIdx] : 5;
+
+        // 2. Putt Bonus
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null && v > 0);
         const minPutt = validPutts.length ? Math.min(...validPutts) : null;
+        if (getNum(player.putt) !== null && getNum(player.putt) === minPutt) pointsBeforeMultiplier += 25;
+
+        // 3. Shot Bonus
         const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null && v > 0);
         const maxHole = validHoles.length ? Math.max(...validHoles) : null;
-        if (getNum(player.putt) === minPutt && minPutt !== null) pts += (25 * multiplier);
-        if (getNum(player.hole) === maxHole && maxHole !== null) pts += (25 * multiplier);
-        pts += (parseInt(player.hio) || 0) * 50;
-        pts += (parseInt(player.albatross) || 0) * 50;
-        return pts;
+        if (getNum(player.hole) !== null && getNum(player.hole) === maxHole) pointsBeforeMultiplier += 25;
+
+        let total = pointsBeforeMultiplier * multiplier;
+        total += (parseInt(player.hio) || 0) * 50;
+        total += (parseInt(player.albatross) || 0) * 50;
+
+        return total;
     }
 
     function render(state) {
         document.getElementById('meta-info').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season}</div>
             <div class="info-item"><span class="label">Week</span>${state.week}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue}${state.isSignature ? '<span class="sig-badge">SIGNATURE EVENT</span>' : ''}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue}${state.isSignature ? '<span class="sig-badge">SIGNATURE</span>' : ''}</div>
         `;
 
         const currentDiv = document.getElementById('current-tournament-content');
         const seasonDiv = document.getElementById('season-standings-content');
-        currentDiv.innerHTML = '';
-        seasonDiv.innerHTML = '';
+        currentDiv.innerHTML = ''; seasonDiv.innerHTML = '';
 
         [1, 2, 3].forEach(divNum => {
-            let dps = state.players.filter(p => String(p.division) === String(divNum));
+            let dps = state.players.filter(p => Number(p.division) === divNum);
             if (dps.length === 0) return;
 
-            let roundList = [...dps].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
-            let roundRows = roundList.map((p, idx) => {
+            // --- CURRENT ROUND ---
+            let roundRows = [...dps].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999)).map((p, idx) => {
                 const score = getNum(p.toPar);
                 const lp = calculateLivePoints(p, dps, state.isSignature);
                 return `<tr>
-                    <td class="w-pos">${score !== null ? (idx + 1) : '-'}</td>
-                    <td class="w-name"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
-                    <td class="w-score" style="font-weight:700; color:${score <= 0 ? 'var(--green)' : 'black'}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
-                    <td class="w-bonus">${p.putt || '--'}</td>
-                    <td class="w-bonus">${p.hole || '--'}</td>
-                    <td class="w-pts pts-col">${score !== null ? lp : 0}</td>
+                    <td>${score !== null ? (idx + 1) : '-'}</td>
+                    <td style="text-align:left; font-weight:700;">${p.name}</td>
+                    <td style="font-weight:700; color:${score <= 0 ? 'var(--green)' : 'black'}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
+                    <td>${p.putt || '--'}</td><td>${p.hole || '--'}</td>
+                    <td class="pts-col">${lp}</td>
                 </tr>`;
             }).join('');
 
             currentDiv.innerHTML += `
                 <div class="div-header div-${divNum}">Division ${divNum}</div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th class="w-pos">POS</th><th class="w-name">PLAYER</th><th class="w-score">TO PAR</th><th class="w-bonus">PUTT</th><th class="w-bonus">SHOT</th><th class="w-pts pts-col">LIVE PTS</th></tr></thead>
-                        <tbody>${roundRows}</tbody>
-                    </table>
-                </div>`;
+                <div class="table-wrapper"><table>
+                    <thead><tr><th>POS</th><th style="text-align:left">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th class="pts-col">LIVE PTS</th></tr></thead>
+                    <tbody>${roundRows}</tbody>
+                </table></div>`;
 
-            let scored = dps.filter(p => getNum(p.toPar) !== null);
-            let minScore = scored.length > 0 ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
+            // --- SEASON STANDINGS ---
             let seasonList = dps.map(p => {
-                const histScore = (p.history || []).reduce((s, v) => s + (Number(v) || 0), 0);
-                const currScore = getNum(p.toPar);
                 const livePts = calculateLivePoints(p, dps, state.isSignature);
-                return { p, accum: histScore + (currScore !== null ? currScore : 0), totalPts: (p.seasonPts || 0) + livePts, liveWins: (p.wins || 0) + (currScore !== null && currScore === minScore ? 1 : 0)};
-            }).sort((a,b) => b.totalPts - a.totalPts || a.accum - b.accum);
+                return { p, totalPts: (Number(p.seasonPts) || 0) + livePts };
+            }).sort((a,b) => b.totalPts - a.totalPts);
 
             let seasonRows = seasonList.map((item, idx) => {
-                const p = item.p;
-                const rk = idx + 1;
-                const movement = !p.prevRank ? '—' : (rk < p.prevRank ? '<span class="up">▲</span>' : (rk > p.prevRank ? '<span class="down">▼</span>' : '—'));
-                return `<tr>
-                    <td class="w-pos">${movement}</td><td class="w-pos">${rk}</td>
-                    <td class="w-name"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
-                    <td class="w-score" style="color:${item.accum <= 0 ? 'var(--green)' : 'black'}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
-                    <td class="w-pts pts-col">${item.totalPts}</td>
-                    <td class="w-bonus">${item.liveWins}</td>
+                let rowClass = ""; let statusLabel = "";
+                if (divNum < 3 && idx >= seasonList.length - 2) { rowClass = "releg-row"; statusLabel = '<span class="releg-text">RELEGATION</span>'; }
+                if (divNum > 1 && idx < 2) { rowClass = "promo-row"; statusLabel = '<span class="promo-text">PROMOTION</span>'; }
+
+                return `<tr class="${rowClass}">
+                    <td>${idx + 1}</td>
+                    <td style="text-align:left; font-weight:700;">${item.p.name}${statusLabel}</td>
+                    <td class="pts-col">${item.totalPts}</td>
                 </tr>`;
             }).join('');
 
             seasonDiv.innerHTML += `
                 <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th class="w-pos">+/-</th><th class="w-pos">RK</th><th class="w-name">PLAYER</th><th class="w-score">ACCUM</th><th class="w-pts pts-col">PTS</th><th class="w-bonus">WINS</th></tr></thead>
-                        <tbody>${seasonRows}</tbody>
-                    </table>
-                </div>`;
+                <div class="table-wrapper"><table>
+                    <thead><tr><th>RANK</th><th style="text-align:left">PLAYER</th><th class="pts-col">TOTAL PTS</th></tr></thead>
+                    <tbody>${seasonRows}</tbody>
+                </table></div>`;
         });
-    }
-
-    function getPlatIcon(p) {
-        if (p === 'xbox') return '<span class="plat-icon"><i class="fa-brands fa-xbox" style="color:#107C10"></i></span>';
-        if (p === 'playstation') return '<span class="plat-icon"><i class="fa-brands fa-playstation" style="color:#003087"></i></span>';
-        return '<span class="plat-icon"><i class="fa-brands fa-steam" style="color:#171a21"></i></span>';
     }
 
     loadData();
