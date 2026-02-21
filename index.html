@@ -16,25 +16,53 @@
         }
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; }
         .leaderboard-container { max-width: 1400px; margin: 0 auto 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
+        
+        /* Independent Scroll Containers */
+        .table-scroll-area { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; border-bottom: 1px solid #ddd; }
+        
         .header { background: var(--header-grad); color: white; padding: 25px 20px; text-align: center; border-bottom: 4px solid var(--gold); }
         .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; border-bottom: 3px solid var(--gold); }
         .info-item { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 6px; font-size: 14px; }
         .label { color: var(--gold); font-weight: 900; margin-right: 8px; text-transform: uppercase; }
-        .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; }
+        .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; position: sticky; left: 0; z-index: 20; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
+        
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; position: sticky; top: 0; z-index: 5; }
+        
+        /* Sticky Player Name Column */
+        .sticky-col { 
+            position: sticky; 
+            left: 0; 
+            background: white; 
+            z-index: 10; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            min-width: 200px;
+        }
+        tr:nth-child(even) .sticky-col { background: #fafafa; }
+        .promo-row .sticky-col { background-color: #e8f5e9 !important; }
+        .releg-row .sticky-col { background-color: #fbe9e7 !important; }
+
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 700; }
-        .promo-row { background-color: var(--promo-bg) !important; }
-        .releg-row { background-color: var(--releg-bg) !important; }
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
         .plat-icon { margin-right: 12px; width: 20px; text-align: center; font-size: 18px; }
         .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
-        .award-wrapper { position: sticky; left: 0; width: 100%; z-index: 10; }
-        .footer-awards { background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd; padding: 12px; text-align: center; width: 100%; box-sizing: border-box; }
-        .award-line { display: block; margin: 3px 0; font-size: 16px; }
+
+        /* Sticky Footer Awards */
+        .footer-awards { 
+            background: #f9f9f9; 
+            font-weight: bold; 
+            border-top: 2px solid #ddd; 
+            padding: 12px; 
+            text-align: center; 
+            position: sticky; 
+            left: 0; 
+            width: 100%; 
+            z-index: 15;
+            box-sizing: border-box;
+        }
+        .award-line { display: block; margin: 3px 0; font-size: 16px; white-space: nowrap; }
         #error-msg { color: white; background: #cc0000; text-align: center; padding: 10px; display: none; font-weight: bold; }
     </style>
 </head>
@@ -45,12 +73,12 @@
     <div class="leaderboard-container">
         <div class="header"><div class="header-title">LST74 <br> Grip & Rip Divisional Live Leaderboard</div></div>
         <div class="info-bar" id="info-bar"></div>
-        <div class="table-responsive"><div id="div-container"></div></div>
+        <div id="div-container"></div>
     </div>
 
     <div class="leaderboard-container">
         <div style="background:#7C7C7C; color:white; padding:15px; font-size:24px; font-weight:900; text-align:center; text-transform: uppercase;">Season Standings</div>
-        <div class="table-responsive"><div id="season-container"></div></div>
+        <div id="season-container"></div>
     </div>
 
 <script>
@@ -120,21 +148,25 @@
             const bH = vH.length ? vH.reduce((a, b) => (a.val > b.val ? a : b)) : null;
 
             container.innerHTML += `
-                <div class="div-header div-${divNum}">Division ${divNum} - Live</div>
-                <table>
-                    <thead><tr><th>POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>TO PAR</th><th>L-PUTT</th><th>L-SHOT</th><th class="pts-col">LIVE PTS</th></tr></thead>
-                    <tbody>${dps.map((p, i) => `
-                        <tr>
-                            <td>${getNum(p.toPar)!==null?i+1:'-'}</td>
-                            <td><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                            <td style="${getScoreStyle(p.toPar)}">${p.toPar||'-'}</td>
-                            <td>${p.putt||'-'}</td>
-                            <td>${p.hole||'-'}</td>
-                            <td class="pts-col">${calculateLivePoints(p, dps, state.isSignature)}</td>
-                        </tr>
-                    `).join('')}</tbody>
-                </table>
-                <div class="award-wrapper">
+                <div class="table-scroll-area">
+                    <div class="div-header div-${divNum}">Division ${divNum} - Live</div>
+                    <table>
+                        <thead><tr>
+                            <th style="width:50px">POS</th>
+                            <th class="sticky-col" style="text-align:left; padding-left:15px;">PLAYER</th>
+                            <th>TO PAR</th><th>L-PUTT</th><th>L-SHOT</th><th class="pts-col">LIVE PTS</th>
+                        </tr></thead>
+                        <tbody>${dps.map((p, i) => `
+                            <tr>
+                                <td>${getNum(p.toPar)!==null?i+1:'-'}</td>
+                                <td class="sticky-col"><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                                <td style="${getScoreStyle(p.toPar)}">${p.toPar||'-'}</td>
+                                <td>${p.putt||'-'}</td>
+                                <td>${p.hole||'-'}</td>
+                                <td class="pts-col">${calculateLivePoints(p, dps, state.isSignature)}</td>
+                            </tr>
+                        `).join('')}</tbody>
+                    </table>
                     <div class="footer-awards">
                         <span class="award-line" style="color:var(--div1)">🚩 Longest Putt: ${bP ? bP.name+' '+bP.val+'ft' : '---'}</span>
                         <span class="award-line" style="color:var(--div2)">🎯 Longest Hole-out: ${bH ? bH.name+' '+bH.val+'yds' : '---'}</span>
@@ -167,24 +199,30 @@
 
             if(!players.length) return;
             container.innerHTML += `
-                <div class="div-header div-${div}">Division ${div} Season Rankings</div>
-                <table>
-                    <thead><tr><th>RK</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th></tr></thead>
-                    <tbody>${players.map((p, i) => {
-                        let rowClass = "";
-                        if (i < 2 && div > 1) rowClass = "promo-row";
-                        if (i >= players.length - 2 && div < 3) rowClass = "releg-row";
-                        return `
-                        <tr class="${rowClass}">
-                            <td>${i+1}</td>
-                            <td><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
-                            <td style="${getScoreStyle(p.accum)}">${p.accum === 0 ? 'E' : (p.accum > 0 ? '+'+p.accum : p.accum)}</td>
-                            <td>${p.totalWins}</td>
-                            <td>${p.totalEvents}</td>
-                            <td class="pts-col">${p.totalPts}</td>
-                        </tr>`;
-                    }).join('')}</tbody>
-                </table>`;
+                <div class="table-scroll-area">
+                    <div class="div-header div-${div}">Division ${div} Season Rankings</div>
+                    <table>
+                        <thead><tr>
+                            <th style="width:50px">RK</th>
+                            <th class="sticky-col" style="text-align:left; padding-left:15px;">PLAYER</th>
+                            <th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th>
+                        </tr></thead>
+                        <tbody>${players.map((p, i) => {
+                            let rowClass = "";
+                            if (i < 2 && div > 1) rowClass = "promo-row";
+                            if (i >= players.length - 2 && div < 3) rowClass = "releg-row";
+                            return `
+                            <tr class="${rowClass}">
+                                <td>${i+1}</td>
+                                <td class="sticky-col"><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                                <td style="${getScoreStyle(p.accum)}">${p.accum === 0 ? 'E' : (p.accum > 0 ? '+'+p.accum : p.accum)}</td>
+                                <td>${p.totalWins}</td>
+                                <td>${p.totalEvents}</td>
+                                <td class="pts-col">${p.totalPts}</td>
+                            </tr>`;
+                        }).join('')}</tbody>
+                    </table>
+                </div>`;
         });
     }
     loadData();
