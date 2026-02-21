@@ -3,228 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip Divisional Season</title>
+    <title>Grip & Rip Divisional Standings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
     <style>
-        :root { 
-            --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
-            --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
-            --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
-            --red: #dc3545; --green: #28a745;
-        }
+        :root { --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%); --red: #dc3545; --green: #28a745; }
         body { background-color: #f0f2f5; margin: 20px; font-family: 'Segoe UI', sans-serif; font-size: 18px; }
         .leaderboard-container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 40px; }
-        
-        .header { background: var(--header-grad); color: white; padding: 30px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 4px solid var(--gold); }
-        .header img { position: absolute; left: 25px; height: 55px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
-        .header-title { font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
-        
-        /* Member Mode Hide Classes */
-        body.member-view .admin-only { display: none !important; }
-        body.member-view .nav-in { border: none !important; pointer-events: none !important; background: transparent !important; }
-
-        .info-bar { background: var(--info-grad); color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; gap: 35px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
-        .info-item { background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 8px; display: flex; align-items: center; }
-        .editable-label { color: var(--gold); font-weight: 900; font-size: 18px; margin-right: 12px; text-transform: uppercase; letter-spacing: 1px; }
-        .val-text { font-size: 26px; font-weight: 800; color: white; }
-
-        .div-header { position: sticky; top: 0; z-index: 100; color: white; padding: 15px 25px; font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .header { background: var(--header-grad); color: white; padding: 30px; text-align: center; border-bottom: 4px solid var(--gold); }
+        .header-title { font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 20px; display: flex; justify-content: center; gap: 35px; border-bottom: 3px solid var(--gold); }
+        .info-item { background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 8px; }
+        .editable-label { color: var(--gold); font-weight: 900; margin-right: 12px; text-transform: uppercase; }
+        .val-text { font-size: 24px; font-weight: 800; }
+        .div-header { color: white; padding: 15px 25px; font-size: 24px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
-        
-        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        thead th { background: #f4f4f4; font-size: 13px; padding: 12px 4px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
-        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 18px; }
-        
-        .name-col-cell { display: flex; align-items: center; text-align: left; padding-left: 25px; width: 100%; }
-        .plat-icon { margin-right: 18px; width: 25px; display: inline-block; text-align: center; font-size: 20px; }
-        .player-name-text { font-weight: 600; color: #222; }
-
-        .pts-col { font-weight: 900; color: #333; width: 85px; font-size: 20px; }
-        .live-pts { color: #0047AB; }
-        
-        .controls { padding: 20px; background: #eee; display: flex; justify-content: center; gap: 15px; border-bottom: 1px solid #ddd; }
-        .controls button, .player-input button { padding: 10px 18px; cursor: pointer; font-weight: bold; border: none; border-radius: 6px; background: #444; color: white; }
-        .player-input { padding: 20px; background: #fcfcfc; text-align: center; border-bottom: 1px solid #ddd; }
-        
-        .season-header { background: #7C7C7C; color: white; padding: 20px; font-size: 28px; font-weight: 900; text-align: center; text-transform: uppercase; }
-        input.nav-in { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 5px; text-align: center; font-size: 18px; font-weight: 800; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #f4f4f4; font-size: 13px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 18px; font-weight: 600; }
+        .pts-col { font-weight: 900; color: #0047AB; font-size: 20px; }
+        #error-msg { color: red; text-align: center; padding: 20px; display: none; }
     </style>
 </head>
 <body>
-
+    <div id="error-msg">Could not load GR_Backup.json. Please ensure it is uploaded to GitHub.</div>
     <div class="leaderboard-container">
-        <div class="header">
-            <div class="header-title">Grip & Rip Divisional Standings</div>
-        </div>
-        
-        <div class="info-bar">
-            <div class="info-item"><span class="editable-label">Season</span><span id="season-num" class="val-text">1</span></div>
-            <div class="info-item"><span class="editable-label">Week</span><span id="week-num" class="val-text">1</span></div>
-            <div class="info-item"><span class="editable-label">Venue</span><span id="course-venue" class="val-text">TPC Sawgrass</span></div>
-            <div id="sig-indicator" class="info-item" style="display:none; background:rgba(255,215,0,0.2); border:1px solid var(--gold);">
-                <span class="editable-label" style="margin:0;">✨ SIGNATURE EVENT (2X PTS) ✨</span>
-            </div>
-        </div>
-
-        <div class="admin-only player-input">
-            <input type="text" id="new-name" placeholder="Player Name">
-            <select id="new-platform"><option value="xbox">Xbox</option><option value="playstation">PS</option><option value="steam">Steam</option></select>
-            <select id="new-div"><option value="1">Div 1</option><option value="2">Div 2</option><option value="3">Div 3</option></select>
-            <button onclick="addPlayer()">Add</button>
-        </div>
-
-        <div class="admin-only controls">
-            <button onclick="exportData()">Backup</button>
-            <button onclick="importData()">Restore</button>
-            <button style="background:var(--green)" onclick="startNewTournament()">Finalize Week</button>
-        </div>
-
+        <div class="header"><div class="header-title">Grip & Rip Society Standings</div></div>
+        <div class="info-bar" id="info-bar"></div>
         <div id="div-container"></div>
     </div>
-
     <div class="leaderboard-container">
-        <div class="season-header">Season Standings</div>
+        <div style="background:#7C7C7C; color:white; padding:20px; font-size:28px; font-weight:900; text-align:center;">SEASON STANDINGS</div>
         <div id="season-container"></div>
     </div>
 
 <script>
-    const DB_KEY = 'GR_v99_Final';
-    // Check URL for ?view=member
-    const isMember = new URLSearchParams(window.location.search).get('view') === 'member';
-    if(isMember) document.body.classList.add('member-view');
-
-    let state = JSON.parse(localStorage.getItem(DB_KEY)) || { players: [], venue: 'TPC Sawgrass', season: '1', week: '1', isSignature: false };
-
-    function render() {
-        document.getElementById('course-venue').innerText = state.venue;
-        document.getElementById('season-num').innerText = state.season;
-        document.getElementById('week-num').innerText = state.week;
-        document.getElementById('sig-indicator').style.display = state.isSignature ? 'flex' : 'none';
-
-        const container = document.getElementById('div-container');
-        container.innerHTML = '';
-        
-        [1, 2, 3].forEach(divNum => {
-            let dps = state.players.filter(p => String(p.division) === String(divNum));
-            dps.sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
-
-            // Awards Logic
-            const vP = dps.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0);
-            const bP = vP.length ? vP.reduce((a, b) => (a.val > b.val ? a : b)) : null;
-            const vH = dps.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0);
-            const bH = vH.length ? vH.reduce((a, b) => (a.val > b.val ? a : b)) : null;
-
-            const divBox = document.createElement('div');
-            divBox.innerHTML = `
-                <div class="div-header div-${divNum}">Division ${divNum}</div>
-                <table>
-                    <thead><tr><th style="width:60px">POS</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th style="width:100px">TO PAR</th><th style="width:100px">L-PUTT</th><th style="width:100px">L-SHOT</th><th class="pts-col">PTS</th></tr></thead>
-                    <tbody>${dps.map((p, idx) => `
-                        <tr>
-                            <td>${getNum(p.toPar) !== null ? idx+1 : '-'}</td>
-                            <td><div class="name-col-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
-                            <td><input type="text" class="nav-in" value="${p.toPar || ''}" oninput="updateScore('${p.name}', 'toPar', this.value)"></td>
-                            <td><input type="text" class="nav-in" value="${p.putt || ''}" oninput="updateScore('${p.name}', 'putt', this.value)"></td>
-                            <td><input type="text" class="nav-in" value="${p.hole || ''}" oninput="updateScore('${p.name}', 'hole', this.value)"></td>
-                            <td class="pts-col live-pts">${calculateLivePoints(p, dps)}</td>
-                        </tr>
-                    `).join('')}</tbody>
-                    <tfoot>
-                        <tr style="background:#f9f9f9; font-weight:bold; border-top:2px solid #ddd;">
-                            <td colspan="6" style="text-align:center; padding:15px;">
-                                <span style="margin:0 20px; color:var(--div1)">🚩 Longest Putt: ${bP ? bP.name+' '+bP.val+'ft' : '---'}</span>
-                                <span style="margin:0 20px; color:var(--div2)">🎯 Longest Hole-out: ${bH ? bH.name+' '+bH.val+'yds' : '---'}</span>
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>`;
-            container.appendChild(divBox);
-        });
-        renderStandings();
+    async function loadData() {
+        try {
+            const response = await fetch('GR_Backup.json?t=' + Date.now());
+            if (!response.ok) throw new Error();
+            const state = await response.json();
+            render(state);
+        } catch (e) {
+            document.getElementById('error-msg').style.display = 'block';
+        }
     }
 
-    // Helper functions
     function getNum(v) { if(!v || v==='') return null; return (v.toString().toUpperCase()==='E') ? 0 : Number(v); }
-    function getPlatIcon(p) { 
-        if(p==='xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
-        if(p==='playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
-        return '<i class="fa-brands fa-steam"></i>';
-    }
 
-    function calculateLivePoints(p, dps) {
+    function calculateLivePoints(p, dps, isSig) {
         const score = getNum(p.toPar); if(score === null) return 0;
         const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
-        const multiplier = state.isSignature ? 2 : 1;
+        const multiplier = isSig ? 2 : 1;
         const sorted = dps.filter(x => getNum(x.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
         const rank = sorted.findIndex(x => getNum(x.toPar) === score);
         let base = (rank !== -1 && rank < 10) ? ptsMap[rank] : 5;
         
-        let bonus = 0;
         const maxP = Math.max(...dps.map(x => getNum(x.putt) || 0));
         const maxH = Math.max(...dps.map(x => getNum(x.hole) || 0));
+        let bonus = 0;
         if(getNum(p.putt) === maxP && maxP > 0) bonus += 25;
         if(getNum(p.hole) === maxH && maxH > 0) bonus += 25;
         
         return (base + bonus) * multiplier;
     }
 
-    function updateScore(name, field, val) {
-        const p = state.players.find(x => x.name === name);
-        p[field] = val;
-        localStorage.setItem(DB_KEY, JSON.stringify(state));
-        render(); // Re-render for real-time math
+    function render(state) {
+        document.getElementById('info-bar').innerHTML = `
+            <div class="info-item"><span class="editable-label">Week</span><span class="val-text">${state.week}</span></div>
+            <div class="info-item"><span class="editable-label">Venue</span><span class="val-text">${state.venue}</span></div>
+            ${state.isSignature ? '<div class="info-item" style="background:var(--gold); color:black;"><span class="val-text">SIGNATURE EVENT</span></div>' : ''}
+        `;
+
+        const container = document.getElementById('div-container');
+        [1, 2, 3].forEach(divNum => {
+            let dps = state.players.filter(p => String(p.division) === String(divNum));
+            dps.sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
+
+            const vP = dps.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0);
+            const bP = vP.length ? vP.reduce((a, b) => (a.val > b.val ? a : b)) : null;
+            const vH = dps.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0);
+            const bH = vH.length ? vH.reduce((a, b) => (a.val > b.val ? a : b)) : null;
+
+            container.innerHTML += `
+                <div class="div-header div-${divNum}">Division ${divNum}</div>
+                <table>
+                    <thead><tr><th>POS</th><th style="text-align:left">PLAYER</th><th>TO PAR</th><th>L-PUTT</th><th>L-SHOT</th><th class="pts-col">PTS</th></tr></thead>
+                    <tbody>${dps.map((p, i) => `
+                        <tr><td>${getNum(p.toPar)!==null?i+1:'-'}</td><td style="text-align:left">${p.name}</td><td>${p.toPar||'-'}</td><td>${p.putt||'-'}</td><td>${p.hole||'-'}</td><td class="pts-col">${calculateLivePoints(p, dps, state.isSignature)}</td></tr>
+                    `).join('')}</tbody>
+                    <tfoot><tr style="background:#f9f9f9;"><td colspan="6" style="padding:15px;">
+                        <span style="margin:0 20px;">🚩 Longest Putt: ${bP ? bP.name+' '+bP.val+'ft' : '---'}</span>
+                        <span style="margin:0 20px;">🎯 Longest Hole-out: ${bH ? bH.name+' '+bH.val+'yds' : '---'}</span>
+                    </td></tr></tfoot>
+                </table>`;
+        });
+        renderStandings(state);
     }
 
-    function renderStandings() {
+    function renderStandings(state) {
         const container = document.getElementById('season-container');
-        container.innerHTML = '';
         [1,2,3].forEach(div => {
             let players = state.players.filter(p => String(p.division) === String(div))
-                .map(p => ({ 
-                    ...p, 
-                    total: (p.seasonPts || 0) + calculateLivePoints(p, state.players.filter(x => String(x.division)===String(div)))
-                })).sort((a,b) => b.total - a.total);
+                .map(p => ({ ...p, total: (p.seasonPts || 0) + calculateLivePoints(p, state.players.filter(x => String(x.division)===String(div)), state.isSignature) }))
+                .sort((a,b) => b.total - a.total);
             if(!players.length) return;
-            container.innerHTML += `<div class="div-header div-${div}">Div ${div} Standings</div>
-            <table><thead><tr><th style="width:60px">RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th class="pts-col">TOTAL PTS</th></tr></thead>
-            <tbody>${players.map((p, i) => `<tr><td>${i+1}</td><td style="text-align:left; padding-left:25px;">${p.name}</td><td class="pts-col">${p.total}</td></tr>`).join('')}</tbody></table>`;
+            container.innerHTML += `<div class="div-header div-${div}">Division ${div} Standings</div>
+            <table><thead><tr><th>RANK</th><th style="text-align:left">PLAYER</th><th class="pts-col">TOTAL SEASON POINTS</th></tr></thead>
+            <tbody>${players.map((p, i) => `<tr><td>${i+1}</td><td style="text-align:left">${p.name}</td><td class="pts-col">${p.total}</td></tr>`).join('')}</tbody></table>`;
         });
     }
 
-    // Admin functions (Simplified for index.html)
-    function addPlayer() {
-        const n = document.getElementById('new-name').value;
-        if(!n) return;
-        state.players.push({ name: n, platform: document.getElementById('new-platform').value, division: document.getElementById('new-div').value, toPar:'', putt:'', hole:'', seasonPts:0 });
-        localStorage.setItem(DB_KEY, JSON.stringify(state));
-        render();
-    }
-    function exportData() { 
-        const b = new Blob([JSON.stringify(state)], {type:'application/json'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'GR_Backup.json'; a.click();
-    }
-    function importData() {
-        const i = document.createElement('input'); i.type = 'file';
-        i.onchange = e => {
-            const r = new FileReader();
-            r.onload = f => { state = JSON.parse(f.target.result); render(); };
-            r.readAsText(e.target.files[0]);
-        }; i.click();
-    }
-    function startNewTournament() {
-        if(!confirm("Finalize week?")) return;
-        state.players.forEach(p => {
-            const divPlayers = state.players.filter(x => String(x.division) === String(p.division));
-            p.seasonPts = (p.seasonPts || 0) + calculateLivePoints(p, divPlayers);
-            p.toPar = p.putt = p.hole = '';
-        });
-        state.week = (parseInt(state.week) || 1) + 1;
-        localStorage.setItem(DB_KEY, JSON.stringify(state));
-        render();
-    }
-
-    render();
+    loadData();
 </script>
 </body>
 </html>
