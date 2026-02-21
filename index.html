@@ -25,17 +25,11 @@
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
         thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 700; }
-        
-        /* Platform and Name Styling */
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
         .plat-icon { margin-right: 12px; width: 20px; text-align: center; font-size: 18px; }
-
         .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
-        
-        /* Award Footer Styling */
         .footer-awards { background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd; padding: 15px; text-align: center; }
         .award-line { display: block; margin: 5px 0; font-size: 17px; }
-
         #error-msg { color: white; background: #cc0000; text-align: center; padding: 10px; display: none; font-weight: bold; }
     </style>
 </head>
@@ -107,12 +101,14 @@
 
     function render(state) {
         document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Week</span><span class="val">${state.week}</span></div>
-            <div class="info-item"><span class="label">Venue</span><span class="val">${state.venue}</span></div>
+            <div class="info-item"><span class="label">Season</span><span class="val">${state.season || '1'}</span></div>
+            <div class="info-item"><span class="label">Week</span><span class="val">${state.week || '1'}</span></div>
+            <div class="info-item"><span class="label">Venue</span><span class="val">${state.venue || 'TBD'}</span></div>
             ${state.isSignature ? '<div class="info-item" style="background:var(--gold); color:black; font-weight:900;">SIGNATURE EVENT (2X)</div>' : ''}
         `;
 
         const container = document.getElementById('div-container');
+        container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
             let dps = state.players.filter(p => String(p.division) === String(divNum));
             dps.sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
@@ -147,6 +143,7 @@
 
     function renderStandings(state) {
         const container = document.getElementById('season-container');
+        container.innerHTML = '';
         [1,2,3].forEach(div => {
             let dps = state.players.filter(x => String(x.division)===String(div));
             let scoredInDiv = dps.filter(x => getNum(x.toPar) !== null);
