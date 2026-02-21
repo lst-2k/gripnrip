@@ -11,18 +11,18 @@
             --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
-            --promo-bg: #e8f5e9;
-            --releg-bg: #fbe9e7;
+            --promo-bg: rgba(40, 167, 69, 0.12);
+            --releg-bg: rgba(220, 53, 69, 0.12);
         }
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; }
         .leaderboard-container { max-width: 1400px; margin: 0 auto 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
-        /* Each Division Scrolls Independently */
+        /* Full table scroll - nothing stays put except the award bar */
         .table-scroll-area { 
             width: 100%; 
             overflow-x: auto; 
-            position: relative; 
-            border-bottom: 2px solid #ddd;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
         }
         
         .header { background: var(--header-grad); color: white; padding: 25px 20px; text-align: center; border-bottom: 4px solid var(--gold); }
@@ -31,36 +31,21 @@
         .info-item { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 6px; font-size: 14px; }
         .label { color: var(--gold); font-weight: 900; margin-right: 8px; text-transform: uppercase; }
         
-        /* Sticky Header for Division */
-        .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; position: sticky; left: 0; z-index: 30; }
+        .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; position: sticky; left: 0; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 900px; }
-        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; text-align: center; }
         
-        /* The Player Name Column stays on top and stays still */
-        .sticky-col { 
-            position: sticky; 
-            left: 0; 
-            background-color: white !important; 
-            z-index: 20; 
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-            border-right: 1px solid #eee;
-        }
-
-        /* Shading for Sticky Cells */
-        .promo-row .sticky-col { background-color: var(--promo-bg) !important; }
-        .releg-row .sticky-col { background-color: var(--releg-bg) !important; }
-        tr:nth-child(even) .sticky-col { background-color: #f9f9f9 !important; }
-        tr:nth-child(even).promo-row .sticky-col { background-color: #dceddc !important; }
-        tr:nth-child(even).releg-row .sticky-col { background-color: #f7deda !important; }
-
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 700; white-space: nowrap; }
-        .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; width: 180px; }
+        .promo-row { background-color: var(--promo-bg); }
+        .releg-row { background-color: var(--releg-bg); }
+
+        .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; }
         .plat-icon { margin-right: 12px; width: 20px; text-align: center; font-size: 18px; }
         .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
 
-        /* Award winners stay centered on screen */
+        /* Award winners still stay stuck to the bottom of the visible screen area */
         .footer-awards { 
             background: #f9f9f9; 
             font-weight: bold; 
@@ -69,10 +54,10 @@
             text-align: center; 
             position: sticky; 
             left: 0; 
-            z-index: 25;
             width: 100%;
+            box-sizing: border-box;
         }
-        .award-line { display: block; margin: 3px 0; font-size: 16px; }
+        .award-line { display: block; margin: 3px 0; font-size: 16px; white-space: nowrap; }
         #error-msg { color: white; background: #cc0000; text-align: center; padding: 10px; display: none; font-weight: bold; }
     </style>
 </head>
@@ -162,14 +147,14 @@
                     <div class="div-header div-${divNum}">Division ${divNum} - Live</div>
                     <table>
                         <thead><tr>
-                            <th style="width:40px">POS</th>
-                            <th class="sticky-col">PLAYER</th>
+                            <th>POS</th>
+                            <th style="text-align:left; padding-left:15px;">PLAYER</th>
                             <th>TO PAR</th><th>L-PUTT</th><th>L-SHOT</th><th class="pts-col">LIVE PTS</th>
                         </tr></thead>
                         <tbody>${dps.map((p, i) => `
                             <tr>
                                 <td>${getNum(p.toPar)!==null?i+1:'-'}</td>
-                                <td class="sticky-col"><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                                <td><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
                                 <td style="${getScoreStyle(p.toPar)}">${p.toPar||'-'}</td>
                                 <td>${p.putt||'-'}</td>
                                 <td>${p.hole||'-'}</td>
@@ -213,8 +198,8 @@
                     <div class="div-header div-${div}">Division ${div} Season Rankings</div>
                     <table>
                         <thead><tr>
-                            <th style="width:40px">RK</th>
-                            <th class="sticky-col">PLAYER</th>
+                            <th>RK</th>
+                            <th style="text-align:left; padding-left:15px;">PLAYER</th>
                             <th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th>
                         </tr></thead>
                         <tbody>${players.map((p, i) => {
@@ -224,7 +209,7 @@
                             return `
                             <tr class="${rowClass}">
                                 <td>${i+1}</td>
-                                <td class="sticky-col"><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
+                                <td><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
                                 <td style="${getScoreStyle(p.accum)}">${p.accum === 0 ? 'E' : (p.accum > 0 ? '+'+p.accum : p.accum)}</td>
                                 <td>${p.totalWins}</td>
                                 <td>${p.totalEvents}</td>
