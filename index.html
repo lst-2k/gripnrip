@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip League Standings</title>
+    <title>Grip & Rip Divisional Season - Admin V99</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
@@ -12,183 +13,382 @@
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
         }
-        body { background-color: #f0f2f5; margin: 0; padding: 10px; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
-        .leaderboard-container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
+        body { background-color: #f0f2f5; margin: 20px; font-family: 'Segoe UI', sans-serif; font-size: 18px; }
+        .leaderboard-container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 40px; }
         
-        .header { background: var(--header-grad); color: white; padding: 25px; text-align: center; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
-        
-        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; font-size: 14px; border-bottom: 2px solid #333; }
-        .info-item { background: rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 5px; border-left: 3px solid var(--gold); }
-        .label { color: var(--gold); font-weight: bold; margin-right: 5px; text-transform: uppercase; font-size: 11px; }
+        .header { background: var(--header-grad); color: white; padding: 30px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 4px solid var(--gold); }
+        .header img { position: absolute; left: 25px; height: 55px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .header-title { font-size: 36px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        #save-indicator { position: absolute; right: 30px; font-size: 14px; color: var(--green); opacity: 0; transition: opacity 0.3s; font-weight: bold; text-transform: uppercase; }
+        #save-indicator.show { opacity: 1; }
 
-        .section-title { background: #333; color: white; padding: 12px; font-size: 18px; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
-        .div-header { color: white; padding: 10px; font-size: 16px; font-weight: bold; text-transform: uppercase; text-align: left; padding-left: 15px; }
-        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; gap: 35px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
+        .info-item { background: rgba(255,255,255,0.05); padding: 8px 15px; border-radius: 8px; display: flex; align-items: center; }
+        .editable-label { color: var(--gold); font-weight: 900; font-size: 18px; margin-right: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        [contenteditable="true"] { font-size: 26px; font-weight: 800; outline: none; border-bottom: 2px solid transparent; transition: 0.3s; color: white; min-width: 30px; text-align: center; }
         
-        .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid #ddd; }
-        table { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 800px; table-layout: fixed; }
-        
-        th { background: #f8f9fa; padding: 12px 10px; font-size: 11px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
-        td { padding: 14px 10px; text-align: center; border-bottom: 1px solid #eee; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        .w-pos { width: 60px; }
-        .w-name { width: 250px; } /* Room for the gap */
-        .w-score { width: 95px; }
-        .w-bonus { width: 95px; }
-        .w-pts { width: 110px; }
+        .sig-container { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+        .sig-container input { transform: scale(1.5); cursor: pointer; accent-color: var(--gold); }
+        .sig-label { font-weight: 900; color: #fff; font-size: 14px; text-transform: uppercase; }
 
-        .name-cell { display: flex; align-items: center; text-align: left; font-weight: 700; }
-        
-        /* THE GAP FIX */
-        .plat-icon { 
-            margin-right: 20px; /* Space between icon and name */
-            width: 25px;       /* Fixed width for the icon container */
-            display: inline-flex; 
-            justify-content: center; 
-            align-items: center; 
-            font-size: 18px;
-            flex-shrink: 0;    /* Prevents icon from squashing */
-        }
-        
-        .pts-col { font-weight: 900; color: #0047AB; font-size: 17px; background: rgba(0,71,171,0.04); }
-        .up { color: var(--green); font-weight: bold; } .down { color: var(--red); font-weight: bold; }
-        .sig-badge { background: var(--gold); color: #000; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 900; margin-left: 8px; }
+        .player-input { padding: 35px; background: #fcfcfc; text-align: center; border-bottom: 1px solid #ddd; }
+        .player-input input, .player-input select { padding: 15px; margin: 5px; border: 2px solid #ddd; border-radius: 8px; font-size: 18px; font-weight: bold; width: 280px; }
+        .player-input button { padding: 15px 40px; font-size: 18px; font-weight: 900; background: #228B22; color: white; border: none; border-radius: 8px; cursor: pointer; }
 
-        .table-wrapper::-webkit-scrollbar { height: 8px; }
-        .table-wrapper::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
+        input.nav-in { width: 100%; border: 1px solid #ddd; border-radius: 4px; padding: 8px 2px; text-align: center; font-size: 18px; outline: none; font-weight: 800; background: transparent; }
+        input.nav-in:focus { border-color: var(--gold); background: #fffde7; border-width: 2px; }
+
+        .div-header { position: sticky; top: 0; z-index: 100; color: white; padding: 15px 25px; font-size: 24px; font-weight: bold; text-transform: uppercase; }
+        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
+        
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        thead th { background: #f4f4f4; font-size: 13px; padding: 12px 4px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #eee; vertical-align: middle; font-size: 18px; }
+        
+        .name-col-cell { display: flex; align-items: center; text-align: left; padding-left: 25px; width: 100%; }
+        .plat-icon { margin-right: 18px; width: 25px; display: inline-block; text-align: center; font-size: 20px; }
+        .player-name-text { font-weight: 600; color: #222; }
+
+        .up { color: var(--green); font-weight: bold; }
+        .down { color: var(--red); font-weight: bold; }
+        .steady { color: #999; }
+        
+        .pts-col { font-weight: 900; color: #333; width: 85px; font-size: 20px; }
+        .live-pts { color: #0047AB; }
+        .delete-btn { color: #cc0000; cursor: pointer; opacity: 0; transition: 0.2s; font-size: 14px; margin-left: auto; margin-right: 15px; }
+        tr:hover .delete-btn { opacity: 1; }
+        
+        .controls { padding: 20px; background: #eee; display: flex; justify-content: center; gap: 15px; border-bottom: 1px solid #ddd; }
+        .controls button { padding: 10px 18px; cursor: pointer; font-weight: bold; border: none; border-radius: 6px; background: #444; color: white; }
+        
+        body.ss-mode .controls, body.ss-mode .player-input, body.ss-mode .delete-btn { display: none !important; }
+        #exit-ss { position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #ff4444; color: white; border: none; padding: 15px 25px; border-radius: 50px; font-weight: bold; cursor: pointer; display: none; }
+        .season-header { background: #7C7C7C; color: white; padding: 20px; font-size: 28px; font-weight: 900; text-align: center; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
-    <div class="leaderboard-container">
+    <button id="exit-ss" onclick="toggleSSMode()"><i class="fa-solid fa-eye-slash"></i> Exit Preview</button>
+
+    <div id="main-container" class="leaderboard-container">
         <div class="header">
-            <div class="header-title">LST-74 Grip & Rip Divisional League</div>
+            <img src="2k25 logo.png" alt="2K25 Logo">
+            <div class="header-title">Grip & Rip Divisional Admin</div>
+            <div id="save-indicator"><i class="fa-solid fa-cloud-arrow-up"></i> Autosaved</div>
         </div>
-        <div class="info-bar" id="meta-info">Syncing clubhouse data...</div>
+        
+        <div class="info-bar">
+            <div class="info-item"><span class="editable-label">Season</span><span id="season-num" contenteditable="true" onblur="saveState()">1</span></div>
+            <div class="info-item"><span class="editable-label">Week</span><span id="week-num" contenteditable="true" onblur="saveState()">1</span></div>
+            <div class="info-item">
+                <span class="editable-label">Venue</span>
+                <span id="course-venue" contenteditable="true" onblur="saveState()" style="margin-right:15px;">TPC Sawgrass</span>
+                <label class="sig-container">
+                    <input type="checkbox" id="is-signature" onchange="saveState(); updateAllTables();">
+                    <span class="sig-label">Signature Event (2X PTS)</span>
+                </label>
+            </div>
+            <div class="info-item"><span class="editable-label">Par</span><span id="course-par" contenteditable="true" onblur="saveState()">72</span></div>
+        </div>
 
-        <div class="section-title"><i class="fa-solid fa-flag-checkered"></i> Current Tournament</div>
-        <div id="current-tournament-content"></div>
+        <div class="player-input">
+            <input type="text" id="new-name" placeholder="Full Player Name">
+            <select id="new-platform">
+                <option value="xbox">Xbox</option>
+                <option value="playstation">PlayStation</option>
+                <option value="steam">Steam</option>
+            </select>
+            <select id="new-div">
+                <option value="1">Division 1</option>
+                <option value="2">Division 2</option>
+                <option value="3">Division 3</option>
+            </select>
+            <button onclick="addPlayer()">ADD PLAYER</button>
+        </div>
 
-        <div class="section-title" style="margin-top:20px;"><i class="fa-solid fa-award"></i> Season Standings</div>
-        <div id="season-standings-content"></div>
+        <div class="controls">
+            <button onclick="toggleSSMode()">Screenshot Mode</button>
+            <button style="background:#007bff;" onclick="startNewTournament()">New Tournament</button>
+            <button style="background:#6f42c1;" onclick="purgeDivisions()">Reset Season</button>
+            <button onclick="exportData()">Backup</button>
+            <button onclick="importData()">Restore</button>
+        </div>
+
+        <div id="div-container"></div>
+    </div>
+
+    <div class="leaderboard-container">
+        <div class="season-header">Season Standings (Live Projected)</div>
+        <div id="season-container"></div>
     </div>
 
 <script>
+    const DB_KEY = 'GR_v99_Host_Final';
     const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
+    
+    let state = JSON.parse(localStorage.getItem(DB_KEY)) || { 
+        players: [], par: '72', venue: 'TPC Sawgrass', season: '1', week: '1', isSignature: false
+    };
 
-    async function loadData() {
-        try {
-            const response = await fetch('GR_Backup.json');
-            const state = await response.json();
-            render(state);
-        } catch (e) {
-            document.getElementById('meta-info').innerHTML = "Clubhouse is currently closed. Check back soon!";
-        }
+    let saveTimeout;
+    function triggerSaveUI() {
+        const indicator = document.getElementById('save-indicator');
+        indicator.classList.add('show');
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => indicator.classList.remove('show'), 1500);
+    }
+
+    function toggleSSMode() {
+        const isSS = document.body.classList.toggle('ss-mode');
+        document.getElementById('exit-ss').style.display = isSS ? 'block' : 'none';
+    }
+
+    function saveState() {
+        state.par = document.getElementById('course-par').innerText;
+        state.venue = document.getElementById('course-venue').innerText;
+        state.season = document.getElementById('season-num').innerText;
+        state.week = document.getElementById('week-num').innerText;
+        state.isSignature = document.getElementById('is-signature').checked;
+        localStorage.setItem(DB_KEY, JSON.stringify(state));
+        triggerSaveUI();
     }
 
     function getNum(val) {
         if (!val || val === '' || val === '-' || val === '.') return null;
-        return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
+        const n = (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
+        return isNaN(n) ? null : n;
     }
 
-    function calculateLivePoints(player, divisionPlayers, isSig) {
+    function getScoreColor(val) {
+        const n = getNum(val);
+        if (n === null) return 'black';
+        if (n < 0) return 'var(--red)';
+        if (n === 0) return 'var(--green)';
+        return 'black';
+    }
+
+    function calculateLivePoints(player, divisionPlayers) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
+        
+        const isSig = document.getElementById('is-signature').checked;
         const multiplier = isSig ? 2 : 1;
+        
         const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
         const firstTieIdx = scoredPlayers.findIndex(p => getNum(p.toPar) === score);
-        let pts = (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? (ptsMap[firstTieIdx] * multiplier) : (5 * multiplier);
+        let basePts = (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? ptsMap[firstTieIdx] : 5;
+
+        let bonusPts = 0;
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null && v > 0);
-        const minPutt = validPutts.length ? Math.min(...validPutts) : null;
+        const maxPutt = validPutts.length ? Math.max(...validPutts) : null;
+        
         const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null && v > 0);
         const maxHole = validHoles.length ? Math.max(...validHoles) : null;
-        if (getNum(player.putt) === minPutt && minPutt !== null) pts += (25 * multiplier);
-        if (getNum(player.hole) === maxHole && maxHole !== null) pts += (25 * multiplier);
-        pts += (parseInt(player.hio) || 0) * 50;
-        pts += (parseInt(player.albatross) || 0) * 50;
-        return pts;
+
+        if (getNum(player.putt) === maxPutt && maxPutt !== null) bonusPts += 25;
+        if (getNum(player.hole) === maxHole && maxHole !== null) bonusPts += 25;
+        
+        bonusPts += (parseInt(player.hio) || 0) * 50;
+        bonusPts += (parseInt(player.albatross) || 0) * 50;
+
+        return (basePts + bonusPts) * multiplier;
     }
 
-    function render(state) {
-        document.getElementById('meta-info').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season}</div>
-            <div class="info-item"><span class="label">Week</span>${state.week}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue}${state.isSignature ? '<span class="sig-badge">SIGNATURE EVENT</span>' : ''}</div>
-        `;
+    function render() {
+        document.getElementById('course-par').innerText = state.par;
+        document.getElementById('course-venue').innerText = state.venue;
+        document.getElementById('season-num').innerText = state.season;
+        document.getElementById('week-num').innerText = state.week;
+        document.getElementById('is-signature').checked = state.isSignature || false;
 
-        const currentDiv = document.getElementById('current-tournament-content');
-        const seasonDiv = document.getElementById('season-standings-content');
-        currentDiv.innerHTML = '';
-        seasonDiv.innerHTML = '';
+        const container = document.getElementById('div-container');
+        container.innerHTML = '';
+        
+        [1, 2, 3].forEach(divNum => {
+            const divBox = document.createElement('div');
+            divBox.id = `div-wrapper-${divNum}`;
+            divBox.innerHTML = `
+                <div class="div-header div-${divNum}">Division ${divNum}</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:60px">POS</th><th style="width:300px; text-align:left; padding-left:25px;">PLAYER</th>
+                            <th style="width:120px">TO PAR</th><th style="width:140px">L-PUTT</th>
+                            <th style="width:140px">L-SHOT</th><th style="width:70px">HIO</th>
+                            <th style="width:70px">ALBA</th><th class="pts-col">LIVE PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="div-body-${divNum}"></tbody>
+                    <tfoot>
+                        <tr style="background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd;">
+                            <td colspan="8" id="awards-footer-${divNum}" style="text-align: center; padding: 15px 25px; font-size: 17px;"></td>
+                        </tr>
+                    </tfoot>
+                </table>`;
+            container.appendChild(divBox);
 
+            let dps = state.players.filter(p => String(p.division) === String(divNum));
+            dps.sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
+
+            dps.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                const score = getNum(p.toPar);
+                tr.innerHTML = `
+                    <td>${score !== null ? (idx + 1) : '-'}</td>
+                    <td><div class="name-col-cell">
+                        <span class="plat-icon" onclick="cyclePlatform('${p.name}')" style="cursor:pointer">${getPlatIcon(p.platform)}</span>
+                        <span class="player-name-text">${p.name}</span>
+                        <i class="fa-solid fa-trash delete-btn" onclick="delPlayer('${p.name}')"></i>
+                    </div></td>
+                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="toPar" value="${p.toPar || ''}" placeholder="--" style="color:${getScoreColor(p.toPar)}"></td>
+                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="putt" value="${p.putt || ''}" placeholder="--"></td>
+                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="hole" value="${p.hole || ''}" placeholder="--"></td>
+                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="hio" value="${p.hio || ''}" placeholder="--"></td>
+                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="albatross" value="${p.albatross || ''}" placeholder="--"></td>
+                    <td class="pts-col live-pts">0</td>
+                `;
+                document.getElementById(`div-body-${divNum}`).appendChild(tr);
+            });
+        });
+        updateAllTables();
+        bindInputs();
+    }
+
+    function updateAllTables() {
+        [1, 2, 3].forEach(divNum => {
+            const dps = state.players.filter(p => String(p.division) === String(divNum));
+            dps.forEach(player => {
+                const lp = calculateLivePoints(player, dps);
+                const rowInputs = document.querySelectorAll(`[data-p="${player.name}"]`);
+                if(rowInputs.length > 0) {
+                    rowInputs[0].closest('tr').querySelector('.live-pts').innerText = getNum(player.toPar) !== null ? lp : 0;
+                }
+            });
+
+            const vP = dps.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val !== null && v.val > 0);
+            const bP = vP.length ? vP.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
+            const vH = dps.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val !== null && v.val > 0);
+            const bH = vH.length ? vH.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
+
+            const foot = document.getElementById(`awards-footer-${divNum}`);
+            if (foot) {
+                foot.innerHTML = `
+                    <span style="margin: 0 40px; color: var(--div1);"><i class="fa-solid fa-flag"></i> Longest Putt: <span style="color:#333">${bP ? bP.name + ' ' + bP.val + 'ft' : '---'}</span></span>
+                    <span style="margin: 0 40px; color: var(--div2);"><i class="fa-solid fa-bullseye"></i> Longest Hole-out: <span style="color:#333">${bH ? bH.name + ' ' + bH.val + 'yds' : '---'}</span></span>
+                `;
+            }
+        });
+        renderSeason();
+    }
+
+    function renderSeason() {
+        const container = document.getElementById('season-container');
+        container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
             let dps = state.players.filter(p => String(p.division) === String(divNum));
-            if (dps.length === 0) return;
-
-            let roundList = [...dps].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
-            let roundRows = roundList.map((p, idx) => {
-                const score = getNum(p.toPar);
-                const lp = calculateLivePoints(p, dps, state.isSignature);
-                return `<tr>
-                    <td class="w-pos">${score !== null ? (idx + 1) : '-'}</td>
-                    <td class="w-name"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
-                    <td class="w-score" style="font-weight:700; color:${score <= 0 ? 'var(--green)' : 'black'}">${score === null ? '--' : (score === 0 ? 'E' : (score > 0 ? '+'+score : score))}</td>
-                    <td class="w-bonus">${p.putt || '--'}</td>
-                    <td class="w-bonus">${p.hole || '--'}</td>
-                    <td class="w-pts pts-col">${score !== null ? lp : 0}</td>
-                </tr>`;
-            }).join('');
-
-            currentDiv.innerHTML += `
-                <div class="div-header div-${divNum}">Division ${divNum}</div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th class="w-pos">POS</th><th class="w-name">PLAYER</th><th class="w-score">TO PAR</th><th class="w-bonus">PUTT</th><th class="w-bonus">SHOT</th><th class="w-pts pts-col">LIVE PTS</th></tr></thead>
-                        <tbody>${roundRows}</tbody>
-                    </table>
-                </div>`;
-
             let scored = dps.filter(p => getNum(p.toPar) !== null);
             let minScore = scored.length > 0 ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
-            let seasonList = dps.map(p => {
+
+            let list = dps.map(p => {
                 const histScore = (p.history || []).reduce((s, v) => s + (Number(v) || 0), 0);
                 const currScore = getNum(p.toPar);
-                const livePts = calculateLivePoints(p, dps, state.isSignature);
-                return { p, accum: histScore + (currScore !== null ? currScore : 0), totalPts: (p.seasonPts || 0) + livePts, liveWins: (p.wins || 0) + (currScore !== null && currScore === minScore ? 1 : 0)};
+                const livePts = calculateLivePoints(p, dps);
+                return { 
+                    p, 
+                    accum: histScore + (currScore !== null ? currScore : 0),
+                    totalPts: (p.seasonPts || 0) + livePts,
+                    liveWins: (p.wins || 0) + (currScore !== null && currScore === minScore ? 1 : 0),
+                    liveEvents: (p.events || 0) + (currScore !== null ? 1 : 0)
+                };
             }).sort((a,b) => b.totalPts - a.totalPts || a.accum - b.accum);
 
-            let seasonRows = seasonList.map((item, idx) => {
+            if (!list.length) return;
+            const rows = list.map((item, idx) => {
                 const p = item.p;
                 const rk = idx + 1;
-                const movement = !p.prevRank ? '—' : (rk < p.prevRank ? '<span class="up">▲</span>' : (rk > p.prevRank ? '<span class="down">▼</span>' : '—'));
-                return `<tr>
-                    <td class="w-pos">${movement}</td><td class="w-pos">${rk}</td>
-                    <td class="w-name"><div class="name-cell">${getPlatIcon(p.platform)} ${p.name}</div></td>
-                    <td class="w-score" style="color:${item.accum <= 0 ? 'var(--green)' : 'black'}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
-                    <td class="w-pts pts-col">${item.totalPts}</td>
-                    <td class="w-bonus">${item.liveWins}</td>
-                </tr>`;
+                let movement = '<span class="steady">—</span>';
+                if (p.prevRank) {
+                    if (rk < p.prevRank) movement = '<span class="up">▲</span>';
+                    else if (rk > p.prevRank) movement = '<span class="down">▼</span>';
+                }
+                return `<tr><td>${movement}</td><td>${rk}</td>
+                    <td><div class="name-col-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span><span class="player-name-text">${p.name}</span></div></td>
+                    <td style="color:${getScoreColor(item.accum)}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
+                    <td class="pts-col">${item.totalPts}</td><td>${item.liveWins}</td><td>${item.liveEvents}</td></tr>`;
             }).join('');
-
-            seasonDiv.innerHTML += `
-                <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
-                <div class="table-wrapper">
-                    <table>
-                        <thead><tr><th class="w-pos">+/-</th><th class="w-pos">RK</th><th class="w-name">PLAYER</th><th class="w-score">ACCUM</th><th class="w-pts pts-col">PTS</th><th class="w-bonus">WINS</th></tr></thead>
-                        <tbody>${seasonRows}</tbody>
-                    </table>
-                </div>`;
+            
+            container.innerHTML += `<div class="div-header div-${divNum}">Div ${divNum} Standings</div>
+            <table><thead><tr><th style="width:60px">+/-</th><th style="width:60px">RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th class="pts-col">PTS</th><th style="width:80px">WINS</th><th style="width:100px">EVENTS</th></tr></thead><tbody>${rows}</tbody></table>`;
         });
     }
 
-    function getPlatIcon(p) {
-        if (p === 'xbox') return '<span class="plat-icon"><i class="fa-brands fa-xbox" style="color:#107C10"></i></span>';
-        if (p === 'playstation') return '<span class="plat-icon"><i class="fa-brands fa-playstation" style="color:#003087"></i></span>';
-        return '<span class="plat-icon"><i class="fa-brands fa-steam" style="color:#171a21"></i></span>';
+    function bindInputs() {
+        document.querySelectorAll('.nav-in').forEach(el => {
+            el.oninput = () => {
+                const p = state.players.find(x => x.name === el.dataset.p);
+                p[el.dataset.f] = el.value;
+                if(el.dataset.f === 'toPar') el.style.color = getScoreColor(el.value);
+                saveState();
+                updateAllTables(); 
+            };
+            el.onkeydown = (e) => {
+                const inputs = Array.from(document.querySelectorAll('.nav-in'));
+                const index = inputs.indexOf(el);
+                if (e.key === 'ArrowRight' || e.key === 'Tab' && !e.shiftKey) { e.preventDefault(); inputs[index + 1]?.focus(); }
+                else if (e.key === 'ArrowLeft' || e.key === 'Tab' && e.shiftKey) { e.preventDefault(); inputs[index - 1]?.focus(); }
+                else if (e.key === 'ArrowDown' || e.key === 'Enter') { e.preventDefault(); inputs[index + 5]?.focus(); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); inputs[index - 5]?.focus(); }
+            };
+            el.onfocus = () => el.select();
+        });
     }
 
-    loadData();
+    const getPlatIcon = (p) => {
+        if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
+        if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
+        return '<i class="fa-brands fa-steam" style="color:#171a21"></i>';
+    };
+
+    function addPlayer() {
+        const n = document.getElementById('new-name'); if(!n.value) return;
+        state.players.push({ name: n.value, platform: document.getElementById('new-platform').value, division: document.getElementById('new-div').value, toPar:'', putt:'', hole:'', hio:'', albatross:'', seasonPts:0, history:[], wins:0, events:0, prevRank:null });
+        n.value = ''; saveState(); render();
+    }
+
+    function delPlayer(name) { if(confirm(`Remove ${name}?`)) { state.players = state.players.filter(p => p.name !== name); saveState(); render(); }}
+    function cyclePlatform(name) { const p = state.players.find(x => x.name === name); const flow = {'xbox':'playstation','playstation':'steam','steam':'xbox'}; p.platform = flow[p.platform]||'xbox'; saveState(); render(); }
+    function purgeDivisions() { if(confirm("Reset Season?")) { state.players.forEach(p => { p.seasonPts=0; p.history=[]; p.wins=0; p.events=0; p.prevRank=null; p.toPar=''; p.putt=''; p.hole=''; p.hio=''; p.albatross=''; }); state.week="1"; saveState(); render(); }}
+    function exportData() { saveState(); const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `GR_Backup.json`; a.click(); }
+    function importData() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = f => { state = JSON.parse(f.target.result); render(); }; r.readAsText(e.target.files[0]); }; i.click(); }
+
+    function startNewTournament() {
+        if (!confirm("Finalize Week? Points and Wins will be awarded.")) return;
+        [1,2,3].forEach(div => {
+            let dps = state.players.filter(p => String(p.division) === String(div));
+            let scored = dps.filter(p => getNum(p.toPar) !== null);
+            if (scored.length > 0) {
+                let minScore = Math.min(...scored.map(p => getNum(p.toPar)));
+                scored.forEach(p => { if (getNum(p.toPar) === minScore) p.wins = (p.wins || 0) + 1; });
+            }
+            dps.forEach(p => {
+                const wkPts = calculateLivePoints(p, dps);
+                const score = getNum(p.toPar);
+                if (score !== null) {
+                    p.seasonPts = (p.seasonPts || 0) + wkPts;
+                    p.events = (p.events || 0) + 1;
+                    p.history.push(score);
+                }
+            });
+            let sorted = [...dps].sort((a,b) => (b.seasonPts||0) - (a.seasonPts||0));
+            sorted.forEach((p, idx) => p.prevRank = idx + 1);
+        });
+        state.players.forEach(p => p.toPar = p.putt = p.hole = p.hio = p.albatross = '');
+        state.week = (parseInt(state.week) || 0) + 1;
+        state.isSignature = false;
+        saveState(); render();
+    }
+
+    render();
 </script>
 </body>
 </html>
