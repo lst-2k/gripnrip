@@ -8,7 +8,7 @@
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
-            --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
+            --header-grad: linear-gradient(135deg, #2c2c2c 0%, #000000 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
             --promo-bg: rgba(40, 167, 69, 0.12);
@@ -17,16 +17,11 @@
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; }
         .leaderboard-container { max-width: 1400px; margin: 0 auto 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
-        /* Full table scroll - nothing stays put except the award bar */
-        .table-scroll-area { 
-            width: 100%; 
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch;
-            position: relative;
-        }
+        /* Header & Logo Styling */
+        .header { background: var(--header-grad); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--gold); }
+        .logo-img { max-width: 280px; height: auto; margin-bottom: 10px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
         
-        .header { background: var(--header-grad); color: white; padding: 25px 20px; text-align: center; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
+        .table-scroll-area { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; border-bottom: 3px solid var(--gold); }
         .info-item { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 6px; font-size: 14px; }
         .label { color: var(--gold); font-weight: 900; margin-right: 8px; text-transform: uppercase; }
@@ -35,29 +30,20 @@
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
         table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; text-align: center; }
-        
+        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 700; white-space: nowrap; }
+        
         .promo-row { background-color: var(--promo-bg); }
         .releg-row { background-color: var(--releg-bg); }
-
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; }
         .plat-icon { margin-right: 12px; width: 20px; text-align: center; font-size: 18px; }
         .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
 
-        /* Award winners still stay stuck to the bottom of the visible screen area */
         .footer-awards { 
-            background: #f9f9f9; 
-            font-weight: bold; 
-            border-top: 2px solid #ddd; 
-            padding: 12px; 
-            text-align: center; 
-            position: sticky; 
-            left: 0; 
-            width: 100%;
-            box-sizing: border-box;
+            background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd; padding: 12px; text-align: center; 
+            position: sticky; left: 0; width: 100%; box-sizing: border-box; 
         }
-        .award-line { display: block; margin: 3px 0; font-size: 16px; white-space: nowrap; }
+        .award-line { display: block; margin: 3px 0; font-size: 16px; }
         #error-msg { color: white; background: #cc0000; text-align: center; padding: 10px; display: none; font-weight: bold; }
     </style>
 </head>
@@ -66,13 +52,15 @@
     <div id="error-msg">⚠️ Update Required: GR_Backup.json not found.</div>
 
     <div class="leaderboard-container">
-        <div class="header"><div class="header-title">LST74 <br> Grip & Rip Divisional Live Leaderboard</div></div>
+        <div class="header">
+            <img src="logo.png" alt="LST74 Grip & Rip Logo" class="logo-img">
+        </div>
         <div class="info-bar" id="info-bar"></div>
         <div id="div-container"></div>
     </div>
 
     <div class="leaderboard-container">
-        <div style="background:#7C7C7C; color:white; padding:15px; font-size:24px; font-weight:900; text-align:center; text-transform: uppercase;">Season Standings</div>
+        <div style="background:#333; color:white; padding:15px; font-size:24px; font-weight:900; text-align:center; text-transform: uppercase; border-bottom: 2px solid var(--gold);">Season Standings</div>
         <div id="season-container"></div>
     </div>
 
