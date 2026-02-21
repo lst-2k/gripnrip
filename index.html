@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip Society Standings</title>
+    <title>LST74 Grip & Rip Divisional Live Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
@@ -15,8 +15,8 @@
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; }
         .leaderboard-container { max-width: 1400px; margin: 0 auto 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .header { background: var(--header-grad); color: white; padding: 20px; text-align: center; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 28px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+        .header { background: var(--header-grad); color: white; padding: 25px 20px; text-align: center; border-bottom: 4px solid var(--gold); }
+        .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; border-bottom: 3px solid var(--gold); }
         .info-item { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 6px; font-size: 14px; }
         .label { color: var(--gold); font-weight: 900; margin-right: 8px; text-transform: uppercase; }
@@ -38,7 +38,9 @@
     <div id="error-msg">⚠️ Update Required: GR_Backup.json not found.</div>
 
     <div class="leaderboard-container">
-        <div class="header"><div class="header-title">Grip & Rip Society Live</div></div>
+        <div class="header">
+            <div class="header-title">LST74 <br> Grip & Rip Divisional Live Leaderboard</div>
+        </div>
         <div class="info-bar" id="info-bar"></div>
         <div class="table-responsive"><div id="div-container"></div></div>
     </div>
