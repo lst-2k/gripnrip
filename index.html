@@ -11,48 +11,49 @@
             --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
+            --promo-bg: rgba(40, 167, 69, 0.15); /* Light Green */
+            --releg-bg: rgba(220, 53, 69, 0.15); /* Light Red */
         }
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; }
         .leaderboard-container { max-width: 1400px; margin: 0 auto 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
-        /* THE STICKY FIX */
-        .table-responsive { 
-            width: 100%; 
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch;
-            position: relative; /* Anchor for sticky children */
-        }
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; }
 
         .header { background: var(--header-grad); color: white; padding: 25px 20px; text-align: center; border-bottom: 4px solid var(--gold); }
         .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
+        
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; border-bottom: 3px solid var(--gold); }
         .info-item { background: rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 6px; font-size: 14px; }
         .label { color: var(--gold); font-weight: 900; margin-right: 8px; text-transform: uppercase; }
+
         .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        table { width: 100%; border-collapse: collapse; min-width: 900px; margin-bottom: 0; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
         thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 700; }
         
+        /* Shading Classes */
+        .promo-row { background-color: var(--promo-bg) !important; }
+        .releg-row { background-color: var(--releg-bg) !important; }
+
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
         .plat-icon { margin-right: 12px; width: 20px; text-align: center; font-size: 18px; }
         .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
 
-        /* STICKY FOOTER LOGIC */
+        /* FIXED STICKY FOOTER */
+        .award-wrapper { position: sticky; left: 0; width: 100%; z-index: 10; }
         .footer-awards { 
             background: #f9f9f9; 
             font-weight: bold; 
             border-top: 2px solid #ddd; 
             padding: 12px; 
             text-align: center;
-            position: sticky; 
-            left: 0; /* Keeps it on screen during horizontal scroll */
-            width: 100%; /* Ensures it spans the visible area */
-            box-sizing: border-box;
-            z-index: 10;
+            display: block;
+            width: 100vw; /* Fixes scrolling issue */
+            max-width: 100%;
         }
-        .award-line { display: block; margin: 3px 0; font-size: 16px; white-space: nowrap; }
+        .award-line { display: block; margin: 3px 0; font-size: 16px; }
 
         #error-msg { color: white; background: #cc0000; text-align: center; padding: 10px; display: none; font-weight: bold; }
     </style>
@@ -115,10 +116,8 @@
         const sorted = dps.filter(x => getNum(x.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
         const rank = sorted.findIndex(x => getNum(x.toPar) === score);
         let base = (rank !== -1 && rank < 10) ? ptsMap[rank] : 5;
-        const validPutts = dps.map(x => getNum(x.putt)).filter(v => v !== null && v > 0);
-        const maxP = validPutts.length ? Math.max(...validPutts) : 0;
-        const validHoles = dps.map(x => getNum(x.hole)).filter(v => v !== null && v > 0);
-        const maxH = validHoles.length ? Math.max(...validHoles) : 0;
+        const maxP = Math.max(...dps.map(x => getNum(x.putt) || 0));
+        const maxH = Math.max(...dps.map(x => getNum(x.hole) || 0));
         let bonus = 0;
         if(getNum(p.putt) === maxP && maxP > 0) bonus += 25;
         if(getNum(p.hole) === maxH && maxH > 0) bonus += 25;
@@ -159,9 +158,11 @@
                         </tr>
                     `).join('')}</tbody>
                 </table>
-                <div class="footer-awards">
-                    <span class="award-line" style="color:var(--div1)">🚩 Longest Putt: ${bP ? bP.name+' '+bP.val+'ft' : '---'}</span>
-                    <span class="award-line" style="color:var(--div2)">🎯 Longest Hole-out: ${bH ? bH.name+' '+bH.val+'yds' : '---'}</span>
+                <div class="award-wrapper">
+                    <div class="footer-awards">
+                        <span class="award-line" style="color:var(--div1)">🚩 Longest Putt: ${bP ? bP.name+' '+bP.val+'ft' : '---'}</span>
+                        <span class="award-line" style="color:var(--div2)">🎯 Longest Hole-out: ${bH ? bH.name+' '+bH.val+'yds' : '---'}</span>
+                    </div>
                 </div>`;
         });
         renderStandings(state);
@@ -173,7 +174,7 @@
         [1,2,3].forEach(div => {
             let dps = state.players.filter(x => String(x.division)===String(div));
             let scoredInDiv = dps.filter(x => getNum(x.toPar) !== null);
-            let minScore = scoredInDiv.length > 0 ? Math.min(...scoredInDiv.map(x => getNum(x.toPar))) : null;
+            let minScore = scoredInDiv.length > 0 ? Math.min(...scoredInDiv.map(x => getNum(x.toPar)));
 
             let players = dps.map(p => {
                 const livePts = calculateLivePoints(p, dps, state.isSignature);
@@ -193,15 +194,21 @@
                 <div class="div-header div-${div}">Division ${div} Season Rankings</div>
                 <table>
                     <thead><tr><th>RK</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th></tr></thead>
-                    <tbody>${players.map((p, i) => `
-                        <tr>
+                    <tbody>${players.map((p, i) => {
+                        let rowClass = "";
+                        if (i < 2 && div > 1) rowClass = "promo-row"; // Top 2 promote
+                        if (i >= players.length - 2 && div < 3) rowClass = "releg-row"; // Bottom 2 relegate
+                        
+                        return `
+                        <tr class="${rowClass}">
                             <td>${i+1}</td>
                             <td><div class="name-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span>${p.name}</div></td>
                             <td style="${getScoreStyle(p.accum)}">${p.accum === 0 ? 'E' : (p.accum > 0 ? '+'+p.accum : p.accum)}</td>
                             <td>${p.totalWins}</td>
                             <td>${p.totalEvents}</td>
                             <td class="pts-col">${p.totalPts}</td>
-                        </tr>`).join('')}</tbody>
+                        </tr>`;
+                    }).join('')}</tbody>
                 </table>`;
         });
     }
