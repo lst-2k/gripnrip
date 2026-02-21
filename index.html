@@ -14,7 +14,15 @@
         }
         body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; }
         .leaderboard-container { max-width: 1400px; margin: 0 auto 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        
+        /* THE STICKY FIX */
+        .table-responsive { 
+            width: 100%; 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch;
+            position: relative; /* Anchor for sticky children */
+        }
+
         .header { background: var(--header-grad); color: white; padding: 25px 20px; text-align: center; border-bottom: 4px solid var(--gold); }
         .header-title { font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; line-height: 1.2; }
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; border-bottom: 3px solid var(--gold); }
@@ -22,14 +30,30 @@
         .label { color: var(--gold); font-weight: 900; margin-right: 8px; text-transform: uppercase; }
         .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 900px; margin-bottom: 0; }
         thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 700; }
+        
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
         .plat-icon { margin-right: 12px; width: 20px; text-align: center; font-size: 18px; }
         .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
-        .footer-awards { background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd; padding: 15px; text-align: center; }
-        .award-line { display: block; margin: 5px 0; font-size: 17px; }
+
+        /* STICKY FOOTER LOGIC */
+        .footer-awards { 
+            background: #f9f9f9; 
+            font-weight: bold; 
+            border-top: 2px solid #ddd; 
+            padding: 12px; 
+            text-align: center;
+            position: sticky; 
+            left: 0; /* Keeps it on screen during horizontal scroll */
+            width: 100%; /* Ensures it spans the visible area */
+            box-sizing: border-box;
+            z-index: 10;
+        }
+        .award-line { display: block; margin: 3px 0; font-size: 16px; white-space: nowrap; }
+
         #error-msg { color: white; background: #cc0000; text-align: center; padding: 10px; display: none; font-weight: bold; }
     </style>
 </head>
@@ -42,12 +66,16 @@
             <div class="header-title">LST74 <br> Grip & Rip Divisional Live Leaderboard</div>
         </div>
         <div class="info-bar" id="info-bar"></div>
-        <div class="table-responsive"><div id="div-container"></div></div>
+        <div class="table-responsive">
+            <div id="div-container"></div>
+        </div>
     </div>
 
     <div class="leaderboard-container">
         <div style="background:#7C7C7C; color:white; padding:15px; font-size:24px; font-weight:900; text-align:center; text-transform: uppercase;">Season Standings</div>
-        <div class="table-responsive"><div id="season-container"></div></div>
+        <div class="table-responsive">
+            <div id="season-container"></div>
+        </div>
     </div>
 
 <script>
@@ -87,17 +115,13 @@
         const sorted = dps.filter(x => getNum(x.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
         const rank = sorted.findIndex(x => getNum(x.toPar) === score);
         let base = (rank !== -1 && rank < 10) ? ptsMap[rank] : 5;
-        
         const validPutts = dps.map(x => getNum(x.putt)).filter(v => v !== null && v > 0);
         const maxP = validPutts.length ? Math.max(...validPutts) : 0;
         const validHoles = dps.map(x => getNum(x.hole)).filter(v => v !== null && v > 0);
         const maxH = validHoles.length ? Math.max(...validHoles) : 0;
-
         let bonus = 0;
         if(getNum(p.putt) === maxP && maxP > 0) bonus += 25;
         if(getNum(p.hole) === maxH && maxH > 0) bonus += 25;
-        bonus += (parseInt(p.hio) || 0) * 50;
-        bonus += (parseInt(p.albatross) || 0) * 50;
         return (base + bonus) * multiplier;
     }
 
