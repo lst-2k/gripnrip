@@ -3,42 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Emerald Tour - Live Leaderboard</title>
+    <title>Grip & Rip Rebirth - Live Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
-            --emerald: #013220;
-            --header-grad: linear-gradient(180deg, var(--emerald) 0%, #000000 100%); 
+            --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
-            --glow: 0px 5px 15px rgba(0, 255, 127, 0.3);
+            --glow: 0px 5px 15px rgba(255, 215, 0, 0.4);
         }
         body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        
         .leaderboard-container { max-width: 1400px; margin: 0 auto 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        
         .header { background: var(--header-grad); padding: 0; text-align: center; border-bottom: 4px solid var(--gold); line-height: 0; box-shadow: var(--glow); }
-        .logo-img { width: 100%; height: auto; display: block; object-fit: cover; }
+        .logo-img { width: 100%; height: auto; display: block; object-fit: cover; max-height: 300px; }
+
         .info-bar { background: var(--info-grad); color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; gap: 20px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
         .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; white-space: nowrap; }
         .label { color: var(--gold); text-transform: uppercase; margin-right: 8px; font-size: 14px; letter-spacing: 1px; }
 
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        
         .div-header { color: white; padding: 15px 25px; font-size: 22px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
         thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 16px; font-weight: 600; }
         
         .awards-footer { background: #fcfcfc; border-top: 2px solid #ddd; padding: 15px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; }
         .award-item { font-size: 15px; font-weight: 800; text-transform: uppercase; color: #444; }
-        .award-val { color: var(--div2); margin-left: 5px; }
+        .award-val { color: var(--div1); margin-left: 5px; }
 
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; }
         .plat-icon { margin-right: 12px; width: 20px; font-size: 18px; }
         .pts-col { font-weight: 900; color: #333; font-size: 18px; background: #fffde7; }
-        .score-under { color: var(--red); } .score-even { color: var(--green); }
+        .accum-col { background: #f9f9f9; font-weight: 800; color: #555; }
+        
+        .score-under { color: var(--red); } 
+        .score-even { color: var(--green); }
         .proj-win { color: var(--green); font-weight: 900; }
+        .milestone-badge { background: #eee; padding: 2px 6px; border-radius: 4px; font-size: 14px; color: #333; font-weight: 800; }
 
         .season-header { background: #333; color: white; padding: 20px; font-size: 24px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 3px solid var(--gold); }
     </style>
@@ -46,13 +53,16 @@
 <body>
 
     <div class="leaderboard-container">
-        <div class="header"><img src="logo.png" alt="Tour Logo" class="logo-img"></div>
-        <div id="info-bar" class="info-bar">Loading...</div>
+        <div class="header">
+            <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
+        </div>
+        
+        <div id="info-bar" class="info-bar">Loading event details...</div>
         <div id="live-tables"></div>
     </div>
 
     <div class="leaderboard-container">
-        <div class="season-header">Season Standings (Real-Time Projection)</div>
+        <div class="season-header">Season Standings (Projected)</div>
         <div id="season-tables"></div>
     </div>
 
@@ -62,13 +72,13 @@
     async function loadLeaderboard() {
         try {
             const response = await fetch('GR_Backup.json?t=' + Date.now());
-            if (!response.ok) throw new Error("Data file not found.");
+            if (!response.ok) throw new Error("Data file (GR_Backup.json) not found.");
             const state = await response.json();
             renderInfo(state);
             renderLive(state);
             renderSeason(state);
         } catch (err) {
-            document.getElementById('live-tables').innerHTML = `<div style="padding:50px; text-align:center; color:red;">${err.message}</div>`;
+            document.getElementById('live-tables').innerHTML = `<div style="padding:50px; text-align:center; color:red; font-weight:bold;">${err.message}</div>`;
         }
     }
 
@@ -78,29 +88,51 @@
         return isNaN(n) ? null : n;
     }
 
+    function formatScore(n) {
+        if (n === null) return '-';
+        if (n === 0) return 'E';
+        return n > 0 ? '+' + n : n;
+    }
+
     function calculateLivePoints(player, divisionPlayers, isSignature) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
+        
         const multiplier = isSignature ? 2 : 1;
-        const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
-        const rankIdx = scoredPlayers.findIndex(p => p.name === player.name);
-        let basePts = (rankIdx !== -1 && rankIdx < ptsMap.length) ? ptsMap[rankIdx] : 5;
+        
+        // 1. Sort all players who have a score
+        const scoredPlayers = divisionPlayers
+            .filter(p => getNum(p.toPar) !== null)
+            .sort((a, b) => getNum(a.toPar) - getNum(b.toPar));
+
+        // 2. TRUE TIE LOGIC: Find the first person with this score to determine rank
+        const firstPersonWithScore = scoredPlayers.find(p => getNum(p.toPar) === score);
+        const tieRankIdx = scoredPlayers.indexOf(firstPersonWithScore);
+
+        // 3. Base Points
+        let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
+        
         let bonusPts = 0;
+        // Longest Putt/Shot Bonuses
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null);
-        const maxPutt = validPutts.length ? Math.max(...validPutts) : 0;
-        if (getNum(player.putt) === maxPutt && maxPutt > 0) bonusPts += 25;
+        if (getNum(player.putt) === Math.max(...validPutts) && Math.max(...validPutts) > 0) bonusPts += 25;
+        
         const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null);
-        const maxHole = validHoles.length ? Math.max(...validHoles) : 0;
-        if (getNum(player.hole) === maxHole && maxHole > 0) bonusPts += 25;
+        if (getNum(player.hole) === Math.max(...validHoles) && Math.max(...validHoles) > 0) bonusPts += 25;
+
+        // HIO / Alba Bonuses
+        bonusPts += (getNum(player.hio) || 0) * 50;
+        bonusPts += (getNum(player.alba) || 0) * 50;
+
         return (basePts + bonusPts) * multiplier;
     }
 
     function renderInfo(state) {
         document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season}</div>
-            <div class="info-item"><span class="label">Week</span>${state.week}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue} ${state.isSignature ? '⭐' : ''}</div>
-            <div class="info-item"><span class="label">Par</span>${state.par}</div>
+            <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
+            <div class="info-item"><span class="label">Week</span>${state.week || 1}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue || 'TBA'} ${state.isSignature ? '⭐' : ''}</div>
+            <div class="info-item"><span class="label">Par</span>${state.par || 72}</div>
         `;
     }
 
@@ -121,16 +153,23 @@
 
             let html = `<div class="div-header div-${divNum}">Division ${divNum} Live Board</div>
                         <div class="table-responsive"><table>
-                <thead><tr><th>POS</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th class="pts-col">LIVE PTS</th></tr></thead><tbody>`;
+                <thead><tr><th>POS</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>HIO</th><th>ALBA</th><th class="pts-col">LIVE PTS</th></tr></thead><tbody>`;
             
             sorted.forEach((p, i) => {
-                const lp = calculateLivePoints(p, divPlayers, state.isSignature);
                 const score = getNum(p.toPar);
+                const lp = calculateLivePoints(p, divPlayers, state.isSignature);
+                
+                // Display Rank Tie Logic
+                const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
+                const displayRank = sorted.indexOf(firstWithScore) + 1;
+
                 html += `<tr>
-                    <td>${score !== null ? i + 1 : '-'}</td>
+                    <td>${score !== null ? displayRank : '-'}</td>
                     <td><div class="name-cell"><span class="plat-icon">${getIcon(p.platform)}</span>${p.name}</div></td>
                     <td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td>
                     <td>${p.putt || '-'}</td><td>${p.hole || '-'}</td>
+                    <td>${p.hio > 0 ? `<span class="milestone-badge">⛳ ${p.hio}</span>` : '-'}</td>
+                    <td>${p.alba > 0 ? `<span class="milestone-badge">🦅 ${p.alba}</span>` : '-'}</td>
                     <td class="pts-col">${score !== null ? lp : 0}</td>
                 </tr>`;
             });
@@ -147,8 +186,6 @@
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
             let divPlayers = state.players.filter(p => String(p.division) === String(divNum));
-            
-            // Find the current live leader score for win projection
             const scored = divPlayers.filter(p => getNum(p.toPar) !== null);
             const leaderScore = scored.length ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
 
@@ -156,26 +193,29 @@
                 const livePts = calculateLivePoints(p, divPlayers, state.isSignature);
                 const scoreEntered = getNum(p.toPar) !== null;
                 const isLeading = scoreEntered && getNum(p.toPar) === leaderScore;
+                const histTotal = (p.history || []).reduce((sum, s) => sum + (Number(s) || 0), 0);
                 
                 return { 
                     ...p, 
                     projPts: (Number(p.seasonPts) || 0) + livePts,
                     projWins: (Number(p.wins) || 0) + (isLeading ? 1 : 0),
                     projEvents: (Number(p.events) || 0) + (scoreEntered ? 1 : 0),
+                    accum: histTotal + (getNum(p.toPar) || 0),
                     isLeading: isLeading
                 };
-            }).sort((a,b) => b.projPts - a.projPts);
+            }).sort((a,b) => b.projPts - a.projPts || a.accum - b.accum);
 
             if (sorted.length === 0) return;
 
             let html = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div>
                         <div class="table-responsive"><table>
-                <thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th></tr></thead><tbody>`;
+                <thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
             
             sorted.forEach((p, i) => {
                 html += `<tr>
                     <td>${i+1}</td>
                     <td><div class="name-cell"><span class="plat-icon">${getIcon(p.platform)}</span>${p.name}</div></td>
+                    <td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${formatScore(p.accum)}</td>
                     <td class="${p.isLeading ? 'proj-win' : ''}">${p.projWins}${p.isLeading ? ' ⭐' : ''}</td>
                     <td>${p.projEvents}</td>
                     <td class="pts-col">${p.projPts}</td>
