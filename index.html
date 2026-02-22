@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Emerald Tour - Live Leaderboard</title>
+    <title>Grip & Rip Rebirth 74 - Live Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
@@ -26,19 +26,22 @@
         .div-header { color: white; padding: 15px 25px; font-size: 22px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        thead th { background: #f4f4f4; font-size: 12px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 16px; font-weight: 600; }
         
-        /* AWARDS FOOTER STYLING */
         .awards-footer { background: #fcfcfc; border-top: 2px solid #ddd; padding: 15px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; }
-        .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; }
+        .award-item { font-size: 15px; font-weight: 800; text-transform: uppercase; color: #444; }
         .award-val { color: var(--div2); margin-left: 5px; }
 
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; }
         .plat-icon { margin-right: 12px; width: 20px; font-size: 18px; }
         .pts-col { font-weight: 900; color: #333; font-size: 18px; background: #fffde7; }
-        .score-under { color: var(--red); } .score-even { color: var(--green); }
+        
+        .score-under { color: var(--red); } 
+        .score-even { color: var(--green); }
+        .accum-col { background: #f9f9f9; font-weight: 800; color: #555; }
+
         .season-header { background: #333; color: white; padding: 20px; font-size: 24px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 3px solid var(--gold); }
     </style>
 </head>
@@ -46,12 +49,12 @@
 
     <div class="leaderboard-container">
         <div class="header"><img src="logo.png" alt="Tour Logo" class="logo-img"></div>
-        <div class="info-bar" id="info-bar">Loading...</div>
+        <div class="info-bar" id="info-bar">Loading tour data...</div>
         <div id="live-tables"></div>
     </div>
 
     <div class="leaderboard-container">
-        <div class="season-header">Tour Season Standings</div>
+        <div class="season-header">Season Standings (Projected)</div>
         <div id="season-tables"></div>
     </div>
 
@@ -72,9 +75,15 @@
     }
 
     function getNum(val) {
-        if (!val || val === '' || val === '-' || val === '.') return null;
+        if (val === undefined || val === null || val === '' || val === '-' || val === '.') return null;
         const n = (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
         return isNaN(n) ? null : n;
+    }
+
+    function formatScore(n) {
+        if (n === null) return '-';
+        if (n === 0) return 'E';
+        return n > 0 ? '+' + n : n;
     }
 
     function calculateLivePoints(player, divisionPlayers, isSignature) {
@@ -96,10 +105,10 @@
 
     function renderInfo(state) {
         document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season}</div>
-            <div class="info-item"><span class="label">Week</span>${state.week}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue} ${state.isSignature ? '⭐' : ''}</div>
-            <div class="info-item"><span class="label">Par</span>${state.par}</div>
+            <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
+            <div class="info-item"><span class="label">Week</span>${state.week || 1}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue || 'TBA'} ${state.isSignature ? '⭐' : ''}</div>
+            <div class="info-item"><span class="label">Par</span>${state.par || 72}</div>
         `;
     }
 
@@ -113,13 +122,12 @@
             let sorted = [...divPlayers].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             if (sorted.length === 0) return;
 
-            // Calculate Best Awards for this Division
             const validPutts = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0);
             const bestPutt = validPutts.length ? validPutts.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
             const validHoles = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0);
             const bestHole = validHoles.length ? validHoles.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
 
-            let html = `<div class="div-header div-${divNum}">Division ${divNum}</div>
+            let html = `<div class="div-header div-${divNum}">Division ${divNum} Live Board</div>
                         <div class="table-responsive"><table>
                 <thead><tr><th>POS</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th class="pts-col">LIVE PTS</th></tr></thead><tbody>`;
             
@@ -134,16 +142,10 @@
                     <td class="pts-col">${score !== null ? lp : 0}</td>
                 </tr>`;
             });
-            
-            html += `</tbody></table></div>`;
-            
-            // ADD THE AWARDS FOOTER HERE
-            html += `
-                <div class="awards-footer">
-                    <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
-                    <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
-                </div>`;
-            
+            html += `</tbody></table></div><div class="awards-footer">
+                <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
+                <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
+            </div>`;
             container.innerHTML += html;
         });
     }
@@ -153,14 +155,36 @@
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
             let divPlayers = state.players.filter(p => String(p.division) === String(divNum));
-            let sorted = divPlayers.map(p => ({ ...p, proj: (p.seasonPts || 0) + calculateLivePoints(p, divPlayers, state.isSignature) }))
-                                   .sort((a,b) => b.proj - a.proj);
+            
+            let sorted = divPlayers.map(p => {
+                const live = calculateLivePoints(p, divPlayers, state.isSignature);
+                const histTotal = (p.history || []).reduce((sum, s) => sum + (Number(s) || 0), 0);
+                const currentScore = getNum(p.toPar) || 0;
+                
+                return { 
+                    ...p, 
+                    projPts: (Number(p.seasonPts) || 0) + live,
+                    accum: histTotal + currentScore,
+                    displayWins: Number(p.wins) || 0,
+                    displayEvents: Number(p.events) || 0
+                };
+            }).sort((a,b) => b.projPts - a.projPts || a.accum - b.accum);
+
             if (sorted.length === 0) return;
 
-            let html = `<div class="div-header div-${divNum}">Standings</div><div class="table-responsive"><table>
-                <thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
+            let html = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div>
+                        <div class="table-responsive"><table>
+                <thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th></tr></thead><tbody>`;
+            
             sorted.forEach((p, i) => {
-                html += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(p.platform)} ${p.name}</div></td><td>${p.wins||0}</td><td>${p.events||0}</td><td class="pts-col">${p.proj}</td></tr>`;
+                html += `<tr>
+                    <td>${i+1}</td>
+                    <td><div class="name-cell"><span class="plat-icon">${getIcon(p.platform)}</span>${p.name}</div></td>
+                    <td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${formatScore(p.accum)}</td>
+                    <td>${p.displayWins}</td>
+                    <td>${p.displayEvents}</td>
+                    <td class="pts-col">${p.projPts}</td>
+                </tr>`;
             });
             container.innerHTML += html + `</tbody></table></div>`;
         });
