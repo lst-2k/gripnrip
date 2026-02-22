@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip Rebirth 74 - Live Leaderboard</title>
+    <title>New Emerald Tour - Live Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
@@ -37,10 +37,8 @@
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; }
         .plat-icon { margin-right: 12px; width: 20px; font-size: 18px; }
         .pts-col { font-weight: 900; color: #333; font-size: 18px; background: #fffde7; }
-        
-        .score-under { color: var(--red); } 
-        .score-even { color: var(--green); }
-        .accum-col { background: #f9f9f9; font-weight: 800; color: #555; }
+        .score-under { color: var(--red); } .score-even { color: var(--green); }
+        .proj-win { color: var(--green); font-weight: 900; }
 
         .season-header { background: #333; color: white; padding: 20px; font-size: 24px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 3px solid var(--gold); }
     </style>
@@ -49,12 +47,12 @@
 
     <div class="leaderboard-container">
         <div class="header"><img src="logo.png" alt="Tour Logo" class="logo-img"></div>
-        <div class="info-bar" id="info-bar">Loading tour data...</div>
+        <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
     </div>
 
     <div class="leaderboard-container">
-        <div class="season-header">Season Standings (Projected)</div>
+        <div class="season-header">Season Standings (Real-Time Projection)</div>
         <div id="season-tables"></div>
     </div>
 
@@ -80,12 +78,6 @@
         return isNaN(n) ? null : n;
     }
 
-    function formatScore(n) {
-        if (n === null) return '-';
-        if (n === 0) return 'E';
-        return n > 0 ? '+' + n : n;
-    }
-
     function calculateLivePoints(player, divisionPlayers, isSignature) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
@@ -105,10 +97,10 @@
 
     function renderInfo(state) {
         document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
-            <div class="info-item"><span class="label">Week</span>${state.week || 1}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue || 'TBA'} ${state.isSignature ? '⭐' : ''}</div>
-            <div class="info-item"><span class="label">Par</span>${state.par || 72}</div>
+            <div class="info-item"><span class="label">Season</span>${state.season}</div>
+            <div class="info-item"><span class="label">Week</span>${state.week}</div>
+            <div class="info-item"><span class="label">Venue</span>${state.venue} ${state.isSignature ? '⭐' : ''}</div>
+            <div class="info-item"><span class="label">Par</span>${state.par}</div>
         `;
     }
 
@@ -156,33 +148,36 @@
         [1, 2, 3].forEach(divNum => {
             let divPlayers = state.players.filter(p => String(p.division) === String(divNum));
             
+            // Find the current live leader score for win projection
+            const scored = divPlayers.filter(p => getNum(p.toPar) !== null);
+            const leaderScore = scored.length ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
+
             let sorted = divPlayers.map(p => {
-                const live = calculateLivePoints(p, divPlayers, state.isSignature);
-                const histTotal = (p.history || []).reduce((sum, s) => sum + (Number(s) || 0), 0);
-                const currentScore = getNum(p.toPar) || 0;
+                const livePts = calculateLivePoints(p, divPlayers, state.isSignature);
+                const scoreEntered = getNum(p.toPar) !== null;
+                const isLeading = scoreEntered && getNum(p.toPar) === leaderScore;
                 
                 return { 
                     ...p, 
-                    projPts: (Number(p.seasonPts) || 0) + live,
-                    accum: histTotal + currentScore,
-                    displayWins: Number(p.wins) || 0,
-                    displayEvents: Number(p.events) || 0
+                    projPts: (Number(p.seasonPts) || 0) + livePts,
+                    projWins: (Number(p.wins) || 0) + (isLeading ? 1 : 0),
+                    projEvents: (Number(p.events) || 0) + (scoreEntered ? 1 : 0),
+                    isLeading: isLeading
                 };
-            }).sort((a,b) => b.projPts - a.projPts || a.accum - b.accum);
+            }).sort((a,b) => b.projPts - a.projPts);
 
             if (sorted.length === 0) return;
 
             let html = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div>
                         <div class="table-responsive"><table>
-                <thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th></tr></thead><tbody>`;
+                <thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>WINS</th><th>EVENTS</th><th class="pts-col">SEASON PTS</th></tr></thead><tbody>`;
             
             sorted.forEach((p, i) => {
                 html += `<tr>
                     <td>${i+1}</td>
                     <td><div class="name-cell"><span class="plat-icon">${getIcon(p.platform)}</span>${p.name}</div></td>
-                    <td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${formatScore(p.accum)}</td>
-                    <td>${p.displayWins}</td>
-                    <td>${p.displayEvents}</td>
+                    <td class="${p.isLeading ? 'proj-win' : ''}">${p.projWins}${p.isLeading ? ' ⭐' : ''}</td>
+                    <td>${p.projEvents}</td>
                     <td class="pts-col">${p.projPts}</td>
                 </tr>`;
             });
