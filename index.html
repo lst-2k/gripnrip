@@ -17,7 +17,7 @@
         
         .leaderboard-container { max-width: 1400px; margin: 0 auto 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
-        /* Landscape Fix: Logo stays within view */
+        /* Landscape-Safe Edge-to-Edge Logo */
         .header { 
             background: var(--header-grad); 
             text-align: center; 
@@ -26,15 +26,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 5px 0;
+            padding: 0;
         }
         .logo-img { 
-            width: auto; 
-            max-width: 95%; 
+            width: 100%; /* Fills to edges */
+            max-width: 100%; 
             height: auto;
-            max-height: 40vh; /* Limits logo to 40% of screen height in landscape */
+            max-height: 40vh; /* Prevents overflow in landscape */
             display: block;
-            object-fit: contain;
+            object-fit: cover;
         }
 
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 20px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
@@ -51,10 +51,19 @@
         
         .awards-footer { background: #fcfcfc; border-top: 2px solid #ddd; padding: 12px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; }
         .award-item { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #444; }
-        .award-val { color: var(--div1); margin-left: 5px; text-transform: none; /* Keeps names case-sensitive */ }
+        .award-val { color: var(--div1); margin-left: 5px; text-transform: none; }
 
-        .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; }
-        .plat-icon { margin-right: 12px; width: 20px; font-size: 18px; }
+        /* The Gap Fix */
+        .name-cell { 
+            display: flex; 
+            align-items: center; 
+            text-align: left; 
+            padding-left: 10px; 
+            min-width: 180px; 
+            gap: 10px; /* Space between icon and name */
+        }
+        .plat-icon { width: 20px; font-size: 18px; text-align: center; }
+        
         .pts-col { font-weight: 900; color: #333; font-size: 17px; background: #fffde7; }
         .accum-col { background: #f9f9f9; font-weight: 800; color: #555; }
         
@@ -68,12 +77,12 @@
         <div class="header">
             <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
         </div>
-        <div id="info-bar" class="info-bar">Loading event details...</div>
+        <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
     </div>
 
     <div class="leaderboard-container">
-        <div class="season-header">Season Standings (Real-Time Projection)</div>
+        <div class="season-header">Season Standings (Projected)</div>
         <div id="season-tables"></div>
     </div>
 
@@ -136,7 +145,11 @@
         `;
     }
 
-    const getIcon = (p) => p === 'xbox' ? '<i class="fa-brands fa-xbox" style="color:#107C10"></i>' : p === 'playstation' ? '<i class="fa-brands fa-playstation" style="color:#003087"></i>' : '<i class="fa-brands fa-steam" style="color:#171a21"></i>';
+    const getIcon = (p) => {
+        if (p === 'xbox') return '<i class="fa-brands fa-xbox plat-icon" style="color:#107C10"></i>';
+        if (p === 'playstation') return '<i class="fa-brands fa-playstation plat-icon" style="color:#003087"></i>';
+        return '<i class="fa-brands fa-steam plat-icon" style="color:#171a21"></i>';
+    };
 
     function renderLive(state) {
         const container = document.getElementById('live-tables');
@@ -158,7 +171,7 @@
                 const score = getNum(p.toPar);
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
-                html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)} ${p.name}</div></td><td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td><td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td>${p.hio > 0 ? '⛳'+p.hio : '-'}</td><td>${p.alba > 0 ? '🦅'+p.alba : '-'}</td><td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
+                html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td><td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td>${p.hio > 0 ? '⛳'+p.hio : '-'}</td><td>${p.alba > 0 ? '🦅'+p.alba : '-'}</td><td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
             });
             html += `</tbody></table></div><div class="awards-footer">
                 <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
@@ -184,7 +197,7 @@
             if (sorted.length === 0) return;
             let html = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div><div class="table-responsive"><table><thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
             sorted.forEach((p, i) => {
-                html += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(p.platform)} ${p.name}</div></td><td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td><td>${p.projWins}${p.isLeading ? ' ⭐' : ''}</td><td>${p.projEvents}</td><td class="pts-col">${p.projPts}</td></tr>`;
+                html += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td><td>${p.projWins}${p.isLeading ? ' ⭐' : ''}</td><td>${p.projEvents}</td><td class="pts-col">${p.projPts}</td></tr>`;
             });
             container.innerHTML += html + `</tbody></table></div>`;
         });
