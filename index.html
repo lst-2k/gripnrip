@@ -22,7 +22,7 @@
         .header { background: var(--header-grad); text-align: center; border-bottom: 4px solid var(--gold); box-shadow: var(--glow); display: flex; justify-content: center; align-items: center; padding: 0; }
         .logo-img { width: 100%; max-width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
 
-        /* FLUSH 2K25 Divider - No gaps */
+        /* FLUSH 2K25 Divider */
         .logo-break { background: #000; padding: 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin: 0; line-height: 0; }
         .break-img { width: 100%; max-width: 400px; height: auto; display: inline-block; }
 
@@ -30,15 +30,31 @@
         .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; }
         .label { color: var(--gold); text-transform: uppercase; margin-right: 8px; font-size: 13px; letter-spacing: 1px; }
 
-        /* Left-Aligned Background PGA Logo */
+        /* Live Division Background (PGA Logo) */
         .div-section { position: relative; width: 100%; background: white; }
         .div-section::before {
             content: "";
             position: absolute;
-            top: 50%; left: 20px; /* Aligned left with a slight margin */
+            top: 50%; left: 20px;
             width: 300px; height: 80%;
             transform: translateY(-50%);
             background-image: url('pgalogo.png');
+            background-repeat: no-repeat;
+            background-position: left center;
+            background-size: contain;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* Season Division Background (Wannamaker Trophy) */
+        .season-section { position: relative; width: 100%; background: white; }
+        .season-section::before {
+            content: "";
+            position: absolute;
+            top: 50%; left: 20px;
+            width: 300px; height: 85%;
+            transform: translateY(-50%);
+            background-image: url('wannamaker.png');
             background-repeat: no-repeat;
             background-position: left center;
             background-size: contain;
@@ -184,11 +200,13 @@
                 return { ...p, projPts: (Number(p.seasonPts) || 0) + livePts, projWins: (Number(p.wins) || 0) + (scoreEntered && getNum(p.toPar) === leaderScore ? 1 : 0), projEvents: (Number(p.events) || 0) + (scoreEntered ? 1 : 0), accum: histTotal + (getNum(p.toPar) || 0), isLeading: scoreEntered && getNum(p.toPar) === leaderScore };
             }).sort((a,b) => b.projPts - a.projPts || a.accum - b.accum);
             if (sorted.length === 0) return;
-            let html = `<div class="div-header div-${divNum}">Division ${divNum} Standings</div><div class="table-responsive"><table><thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
+            let html = `<div class="season-section">
+                        <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
+                        <div class="table-responsive"><table><thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
             sorted.forEach((p, i) => {
                 html += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td><td>${p.projWins}${p.isLeading ? ' ⭐' : ''}</td><td>${p.projEvents}</td><td class="pts-col">${p.projPts}</td></tr>`;
             });
-            container.innerHTML += html + `</tbody></table></div>`;
+            container.innerHTML += html + `</tbody></table></div></div>`;
         });
     }
     loadLeaderboard();
