@@ -11,6 +11,8 @@
             --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
+            --promo: rgba(40, 167, 69, 0.18); /* Promotion Green */
+            --releg: rgba(220, 53, 69, 0.18); /* Relegation Red */
             --glow: 0px 5px 15px rgba(255, 215, 0, 0.4);
         }
         body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
@@ -26,6 +28,7 @@
         .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; }
         .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 1px; }
 
+        /* Background Logos */
         .div-section, .season-section { position: relative; width: 100%; background: white; }
         .div-section::before, .season-section::before {
             content: "";
@@ -42,6 +45,10 @@
         .div-section::before { background-image: url('pgalogo.png'); }
         .season-section::before { background-image: url('wannamaker.png'); }
 
+        /* Zone Styling */
+        .promo-zone { background-color: var(--promo) !important; }
+        .releg-zone { background-color: var(--releg) !important; }
+
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
         .div-header { color: white; padding: 15px 30px; font-size: 24px; font-weight: bold; text-transform: uppercase; position: relative; z-index: 2; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
@@ -55,7 +62,8 @@
         .move-down { color: var(--red); font-size: 14px; }
         .move-even { color: #999; font-size: 14px; }
 
-        .awards-footer { background: rgba(252, 252, 252, 0.98); border-top: 2px solid #ddd; padding: 15px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2; border-bottom: 10px solid #eee; }
+        .awards-footer { background: rgba(252, 252, 252, 0.98); border-top: 2px solid #ddd; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 2; border-bottom: 10px solid #eee; }
+        .footer-row { display: flex; justify-content: space-around; width: 100%; flex-wrap: wrap; gap: 20px; }
         .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; }
         .award-val { color: var(--div1); margin-left: 8px; text-transform: none; }
 
@@ -146,10 +154,11 @@
             let sorted = [...divPlayers].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             if (sorted.length === 0) return;
 
-            const validPutts = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0);
-            const bestPutt = validPutts.length ? validPutts.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
-            const validHoles = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0);
-            const bestHole = validHoles.length ? validHoles.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
+            const bestPutt = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
+            const bestHole = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
+            
+            const aces = divPlayers.filter(p => getNum(p.hio) > 0).map(p => `${p.name} (x${p.hio})`);
+            const albas = divPlayers.filter(p => getNum(p.alba) > 0).map(p => `${p.name} (x${p.alba})`);
 
             let html = `<div class="div-section">
                         <div class="div-header div-${divNum}">Division ${divNum} Live Board</div>
@@ -163,8 +172,14 @@
                 html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td><td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td>${p.hio > 0 ? '⛳'+p.hio : '-'}</td><td>${p.alba > 0 ? '🦅'+p.alba : '-'}</td><td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
             });
             html += `</tbody></table></div><div class="awards-footer">
-                <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
-                <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
+                <div class="footer-row">
+                    <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
+                    <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
+                </div>
+                <div class="footer-row">
+                    <div class="award-item">⛳ Aces: <span class="award-val">${aces.length ? aces.join(', ') : 'None'}</span></div>
+                    <div class="award-item">🦅 Albatross: <span class="award-val">${albas.length ? albas.join(', ') : 'None'}</span></div>
+                </div>
             </div></div>`;
             container.innerHTML += html;
         });
@@ -198,7 +213,12 @@
                 if (curRank < oldRank) marker = '<i class="fa-solid fa-caret-up move-up"></i>';
                 if (curRank > oldRank) marker = '<i class="fa-solid fa-caret-down move-down"></i>';
 
-                html += `<tr>
+                // BOKED IN: 2 UP / 2 DOWN
+                let rowClass = "";
+                if (curRank <= 2 && divNum > 1) rowClass = "promo-zone";
+                if (curRank > sorted.length - 2 && divNum < 3) rowClass = "releg-zone";
+
+                html += `<tr class="${rowClass}">
                     <td><div class="rank-cell"><span>${curRank}</span> ${marker}</div></td>
                     <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
                     <td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td>
