@@ -11,8 +11,8 @@
             --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
-            --promo: rgba(40, 167, 69, 0.18); /* Promotion Green */
-            --releg: rgba(220, 53, 69, 0.18); /* Relegation Red */
+            --promo: rgba(40, 167, 69, 0.25); 
+            --releg: rgba(220, 53, 69, 0.25); 
             --glow: 0px 5px 15px rgba(255, 215, 0, 0.4);
         }
         body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
@@ -28,19 +28,11 @@
         .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; }
         .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 1px; }
 
-        /* Background Logos */
         .div-section, .season-section { position: relative; width: 100%; background: white; }
         .div-section::before, .season-section::before {
-            content: "";
-            position: absolute;
-            top: 50%; left: 5%;
-            width: 400px; height: 90%;
-            transform: translateY(-50%);
-            background-repeat: no-repeat;
-            background-position: left center;
-            background-size: contain;
-            opacity: 0.15;
-            pointer-events: none;
+            content: ""; position: absolute; top: 50%; left: 5%; width: 400px; height: 90%;
+            transform: translateY(-50%); background-repeat: no-repeat; background-position: left center;
+            background-size: contain; opacity: 0.15; pointer-events: none;
         }
         .div-section::before { background-image: url('pgalogo.png'); }
         .season-section::before { background-image: url('wannamaker.png'); }
@@ -48,6 +40,8 @@
         /* Zone Styling */
         .promo-zone { background-color: var(--promo) !important; }
         .releg-zone { background-color: var(--releg) !important; }
+        .promo-zone .accum-col, .releg-zone .accum-col,
+        .promo-zone .pts-col, .releg-zone .pts-col { background-color: transparent !important; }
 
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
         .div-header { color: white; padding: 15px 30px; font-size: 24px; font-weight: bold; text-transform: uppercase; position: relative; z-index: 2; }
@@ -57,14 +51,28 @@
         thead th { background: rgba(244, 244, 244, 0.98); font-size: 13px; padding: 15px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 15px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 17px; font-weight: 600; }
         
+        /* Rank & Movement */
         .rank-cell { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; font-weight: 900; }
         .move-up { color: var(--green); font-size: 14px; }
         .move-down { color: var(--red); font-size: 14px; }
         .move-even { color: #999; font-size: 14px; }
 
-        .awards-footer { background: rgba(252, 252, 252, 0.98); border-top: 2px solid #ddd; padding: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; position: relative; z-index: 2; border-bottom: 10px solid #eee; }
-        .footer-row { display: flex; justify-content: space-around; width: 100%; flex-wrap: wrap; gap: 20px; }
-        .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; }
+        /* Adaptive 2x2 Footer */
+        .awards-footer { 
+            background: rgba(252, 252, 252, 0.98); border-top: 2px solid #ddd; 
+            padding: 20px 40px; position: relative; z-index: 2; border-bottom: 10px solid #eee;
+            display: grid;
+            grid-template-columns: 1fr; /* Portrait: 1 column */
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .awards-footer {
+                grid-template-columns: 1fr 1fr; /* Landscape: 2 columns */
+            }
+        }
+
+        .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; text-align: left; }
         .award-val { color: var(--div1); margin-left: 8px; text-transform: none; }
 
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 30px; min-width: 250px; gap: 15px; }
@@ -172,14 +180,10 @@
                 html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td><td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td>${p.hio > 0 ? '⛳'+p.hio : '-'}</td><td>${p.alba > 0 ? '🦅'+p.alba : '-'}</td><td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
             });
             html += `</tbody></table></div><div class="awards-footer">
-                <div class="footer-row">
-                    <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
-                    <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
-                </div>
-                <div class="footer-row">
-                    <div class="award-item">⛳ Aces: <span class="award-val">${aces.length ? aces.join(', ') : 'None'}</span></div>
-                    <div class="award-item">🦅 Albatross: <span class="award-val">${albas.length ? albas.join(', ') : 'None'}</span></div>
-                </div>
+                <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
+                <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
+                ${aces.length ? `<div class="award-item">⛳ Aces: <span class="award-val">${aces.join(', ')}</span></div>` : ''}
+                ${albas.length ? `<div class="award-item">🦅 Albatross: <span class="award-val">${albas.join(', ')}</span></div>` : ''}
             </div></div>`;
             container.innerHTML += html;
         });
@@ -213,7 +217,6 @@
                 if (curRank < oldRank) marker = '<i class="fa-solid fa-caret-up move-up"></i>';
                 if (curRank > oldRank) marker = '<i class="fa-solid fa-caret-down move-down"></i>';
 
-                // BOKED IN: 2 UP / 2 DOWN
                 let rowClass = "";
                 if (curRank <= 2 && divNum > 1) rowClass = "promo-zone";
                 if (curRank > sorted.length - 2 && divNum < 3) rowClass = "releg-zone";
