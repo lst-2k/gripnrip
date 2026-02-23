@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip Rebirth - Live Leaderboard</title>
+    <title>Grip & Rip Rebirth - Full Screen Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
@@ -13,75 +13,60 @@
             --red: #dc3545; --green: #28a745;
             --glow: 0px 5px 15px rgba(255, 215, 0, 0.4);
         }
-        body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
         
-        .leaderboard-container { max-width: 1400px; margin: 0 auto 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; }
-        .season-container { margin-top: 40px; margin-bottom: 40px; }
+        /* Changed from max-width 1400px to 100% to fill the screen */
+        .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
+        .season-container { margin-top: 0; }
 
         /* Header & Logo Scaling */
         .header { background: var(--header-grad); text-align: center; border-bottom: 4px solid var(--gold); box-shadow: var(--glow); display: flex; justify-content: center; align-items: center; padding: 0; }
-        .logo-img { width: 100%; max-width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
+        .logo-img { width: 100%; height: auto; max-height: 45vh; display: block; object-fit: cover; }
 
         /* FLUSH 2K25 Divider */
-        .logo-break { background: #000; padding: 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin: 0; line-height: 0; }
-        .break-img { width: 100%; max-width: 400px; height: auto; display: inline-block; }
+        .logo-break { background: #000; padding: 10px 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin: 0; line-height: 0; }
+        .break-img { width: 90%; max-width: 500px; height: auto; display: inline-block; }
 
-        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 20px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
-        .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; }
-        .label { color: var(--gold); text-transform: uppercase; margin-right: 8px; font-size: 13px; letter-spacing: 1px; }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; gap: 40px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
+        .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; }
+        .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 1px; }
 
-        /* Live Division Background (PGA Logo) */
-        .div-section { position: relative; width: 100%; background: white; }
-        .div-section::before {
+        /* Background Logos - Adjusted for wide screens */
+        .div-section, .season-section { position: relative; width: 100%; background: white; }
+        .div-section::before, .season-section::before {
             content: "";
             position: absolute;
-            top: 50%; left: 20px;
-            width: 300px; height: 80%;
+            top: 50%; left: 5%;
+            width: 400px; height: 90%;
             transform: translateY(-50%);
-            background-image: url('pgalogo.png');
             background-repeat: no-repeat;
             background-position: left center;
             background-size: contain;
             opacity: 0.15;
             pointer-events: none;
         }
-
-        /* Season Division Background (Wannamaker Trophy) */
-        .season-section { position: relative; width: 100%; background: white; }
-        .season-section::before {
-            content: "";
-            position: absolute;
-            top: 50%; left: 20px;
-            width: 300px; height: 85%;
-            transform: translateY(-50%);
-            background-image: url('wannamaker.png');
-            background-repeat: no-repeat;
-            background-position: left center;
-            background-size: contain;
-            opacity: 0.15;
-            pointer-events: none;
-        }
+        .div-section::before { background-image: url('pgalogo.png'); }
+        .season-section::before { background-image: url('wannamaker.png'); }
 
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
-        .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; position: relative; z-index: 2; }
+        .div-header { color: white; padding: 15px 30px; font-size: 24px; font-weight: bold; text-transform: uppercase; position: relative; z-index: 2; border-bottom: 2px solid rgba(255,255,255,0.2); }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        table { width: 100%; border-collapse: collapse; min-width: 900px; background: transparent; }
-        thead th { background: rgba(244, 244, 244, 0.95); font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
-        td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; background: transparent; }
+        thead th { background: rgba(244, 244, 244, 0.98); font-size: 13px; padding: 15px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        td { padding: 15px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 17px; font-weight: 600; }
         
-        .awards-footer { background: rgba(252, 252, 252, 0.95); border-top: 2px solid #ddd; padding: 12px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; position: relative; z-index: 2; }
-        .award-item { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #444; }
-        .award-val { color: var(--div1); margin-left: 5px; text-transform: none; }
+        .awards-footer { background: rgba(252, 252, 252, 0.98); border-top: 2px solid #ddd; padding: 15px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2; border-bottom: 10px solid #eee; }
+        .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; }
+        .award-val { color: var(--div1); margin-left: 8px; text-transform: none; }
 
-        .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; gap: 10px; }
-        .plat-icon { width: 20px; font-size: 18px; text-align: center; }
+        .name-cell { display: flex; align-items: center; text-align: left; padding-left: 30px; min-width: 250px; gap: 15px; }
+        .plat-icon { width: 25px; font-size: 22px; text-align: center; }
         
-        .pts-col { font-weight: 900; color: #333; font-size: 17px; background: rgba(255, 253, 231, 0.6); }
-        .accum-col { background: rgba(249, 249, 249, 0.6); font-weight: 800; color: #555; }
+        .pts-col { font-weight: 900; color: #333; font-size: 20px; background: rgba(255, 253, 231, 0.7); }
+        .accum-col { background: rgba(249, 249, 249, 0.7); font-weight: 800; color: #555; }
         
-        .proj-win { color: var(--green); font-weight: 900; }
-        .season-header { background: #333; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 3px solid var(--gold); }
+        .season-header { background: #222; color: var(--gold); padding: 25px; font-size: 28px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 5px solid var(--gold); }
     </style>
 </head>
 <body>
@@ -102,6 +87,10 @@
     </div>
 
 <script>
+    // ... (Script logic remains the same as the previous version) ...
+    // Note: I have kept all the logic for Live Points, Ties, and Season projections 
+    // exactly as we had it to ensure your data stays accurate.
+
     const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
 
     async function loadLeaderboard() {
@@ -170,7 +159,7 @@
             let html = `<div class="div-section">
                         <div class="div-header div-${divNum}">Division ${divNum} Live Board</div>
                         <div class="table-responsive"><table>
-                <thead><tr><th>POS</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>ACE</th><th>ALBY</th><th class="pts-col">LIVE PTS</th></tr></thead><tbody>`;
+                <thead><tr><th>POS</th><th style="text-align:left; padding-left:30px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>ACE</th><th>ALBY</th><th class="pts-col">LIVE PTS</th></tr></thead><tbody>`;
             
             sorted.forEach((p) => {
                 const score = getNum(p.toPar);
@@ -202,7 +191,7 @@
             if (sorted.length === 0) return;
             let html = `<div class="season-section">
                         <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
-                        <div class="table-responsive"><table><thead><tr><th>RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
+                        <div class="table-responsive"><table><thead><tr><th>RK</th><th style="text-align:left; padding-left:30px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
             sorted.forEach((p, i) => {
                 html += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td><td>${p.projWins}${p.isLeading ? ' ⭐' : ''}</td><td>${p.projEvents}</td><td class="pts-col">${p.projPts}</td></tr>`;
             });
