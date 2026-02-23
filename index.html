@@ -15,62 +15,51 @@
         }
         body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
         
-        .leaderboard-container { max-width: 1400px; margin: 0 auto 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
+        .leaderboard-container { max-width: 1400px; margin: 0 auto 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; }
         
-        .header { 
-            background: var(--header-grad); 
-            text-align: center; 
-            border-bottom: 4px solid var(--gold); 
-            box-shadow: var(--glow);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 0;
-        }
-        .logo-img { 
-            width: 100%; 
-            max-width: 100%; 
-            height: auto;
-            max-height: 40vh; 
-            display: block;
-            object-fit: cover;
-        }
+        /* Header & Logo Scaling */
+        .header { background: var(--header-grad); text-align: center; border-bottom: 4px solid var(--gold); box-shadow: var(--glow); display: flex; justify-content: center; align-items: center; padding: 0; }
+        .logo-img { width: 100%; max-width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
 
-        /* Styling for the 2K25 Logo Break */
-        .logo-break {
-            background: #000; /* Solid black to make the PGA logo pop */
-            padding: 20px 0;
-            text-align: center;
-            border-top: 4px solid var(--gold);
-            border-bottom: 4px solid var(--gold);
-            margin-bottom: 40px;
-        }
-        .break-img {
-            max-width: 300px; /* Adjust size as needed */
-            height: auto;
-        }
+        /* The 2K25 Divider */
+        .logo-break { background: #000; padding: 20px 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin-bottom: 40px; }
+        .break-img { max-width: 300px; height: auto; }
 
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 20px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
         .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; }
         .label { color: var(--gold); text-transform: uppercase; margin-right: 8px; font-size: 13px; letter-spacing: 1px; }
 
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; }
+        /* Division Background Logic (Subtle PGA Logo) */
+        .div-section { position: relative; width: 100%; background: white; }
+        .div-section::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('pgalogo.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.15; /* Lowered slightly to 15% for better text contrast, adjust to 0.3 if preferred */
+            pointer-events: none;
+        }
+
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
+        .div-header { color: white; padding: 12px 20px; font-size: 20px; font-weight: bold; text-transform: uppercase; position: relative; z-index: 2; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        thead th { background: #f4f4f4; font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
-        td { padding: 10px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; background: transparent; }
+        thead th { background: rgba(244, 244, 244, 0.9); font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 600; }
         
-        .awards-footer { background: #fcfcfc; border-top: 2px solid #ddd; padding: 12px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; }
+        .awards-footer { background: rgba(252, 252, 252, 0.9); border-top: 2px solid #ddd; padding: 12px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; position: relative; z-index: 2; }
         .award-item { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #444; }
         .award-val { color: var(--div1); margin-left: 5px; text-transform: none; }
 
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; gap: 10px; }
         .plat-icon { width: 20px; font-size: 18px; text-align: center; }
         
-        .pts-col { font-weight: 900; color: #333; font-size: 17px; background: #fffde7; }
-        .accum-col { background: #f9f9f9; font-weight: 800; color: #555; }
+        .pts-col { font-weight: 900; color: #333; font-size: 17px; background: rgba(255, 253, 231, 0.7); }
+        .accum-col { background: rgba(249, 249, 249, 0.7); font-weight: 800; color: #555; }
         
         .proj-win { color: var(--green); font-weight: 900; }
         .season-header { background: #333; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 3px solid var(--gold); }
@@ -79,9 +68,7 @@
 <body>
 
     <div class="leaderboard-container">
-        <div class="header">
-            <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
-        </div>
+        <div class="header"><img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img"></div>
         <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
     </div>
@@ -114,8 +101,7 @@
     function getNum(val) {
         if (val === undefined || val === null || val === '' || val === '-' || val === '.') return null;
         if (typeof val === 'string' && val.toUpperCase() === 'E') return 0;
-        const n = Number(val);
-        return isNaN(n) ? null : n;
+        const n = Number(val); return isNaN(n) ? null : n;
     }
 
     function calculateLivePoints(player, divisionPlayers, isSignature) {
@@ -126,13 +112,11 @@
         const firstWithScore = scoredPlayers.find(p => getNum(p.toPar) === score);
         const tieRankIdx = scoredPlayers.indexOf(firstWithScore);
         let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
-        let bonusPts = 0;
+        let bonusPts = (getNum(player.hio) || 0) * 50 + (getNum(player.alba) || 0) * 50;
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null);
         if (getNum(player.putt) === Math.max(...validPutts) && Math.max(...validPutts) > 0) bonusPts += 25;
         const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null);
         if (getNum(player.hole) === Math.max(...validHoles) && Math.max(...validHoles) > 0) bonusPts += 25;
-        bonusPts += (getNum(player.hio) || 0) * 50;
-        bonusPts += (getNum(player.alba) || 0) * 50;
         return (basePts + bonusPts) * multiplier;
     }
 
@@ -164,7 +148,9 @@
             const validHoles = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0);
             const bestHole = validHoles.length ? validHoles.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
 
-            let html = `<div class="div-header div-${divNum}">Division ${divNum} Live Board</div><div class="table-responsive"><table>
+            let html = `<div class="div-section">
+                        <div class="div-header div-${divNum}">Division ${divNum} Live Board</div>
+                        <div class="table-responsive"><table>
                 <thead><tr><th>POS</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>ACE</th><th>ALBY</th><th class="pts-col">LIVE PTS</th></tr></thead><tbody>`;
             
             sorted.forEach((p) => {
@@ -176,7 +162,7 @@
             html += `</tbody></table></div><div class="awards-footer">
                 <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
                 <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
-            </div>`;
+            </div></div>`;
             container.innerHTML += html;
         });
     }
