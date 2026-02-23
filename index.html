@@ -37,6 +37,7 @@
         .div-section::before { background-image: url('pgalogo.png'); }
         .season-section::before { background-image: url('wannamaker.png'); }
 
+        /* Zone Styling & Column Fix */
         .promo-zone { background-color: var(--promo) !important; }
         .releg-zone { background-color: var(--releg) !important; }
         .promo-zone .accum-col, .releg-zone .accum-col,
@@ -50,9 +51,7 @@
         thead th { background: rgba(244, 244, 244, 0.98); font-size: 13px; padding: 15px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 15px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 17px; font-weight: 600; }
         
-        /* Fixed line height for icons */
         .icon-cell { white-space: nowrap; font-size: 16px; }
-
         .rank-cell { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; font-weight: 900; }
         .move-up { color: var(--green); font-size: 14px; }
         .move-down { color: var(--red); font-size: 14px; }
@@ -63,10 +62,7 @@
             padding: 20px 40px; position: relative; z-index: 2; border-bottom: 10px solid #eee;
             display: grid; grid-template-columns: 1fr; gap: 15px;
         }
-
-        @media (min-width: 768px) {
-            .awards-footer { grid-template-columns: 1fr 1fr; }
-        }
+        @media (min-width: 768px) { .awards-footer { grid-template-columns: 1fr 1fr; } }
 
         .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; text-align: left; }
         .award-val { color: var(--div1); margin-left: 8px; text-transform: none; }
@@ -123,8 +119,12 @@
         const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a, b) => getNum(a.toPar) - getNum(b.toPar));
         const firstWithScore = scoredPlayers.find(p => getNum(p.toPar) === score);
         const tieRankIdx = scoredPlayers.indexOf(firstWithScore);
+        
         let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
-        let bonusPts = (getNum(player.hio) || 0) * 50 + (getNum(player.alba) || 0) * 50;
+        
+        // POINT FIX: Specifically mapping to "albatross" key
+        let bonusPts = (getNum(player.hio) || 0) * 50 + (getNum(player.albatross) || 0) * 50;
+        
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null);
         if (getNum(player.putt) === Math.max(...validPutts) && Math.max(...validPutts) > 0) bonusPts += 25;
         const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null);
@@ -158,8 +158,9 @@
             const bestPutt = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
             const bestHole = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
             
+            // FOOTER FIX: Mapping specifically to "albatross"
             const aces = divPlayers.filter(p => getNum(p.hio) > 0).map(p => `${p.name} (x${p.hio})`);
-            const albas = divPlayers.filter(p => getNum(p.alba) > 0).map(p => `${p.name} (x${p.alba})`);
+            const albas = divPlayers.filter(p => getNum(p.albatross) > 0).map(p => `${p.name} (x${p.albatross})`);
 
             let html = `<div class="div-section">
                         <div class="div-header div-${divNum}">Division ${divNum} Live Board</div>
@@ -170,8 +171,21 @@
                 const score = getNum(p.toPar);
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
-                // Updated icon logic to be side-by-side
-                html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td><td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td class="icon-cell">${p.hio > 0 ? '⛳ ' + p.hio : '-'}</td><td class="icon-cell">${p.alba > 0 ? '🦅 ' + p.alba : '-'}</td><td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
+                
+                // TABLE FIX: Single line display for icons and numbers
+                const hio = getNum(p.hio) || 0;
+                const alby = getNum(p.albatross) || 0;
+
+                html += `<tr>
+                    <td>${score !== null ? displayRank : '-'}</td>
+                    <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
+                    <td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td>
+                    <td>${p.putt || '-'}</td>
+                    <td>${p.hole || '-'}</td>
+                    <td class="icon-cell">${hio > 0 ? '⛳ ' + hio : '-'}</td>
+                    <td class="icon-cell">${alby > 0 ? '🦅 ' + alby : '-'}</td>
+                    <td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td>
+                </tr>`;
             });
             html += `</tbody></table></div><div class="awards-footer">
                 <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
