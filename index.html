@@ -15,31 +15,34 @@
         }
         body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
         
-        .leaderboard-container { max-width: 1400px; margin: 0 auto 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; }
-        
+        .leaderboard-container { max-width: 1400px; margin: 0 auto 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); position: relative; }
+        .season-container { margin-top: 40px; margin-bottom: 40px; }
+
         /* Header & Logo Scaling */
         .header { background: var(--header-grad); text-align: center; border-bottom: 4px solid var(--gold); box-shadow: var(--glow); display: flex; justify-content: center; align-items: center; padding: 0; }
         .logo-img { width: 100%; max-width: 100%; height: auto; max-height: 40vh; display: block; object-fit: cover; }
 
-        /* The 2K25 Divider */
-        .logo-break { background: #000; padding: 20px 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin-bottom: 40px; }
-        .break-img { max-width: 300px; height: auto; }
+        /* FLUSH 2K25 Divider - No gaps */
+        .logo-break { background: #000; padding: 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin: 0; line-height: 0; }
+        .break-img { width: 100%; max-width: 400px; height: auto; display: inline-block; }
 
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 20px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
         .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; }
         .label { color: var(--gold); text-transform: uppercase; margin-right: 8px; font-size: 13px; letter-spacing: 1px; }
 
-        /* Division Background Logic (Subtle PGA Logo) */
+        /* Left-Aligned Background PGA Logo */
         .div-section { position: relative; width: 100%; background: white; }
         .div-section::before {
             content: "";
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 50%; left: 20px; /* Aligned left with a slight margin */
+            width: 300px; height: 80%;
+            transform: translateY(-50%);
             background-image: url('pgalogo.png');
             background-repeat: no-repeat;
-            background-position: center;
+            background-position: left center;
             background-size: contain;
-            opacity: 0.15; /* Lowered slightly to 15% for better text contrast, adjust to 0.3 if preferred */
+            opacity: 0.15;
             pointer-events: none;
         }
 
@@ -48,18 +51,18 @@
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
         table { width: 100%; border-collapse: collapse; min-width: 900px; background: transparent; }
-        thead th { background: rgba(244, 244, 244, 0.9); font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        thead th { background: rgba(244, 244, 244, 0.95); font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 10px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 15px; font-weight: 600; }
         
-        .awards-footer { background: rgba(252, 252, 252, 0.9); border-top: 2px solid #ddd; padding: 12px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; position: relative; z-index: 2; }
+        .awards-footer { background: rgba(252, 252, 252, 0.95); border-top: 2px solid #ddd; padding: 12px; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; position: relative; z-index: 2; }
         .award-item { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #444; }
         .award-val { color: var(--div1); margin-left: 5px; text-transform: none; }
 
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; gap: 10px; }
         .plat-icon { width: 20px; font-size: 18px; text-align: center; }
         
-        .pts-col { font-weight: 900; color: #333; font-size: 17px; background: rgba(255, 253, 231, 0.7); }
-        .accum-col { background: rgba(249, 249, 249, 0.7); font-weight: 800; color: #555; }
+        .pts-col { font-weight: 900; color: #333; font-size: 17px; background: rgba(255, 253, 231, 0.6); }
+        .accum-col { background: rgba(249, 249, 249, 0.6); font-weight: 800; color: #555; }
         
         .proj-win { color: var(--green); font-weight: 900; }
         .season-header { background: #333; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 3px solid var(--gold); }
@@ -71,13 +74,13 @@
         <div class="header"><img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img"></div>
         <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
+        
+        <div class="logo-break">
+            <img src="2k25 logo.png" alt="PGA 2K25" class="break-img">
+        </div>
     </div>
 
-    <div class="leaderboard-container logo-break">
-        <img src="2k25 logo.png" alt="PGA 2K25" class="break-img">
-    </div>
-
-    <div class="leaderboard-container">
+    <div class="leaderboard-container season-container">
         <div class="season-header">Season Standings (Projected)</div>
         <div id="season-tables"></div>
     </div>
