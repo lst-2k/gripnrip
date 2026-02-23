@@ -17,7 +17,6 @@
         
         .leaderboard-container { max-width: 1400px; margin: 0 auto 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); }
         
-        /* Landscape-Safe Edge-to-Edge Logo */
         .header { 
             background: var(--header-grad); 
             text-align: center; 
@@ -29,12 +28,26 @@
             padding: 0;
         }
         .logo-img { 
-            width: 100%; /* Fills to edges */
+            width: 100%; 
             max-width: 100%; 
             height: auto;
-            max-height: 40vh; /* Prevents overflow in landscape */
+            max-height: 40vh; 
             display: block;
             object-fit: cover;
+        }
+
+        /* Styling for the 2K25 Logo Break */
+        .logo-break {
+            background: #000; /* Solid black to make the PGA logo pop */
+            padding: 20px 0;
+            text-align: center;
+            border-top: 4px solid var(--gold);
+            border-bottom: 4px solid var(--gold);
+            margin-bottom: 40px;
+        }
+        .break-img {
+            max-width: 300px; /* Adjust size as needed */
+            height: auto;
         }
 
         .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; align-items: center; gap: 20px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
@@ -53,15 +66,7 @@
         .award-item { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #444; }
         .award-val { color: var(--div1); margin-left: 5px; text-transform: none; }
 
-        /* The Gap Fix */
-        .name-cell { 
-            display: flex; 
-            align-items: center; 
-            text-align: left; 
-            padding-left: 10px; 
-            min-width: 180px; 
-            gap: 10px; /* Space between icon and name */
-        }
+        .name-cell { display: flex; align-items: center; text-align: left; padding-left: 10px; min-width: 180px; gap: 10px; }
         .plat-icon { width: 20px; font-size: 18px; text-align: center; }
         
         .pts-col { font-weight: 900; color: #333; font-size: 17px; background: #fffde7; }
@@ -79,6 +84,10 @@
         </div>
         <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
+    </div>
+
+    <div class="leaderboard-container logo-break">
+        <img src="2k25 logo.png" alt="PGA 2K25" class="break-img">
     </div>
 
     <div class="leaderboard-container">
@@ -113,26 +122,17 @@
         const score = getNum(player.toPar);
         if (score === null) return 0;
         const multiplier = isSignature ? 2 : 1;
-        
-        const scoredPlayers = divisionPlayers
-            .filter(p => getNum(p.toPar) !== null)
-            .sort((a, b) => getNum(a.toPar) - getNum(b.toPar));
-
+        const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a, b) => getNum(a.toPar) - getNum(b.toPar));
         const firstWithScore = scoredPlayers.find(p => getNum(p.toPar) === score);
         const tieRankIdx = scoredPlayers.indexOf(firstWithScore);
-
         let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
         let bonusPts = 0;
-
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null);
         if (getNum(player.putt) === Math.max(...validPutts) && Math.max(...validPutts) > 0) bonusPts += 25;
-        
         const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null);
         if (getNum(player.hole) === Math.max(...validHoles) && Math.max(...validHoles) > 0) bonusPts += 25;
-
         bonusPts += (getNum(player.hio) || 0) * 50;
         bonusPts += (getNum(player.alba) || 0) * 50;
-
         return (basePts + bonusPts) * multiplier;
     }
 
