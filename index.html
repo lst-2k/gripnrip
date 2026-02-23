@@ -37,7 +37,6 @@
         .div-section::before { background-image: url('pgalogo.png'); }
         .season-section::before { background-image: url('wannamaker.png'); }
 
-        /* Zone Styling */
         .promo-zone { background-color: var(--promo) !important; }
         .releg-zone { background-color: var(--releg) !important; }
         .promo-zone .accum-col, .releg-zone .accum-col,
@@ -51,25 +50,22 @@
         thead th { background: rgba(244, 244, 244, 0.98); font-size: 13px; padding: 15px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 15px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 17px; font-weight: 600; }
         
-        /* Rank & Movement */
+        /* Fixed line height for icons */
+        .icon-cell { white-space: nowrap; font-size: 16px; }
+
         .rank-cell { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; font-weight: 900; }
         .move-up { color: var(--green); font-size: 14px; }
         .move-down { color: var(--red); font-size: 14px; }
         .move-even { color: #999; font-size: 14px; }
 
-        /* Adaptive 2x2 Footer */
         .awards-footer { 
             background: rgba(252, 252, 252, 0.98); border-top: 2px solid #ddd; 
             padding: 20px 40px; position: relative; z-index: 2; border-bottom: 10px solid #eee;
-            display: grid;
-            grid-template-columns: 1fr; /* Portrait: 1 column */
-            gap: 15px;
+            display: grid; grid-template-columns: 1fr; gap: 15px;
         }
 
         @media (min-width: 768px) {
-            .awards-footer {
-                grid-template-columns: 1fr 1fr; /* Landscape: 2 columns */
-            }
+            .awards-footer { grid-template-columns: 1fr 1fr; }
         }
 
         .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; text-align: left; }
@@ -90,10 +86,7 @@
         <div class="header"><img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img"></div>
         <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
-        
-        <div class="logo-break">
-            <img src="2k25 logo.png" alt="PGA 2K25" class="break-img">
-        </div>
+        <div class="logo-break"><img src="2k25 logo.png" alt="PGA 2K25" class="break-img"></div>
     </div>
 
     <div class="leaderboard-container">
@@ -177,7 +170,8 @@
                 const score = getNum(p.toPar);
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
-                html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td><td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td>${p.hio > 0 ? '⛳'+p.hio : '-'}</td><td>${p.alba > 0 ? '🦅'+p.alba : '-'}</td><td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
+                // Updated icon logic to be side-by-side
+                html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td><td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td class="icon-cell">${p.hio > 0 ? '⛳ ' + p.hio : '-'}</td><td class="icon-cell">${p.alba > 0 ? '🦅 ' + p.alba : '-'}</td><td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
             });
             html += `</tbody></table></div><div class="awards-footer">
                 <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
