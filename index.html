@@ -155,10 +155,13 @@
             let sorted = [...divPlayers].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             if (sorted.length === 0) return;
 
+            // Calculate division leaders for icons
+            const maxPutt = Math.max(...divPlayers.map(p => getNum(p.putt)).filter(v => v !== null), 0);
+            const maxHole = Math.max(...divPlayers.map(p => getNum(p.hole)).filter(v => v !== null), 0);
+            
             const bestPutt = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
             const bestHole = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
             
-            // FOOTER FIX: Mapping specifically to "albatross"
             const aces = divPlayers.filter(p => getNum(p.hio) > 0).map(p => `${p.name} (x${p.hio})`);
             const albas = divPlayers.filter(p => getNum(p.albatross) > 0).map(p => `${p.name} (x${p.albatross})`);
 
@@ -172,21 +175,25 @@
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
                 
-                // TABLE FIX: Single line display for icons and numbers
                 const hio = getNum(p.hio) || 0;
                 const alby = getNum(p.albatross) || 0;
+                const pPutt = getNum(p.putt) || 0;
+                const pHole = getNum(p.hole) || 0;
 
                 html += `<tr>
                     <td>${score !== null ? displayRank : '-'}</td>
                     <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
                     <td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td>
-                    <td>${p.putt || '-'}</td>
-                    <td>${p.hole || '-'}</td>
+                    
+                    <td class="icon-cell">${p.putt || '-'}${pPutt > 0 && pPutt === maxPutt ? ' 🚩' : ''}</td>
+                    <td class="icon-cell">${p.hole || '-'}${pHole > 0 && pHole === maxHole ? ' 🎯' : ''}</td>
+                    
                     <td class="icon-cell">${hio > 0 ? '⛳ ' + hio : '-'}</td>
                     <td class="icon-cell">${alby > 0 ? '🦅 ' + alby : '-'}</td>
                     <td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td>
                 </tr>`;
             });
+            
             html += `</tbody></table></div><div class="awards-footer">
                 <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
                 <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
