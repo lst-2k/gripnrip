@@ -180,13 +180,17 @@
                 const pPutt = getNum(p.putt) || 0;
                 const pHole = getNum(p.hole) || 0;
 
+                // Icons now placed BEFORE the values
+                const puttDisplay = (pPutt > 0 && pPutt === maxPutt) ? `🚩 ${p.putt}` : (p.putt || '-');
+                const holeDisplay = (pHole > 0 && pHole === maxHole) ? `🎯 ${p.hole}` : (p.hole || '-');
+
                 html += `<tr>
                     <td>${score !== null ? displayRank : '-'}</td>
                     <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
                     <td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td>
                     
-                    <td class="icon-cell">${p.putt || '-'}${pPutt > 0 && pPutt === maxPutt ? ' 🚩' : ''}</td>
-                    <td class="icon-cell">${p.hole || '-'}${pHole > 0 && pHole === maxHole ? ' 🎯' : ''}</td>
+                    <td class="icon-cell">${puttDisplay}</td>
+                    <td class="icon-cell">${holeDisplay}</td>
                     
                     <td class="icon-cell">${hio > 0 ? '⛳ ' + hio : '-'}</td>
                     <td class="icon-cell">${alby > 0 ? '🦅 ' + alby : '-'}</td>
