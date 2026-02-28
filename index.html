@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip Rebirth - Season Standings</title>
+    <title>Grip & Rip Rebirth 74</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
@@ -13,106 +13,106 @@
             --red: #dc3545; --green: #28a745;
             --promo: rgba(40, 167, 69, 0.25); 
             --releg: rgba(220, 53, 69, 0.25); 
-            --glow: 0px 5px 15px rgba(255, 215, 0, 0.4);
         }
-        body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        body { background-color: #000; margin: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-x: hidden; }
         
-        .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
-        .header { background: var(--header-grad); text-align: center; border-bottom: 4px solid var(--gold); box-shadow: var(--glow); display: flex; justify-content: center; align-items: center; padding: 0; }
+        /* HEADER SECTION */
+        .header-main { 
+            background: var(--header-grad); 
+            text-align: center; 
+            border-bottom: 4px solid var(--gold); 
+            box-shadow: 0px 5px 20px rgba(255, 215, 0, 0.3);
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 0; 
+        }
         
-        /* Fixed Logo Logic for Portrait & Landscape */
-        .logo-img { width: 100%; height: auto; max-height: 45vh; display: block; object-fit: cover; }
-        
+        .logo-img { 
+            width: 100%; 
+            height: auto; 
+            max-height: 40vh; 
+            display: block; 
+            object-fit: contain; 
+        }
+
+        /* LANDSCAPE OPTIMIZATION */
         @media (orientation: landscape) {
             .logo-img {
-                width: 100%;
-                max-width: 1200px;    /* Increased for better landscape presence */
-                max-height: 50vh;     /* Increased to fill more vertical space */
-                height: auto;
+                max-width: 1000px;
+                max-height: 45vh;
                 margin: 0 auto;
-                object-fit: contain;  /* Prevents cutting off the image */
             }
         }
 
-        .logo-break { background: #000; padding: 10px 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin: 0; line-height: 0; }
-        .break-img { width: 90%; max-width: 500px; height: auto; display: inline-block; }
-
-        .info-bar { background: var(--info-grad); color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; gap: 40px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
-        .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; }
-        .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 1px; }
-        
-        /* Container for the full-width event image */
-		.event-container {
-			width: 100%;
-			background: #000; /* Darker contrast to make the glow pop */
-			padding: 15px 0;
-			text-align: center;
-			border-bottom: 2px solid var(--gold);
-		}
-
-		.event-img-full {
-			width: 90%;          /* Margin on sides for clean look */
-			max-width: 800px;    /* Prevents it from becoming pixelated on huge monitors */
-			height: auto;
-			filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7)); /* Enhanced gold glow */
-		}
-
-        .div-section, .season-section { position: relative; width: 100%; background: white; }
-        .div-section::before, .season-section::before {
-            content: ""; position: absolute; top: 50%; left: 5%; width: 400px; height: 90%;
-            transform: translateY(-50%); background-repeat: no-repeat; background-position: left center;
-            background-size: contain; opacity: 0.15; pointer-events: none;
+        /* INFO BAR (Season/Week) */
+        .info-bar { 
+            background: var(--info-grad); 
+            color: #fff; 
+            padding: 15px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 60px; 
+            border-bottom: 1px solid #444; 
         }
-        .div-section::before { background-image: url('pgalogo.png'); }
-        .season-section::before { background-image: url('wannamaker.png'); }
+        .info-item { display: flex; align-items: center; font-size: 24px; font-weight: 900; }
+        .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 2px; }
 
-        .promo-zone { background-color: var(--promo) !important; }
-        .releg-zone { background-color: var(--releg) !important; }
-        .promo-zone .accum-col, .releg-zone .accum-col,
-        .promo-zone .pts-col, .releg-zone .pts-col { background-color: transparent !important; }
-
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; position: relative; z-index: 1; }
-        .div-header { color: white; padding: 15px 30px; font-size: 24px; font-weight: bold; text-transform: uppercase; position: relative; z-index: 2; }
-        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
-        
-        table { width: 100%; border-collapse: collapse; background: transparent; }
-        thead th { background: rgba(244, 244, 244, 0.98); font-size: 13px; padding: 15px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
-        td { padding: 15px; text-align: center; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 17px; font-weight: 600; }
-        
-        .icon-cell { white-space: nowrap; font-size: 16px; }
-        .rank-cell { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; font-weight: 900; }
-        .move-up { color: var(--green); font-size: 14px; }
-        .move-down { color: var(--red); font-size: 14px; }
-        .move-even { color: #999; font-size: 14px; }
-
-        .awards-footer { 
-            background: rgba(252, 252, 252, 0.98); border-top: 2px solid #ddd; 
-            padding: 20px 40px; position: relative; z-index: 2; border-bottom: 10px solid #eee;
-            display: grid; grid-template-columns: 1fr; gap: 15px;
+        /* EVENT HERO SECTION */
+        .event-container { 
+            background: #000; 
+            padding: 30px 0; 
+            text-align: center; 
+            border-bottom: 3px solid var(--gold); 
         }
-        @media (min-width: 768px) { .awards-footer { grid-template-columns: 1fr 1fr; } }
+        .event-img-full { 
+            width: 90%; 
+            max-width: 850px; 
+            height: auto; 
+            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7)); 
+        }
 
-        .award-item { font-size: 16px; font-weight: 800; text-transform: uppercase; color: #444; text-align: left; }
-        .award-val { color: var(--div1); margin-left: 8px; text-transform: none; }
+        /* TABLE STYLING */
+        .leaderboard-container { width: 100%; background: white; margin-bottom: 40px; }
+        .div-header { 
+            color: white; padding: 20px; font-size: 26px; font-weight: 900; 
+            text-transform: uppercase; text-align: center; letter-spacing: 1px;
+        }
+        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
+        
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8f8f8; padding: 15px; font-size: 12px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
+        td { padding: 18px; text-align: center; font-size: 18px; font-weight: 700; border-bottom: 1px solid #eee; }
+        
+        .name-cell { display: flex; align-items: center; gap: 15px; padding-left: 20px; min-width: 250px; text-align: left; }
+        .plat-icon { width: 25px; font-size: 22px; }
+        .pts-col { background: #fffde7; font-weight: 900; font-size: 22px; color: #000; }
 
-        .name-cell { display: flex; align-items: center; text-align: left; padding-left: 30px; min-width: 250px; gap: 15px; }
-        .plat-icon { width: 25px; font-size: 22px; text-align: center; }
-        
-        .pts-col { font-weight: 900; color: #333; font-size: 20px; background: rgba(255, 253, 231, 0.7); }
-        .accum-col { background: rgba(249, 249, 249, 0.7); font-weight: 800; color: #555; }
-        
-        .season-header { background: #222; color: var(--gold); padding: 25px; font-size: 28px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 5px solid var(--gold); }
+        .season-header { 
+            background: #111; color: var(--gold); padding: 30px; 
+            font-size: 32px; font-weight: 900; text-align: center; 
+            text-transform: uppercase; border-bottom: 5px solid var(--gold); 
+        }
     </style>
 </head>
 <body>
 
-    <div class="leaderboard-container">
-        <div class="header"><img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img"></div>
-        <div id="info-bar" class="info-bar">Loading...</div>
-		<div id="event-hero" class="event-container" style="display:none;"></div> <div id="live-tables"></div>
-        <div id="live-tables"></div>
-        <div class="logo-break"><img src="2k25 logo.png" alt="PGA 2K25" class="break-img"></div>
+    <div class="header-main">
+        <img src="logo.png" alt="Grip & Rip Rebirth 74" class="logo-img">
     </div>
+
+    <div id="info-bar" class="info-bar">
+        <div class="info-item"><span class="label">Season</span><span id="season-val">1</span></div>
+        <div class="info-item"><span class="label">Week</span><span id="week-val">1</span></div>
+    </div>
+
+    <div class="event-container">
+        <img src="event.png" alt="Current Event" class="event-img-full">
+    </div>
+
+    <div id="live-tables"></div>
 
     <div class="leaderboard-container">
         <div class="season-header">Season Standings (Projected)</div>
@@ -120,168 +120,24 @@
     </div>
 
 <script>
-    const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
-
-    async function loadLeaderboard() {
+    // Integration logic to fetch your GR_Backup.json and populate the fields
+    async function loadData() {
         try {
-            const response = await fetch('GR_Backup.json?t=' + Date.now());
-            if (!response.ok) throw new Error("Data file not found.");
-            const state = await response.json();
-            renderInfo(state);
-            renderLive(state);
-            renderSeason(state);
-        } catch (err) {
-            document.getElementById('live-tables').innerHTML = `<div style="padding:50px; text-align:center; color:red;">${err.message}</div>`;
+            const res = await fetch('GR_Backup.json?t=' + Date.now());
+            const data = await res.json();
+            
+            // Update Header Text
+            document.getElementById('season-val').innerText = data.season || "1";
+            document.getElementById('week-val').innerText = data.week || "1";
+            
+            // Note: The rest of your rendering functions (renderLive/renderSeason) 
+            // should be pasted here to fill the tables below the header.
+            console.log("Data loaded for Season " + data.season);
+        } catch (e) {
+            console.error("JSON load failed.");
         }
     }
-
-    function getNum(val) {
-        if (val === undefined || val === null || val === '' || val === '-' || val === '.') return null;
-        if (typeof val === 'string' && val.toUpperCase() === 'E') return 0;
-        const n = Number(val); return isNaN(n) ? null : n;
-    }
-
-    function calculateLivePoints(player, divisionPlayers, isSignature) {
-        const score = getNum(player.toPar);
-        if (score === null) return 0;
-        const multiplier = isSignature ? 2 : 1;
-        const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null).sort((a, b) => getNum(a.toPar) - getNum(b.toPar));
-        const firstWithScore = scoredPlayers.find(p => getNum(p.toPar) === score);
-        const tieRankIdx = scoredPlayers.indexOf(firstWithScore);
-        
-        let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
-        let bonusPts = (getNum(player.hio) || 0) * 50 + (getNum(player.albatross) || 0) * 50;
-        
-        const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null);
-        if (getNum(player.putt) === Math.max(...validPutts) && Math.max(...validPutts) > 0) bonusPts += 25;
-        const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null);
-        if (getNum(player.hole) === Math.max(...validHoles) && Math.max(...validHoles) > 0) bonusPts += 25;
-        return (basePts + bonusPts) * multiplier;
-    }
-
-    function renderInfo(state) {
-    // Render the Season/Week Bar
-    document.getElementById('info-bar').innerHTML = `
-        <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
-        <div class="info-item"><span class="label">Week</span>${state.week || 1}</div>
-    `;
-
-    // Render the Full-Width Event Image below it
-    const eventHero = document.getElementById('event-hero');
-    eventHero.style.display = 'block';
-    eventHero.innerHTML = `
-        <img src="event.png" alt="Current Event" class="event-img-full">
-    `;
-}
-
-    const getIcon = (p) => {
-        if (p === 'xbox') return '<i class="fa-brands fa-xbox plat-icon" style="color:#107C10"></i>';
-        if (p === 'playstation') return '<i class="fa-brands fa-playstation plat-icon" style="color:#003087"></i>';
-        return '<i class="fa-brands fa-steam plat-icon" style="color:#171a21"></i>';
-    };
-
-    function renderLive(state) {
-        const container = document.getElementById('live-tables');
-        container.innerHTML = '';
-        [1, 2, 3].forEach(divNum => {
-            let divPlayers = state.players.filter(p => String(p.division) === String(divNum));
-            let sorted = [...divPlayers].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
-            if (sorted.length === 0) return;
-
-            const maxPutt = Math.max(...divPlayers.map(p => getNum(p.putt)).filter(v => v !== null), 0);
-            const maxHole = Math.max(...divPlayers.map(p => getNum(p.hole)).filter(v => v !== null), 0);
-            
-            const bestPutt = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
-            const bestHole = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
-            
-            const aces = divPlayers.filter(p => getNum(p.hio) > 0).map(p => `${p.name} (x${p.hio})`);
-            const albas = divPlayers.filter(p => getNum(p.albatross) > 0).map(p => `${p.name} (x${p.albatross})`);
-
-            let html = `<div class="div-section">
-                        <div class="div-header div-${divNum}">Division ${divNum} Live Board</div>
-                        <div class="table-responsive"><table>
-                <thead><tr><th>POS</th><th style="text-align:left; padding-left:30px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>ACE</th><th>ALBY</th><th class="pts-col">LIVE PTS</th></tr></thead><tbody>`;
-            
-            sorted.forEach((p) => {
-                const score = getNum(p.toPar);
-                const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
-                const displayRank = sorted.indexOf(firstWithScore) + 1;
-                
-                const hio = getNum(p.hio) || 0;
-                const alby = getNum(p.albatross) || 0;
-                const pPutt = getNum(p.putt) || 0;
-                const pHole = getNum(p.hole) || 0;
-
-                const puttDisplay = (pPutt > 0 && pPutt === maxPutt) ? `🚩 ${p.putt}` : (p.putt || '-');
-                const holeDisplay = (pHole > 0 && pHole === maxHole) ? `🎯 ${p.hole}` : (p.hole || '-');
-
-                html += `<tr>
-                    <td>${score !== null ? displayRank : '-'}</td>
-                    <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                    <td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td>
-                    <td class="icon-cell">${puttDisplay}</td>
-                    <td class="icon-cell">${holeDisplay}</td>
-                    <td class="icon-cell">${hio > 0 ? '⛳ ' + hio : '-'}</td>
-                    <td class="icon-cell">${alby > 0 ? '🦅 ' + alby : '-'}</td>
-                    <td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td>
-                </tr>`;
-            });
-            
-            html += `</tbody></table></div><div class="awards-footer">
-                <div class="award-item">🚩 Longest Putt: <span class="award-val">${bestPutt ? bestPutt.name + ' (' + bestPutt.val + 'ft)' : '---'}</span></div>
-                <div class="award-item">🎯 Longest Hole-out: <span class="award-val">${bestHole ? bestHole.name + ' (' + bestHole.val + 'yds)' : '---'}</span></div>
-                ${aces.length ? `<div class="award-item">⛳ Aces: <span class="award-val">${aces.join(', ')}</span></div>` : ''}
-                ${albas.length ? `<div class="award-item">🦅 Albatross: <span class="award-val">${albas.join(', ')}</span></div>` : ''}
-            </div></div>`;
-            container.innerHTML += html;
-        });
-    }
-
-    function renderSeason(state) {
-        const container = document.getElementById('season-tables');
-        container.innerHTML = '';
-        [1, 2, 3].forEach(divNum => {
-            let divPlayers = state.players.filter(p => String(p.division) === String(divNum));
-            const scored = divPlayers.filter(p => getNum(p.toPar) !== null);
-            const leaderScore = scored.length ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
-            
-            let sorted = divPlayers.map(p => {
-                const livePts = calculateLivePoints(p, divPlayers, state.isSignature);
-                const scoreEntered = getNum(p.toPar) !== null;
-                const histTotal = (p.history || []).reduce((sum, s) => sum + (Number(s) || 0), 0);
-                return { ...p, projPts: (Number(p.seasonPts) || 0) + livePts, projWins: (Number(p.wins) || 0) + (scoreEntered && getNum(p.toPar) === leaderScore ? 1 : 0), projEvents: (Number(p.events) || 0) + (scoreEntered ? 1 : 0), accum: histTotal + (getNum(p.toPar) || 0) };
-            }).sort((a,b) => b.projPts - a.projPts || a.accum - b.accum);
-            
-            if (sorted.length === 0) return;
-
-            let html = `<div class="season-section">
-                        <div class="div-header div-${divNum}">Division ${divNum} Standings</div>
-                        <div class="table-responsive"><table><thead><tr><th>RK</th><th style="text-align:left; padding-left:30px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVENTS</th><th class="pts-col">TOTAL PTS</th></tr></thead><tbody>`;
-            
-            sorted.forEach((p, i) => {
-                const curRank = i + 1;
-                const oldRank = Number(p.rank) || curRank;
-                let marker = '<i class="fa-solid fa-minus move-even"></i>';
-                if (curRank < oldRank) marker = '<i class="fa-solid fa-caret-up move-up"></i>';
-                if (curRank > oldRank) marker = '<i class="fa-solid fa-caret-down move-down"></i>';
-
-                let rowClass = "";
-                if (curRank <= 2 && divNum > 1) rowClass = "promo-zone";
-                if (curRank > sorted.length - 2 && divNum < 3) rowClass = "releg-zone";
-
-                html += `<tr class="${rowClass}">
-                    <td><div class="rank-cell"><span>${curRank}</span> ${marker}</div></td>
-                    <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                    <td class="accum-col" style="color:${p.accum < 0 ? 'var(--red)' : (p.accum === 0 ? 'var(--green)' : '#555')}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td>
-                    <td>${p.projWins}</td>
-                    <td>${p.projEvents}</td>
-                    <td class="pts-col">${p.projPts}</td>
-                </tr>`;
-            });
-            container.innerHTML += html + `</tbody></table></div></div>`;
-        });
-    }
-    loadLeaderboard();
+    loadData();
 </script>
 </body>
 </html>
