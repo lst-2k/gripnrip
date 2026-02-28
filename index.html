@@ -41,13 +41,21 @@
         .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; }
         .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 1px; }
         
-        /* Style for the new Event Image */
-        .event-img { 
-            height: 50px; 
-            width: auto; 
-            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)); /* Subtle gold glow */
-            object-fit: contain;
-        }
+        /* Container for the full-width event image */
+		.event-container {
+			width: 100%;
+			background: #000; /* Darker contrast to make the glow pop */
+			padding: 15px 0;
+			text-align: center;
+			border-bottom: 2px solid var(--gold);
+		}
+
+		.event-img-full {
+			width: 90%;          /* Margin on sides for clean look */
+			max-width: 800px;    /* Prevents it from becoming pixelated on huge monitors */
+			height: auto;
+			filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7)); /* Enhanced gold glow */
+		}
 
         .div-section, .season-section { position: relative; width: 100%; background: white; }
         .div-section::before, .season-section::before {
@@ -101,6 +109,8 @@
     <div class="leaderboard-container">
         <div class="header"><img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img"></div>
         <div id="info-bar" class="info-bar">Loading...</div>
+		<div id="info-bar" class="info-bar">Loading...</div>
+		<div id="event-hero" class="event-container" style="display:none;"></div> <div id="live-tables"></div>
         <div id="live-tables"></div>
         <div class="logo-break"><img src="2k25 logo.png" alt="PGA 2K25" class="break-img"></div>
     </div>
@@ -151,12 +161,19 @@
     }
 
     function renderInfo(state) {
-        document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
-            <div class="info-item"><img src="event.png" alt="Event" class="event-img"></div>
-            <div class="info-item"><span class="label">Week</span>${state.week || 1}</div>
-        `;
-    }
+    // Render the Season/Week Bar
+    document.getElementById('info-bar').innerHTML = `
+        <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
+        <div class="info-item"><span class="label">Week</span>${state.week || 1}</div>
+    `;
+
+    // Render the Full-Width Event Image below it
+    const eventHero = document.getElementById('event-hero');
+    eventHero.style.display = 'block';
+    eventHero.innerHTML = `
+        <img src="event.png" alt="Current Event" class="event-img-full">
+    `;
+}
 
     const getIcon = (p) => {
         if (p === 'xbox') return '<i class="fa-brands fa-xbox plat-icon" style="color:#107C10"></i>';
