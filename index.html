@@ -88,6 +88,12 @@
         return n < 0 ? 'var(--red)' : (n === 0 ? 'var(--green)' : 'black');
     }
 
+    function formatScore(n) {
+        if (n === null) return '-';
+        if (n === 0) return 'E';
+        return n > 0 ? '+' + n : n;
+    }
+
     function getPlatIcon(p) {
         if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
         if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
@@ -130,13 +136,17 @@
             const dps = state.players.filter(p => String(p.division) === String(divNum))
                                      .sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             
-            // Weekly Award Logic
             const validPutts = dps.map(p => ({n: p.name, v: getNum(p.putt)})).filter(x => x.v > 0);
             const maxPutt = validPutts.length ? validPutts.reduce((a, b) => a.v > b.v ? a : b) : null;
             const validHoles = dps.map(p => ({n: p.name, v: getNum(p.hole)})).filter(x => x.v > 0);
             const maxHole = validHoles.length ? validHoles.reduce((a, b) => a.v > b.v ? a : b) : null;
-            const aces = dps.filter(p => parseInt(p.hio) > 0).map(p => p.name);
-            const albys = dps.filter(p => parseInt(p.albatross) > 0).map(p => p.name);
+            const specialAwards = dps.filter(p => (parseInt(p.hio) > 0) || (parseInt(p.albatross) > 0))
+                                     .map(p => {
+                                         let txt = p.name;
+                                         if(parseInt(p.hio) > 0) txt += ` (Ace x${p.hio})`;
+                                         if(parseInt(p.albatross) > 0) txt += ` (Alby x${p.albatross})`;
+                                         return txt;
+                                     });
 
             let rows = dps.map((p, idx) => {
                 const score = getNum(p.toPar);
@@ -155,6 +165,16 @@
                 </tr>`;
             }).join('');
 
+            let awardHTML = `
+                <div class="award-item"><i class="fa-solid fa-flag"></i> Longest Putt: <span class="award-val">${maxPutt ? maxPutt.n + ' (' + maxPutt.v + 'ft)' : '---'}</span></div>
+                <div class="award-item"><i class="fa-solid fa-bullseye"></i> Longest Hole-out: <span class="award-val">${maxHole ? maxHole.n + ' (' + maxHole.v + 'yds)' : '---'}</span></div>
+            `;
+            
+            // Only show Ace/Alby row if it exists
+            if (specialAwards.length > 0) {
+                awardHTML += `<div class="award-item"><i class="fa-solid fa-star"></i> Ace/Alby: <span class="award-val">${specialAwards.join(', ')}</span></div>`;
+            }
+
             liveContainer.innerHTML += `
                 <div class="div-header div-${divNum}">Division ${divNum}</div>
                 <div class="table-wrapper">
@@ -163,11 +183,7 @@
                         <tbody>${rows}</tbody>
                     </table>
                 </div>
-                <div class="footer-awards">
-                    <div class="award-item"><i class="fa-solid fa-flag"></i> Longest Putt: <span class="award-val">${maxPutt ? maxPutt.n + ' (' + maxPutt.v + 'ft)' : '---'}</span></div>
-                    <div class="award-item"><i class="fa-solid fa-bullseye"></i> Longest Hole-out: <span class="award-val">${maxHole ? maxHole.n + ' (' + maxHole.v + 'yds)' : '---'}</span></div>
-                    <div class="award-item"><i class="fa-solid fa-star"></i> Ace/Alby: <span class="award-val">${[...aces, ...albys].join(', ') || 'None'}</span></div>
-                </div>`;
+                <div class="footer-awards">${awardHTML}</div>`;
         });
         renderSeason();
     }
@@ -177,17 +193,27 @@
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
             let dps = state.players.filter(p => String(p.division) === String(divNum));
-            let list = dps.map(p => ({ p, total: (p.seasonPts || 0) + calculatePoints(p, dps) })).sort((a,b) => b.total - a.total);
+            let list = dps.map(p => {
+                const livePts = calculatePoints(p, dps);
+                const historySum = (p.history || []).reduce((a, b) => a + (Number(b) || 0), 0);
+                const currentScore = getNum(p.toPar) || 0;
+                return { 
+                    p, 
+                    totalPts: (p.seasonPts || 0) + livePts,
+                    accum: historySum + currentScore
+                };
+            }).sort((a,b) => b.totalPts - a.totalPts || a.accum - b.accum);
 
             if (!list.length) return;
 
             let rows = list.map((item, idx) => {
-                const isTied = list.filter(o => o.total === item.total).length > 1;
-                const rk = (isTied ? 'T' : '') + (list.findIndex(o => o.total === item.total) + 1);
+                const isTied = list.filter(o => o.totalPts === item.totalPts).length > 1;
+                const rk = (isTied ? 'T' : '') + (list.findIndex(o => o.totalPts === item.totalPts) + 1);
                 return `<tr>
                     <td style="width:80px">${rk}</td>
                     <td class="name-col"><span class="plat-icon">${getPlatIcon(item.p.platform)}</span> ${item.p.name}</td>
-                    <td class="pts-col">${item.total}</td>
+                    <td style="color:${getScoreColor(item.accum)}">${formatScore(item.accum)}</td>
+                    <td class="pts-col">${item.totalPts}</td>
                     <td>${item.p.wins || 0}</td>
                     <td>${(item.p.events || 0) + (getNum(item.p.toPar) !== null ? 1 : 0)}</td>
                 </tr>`;
@@ -197,7 +223,7 @@
                 <div class="div-header div-${divNum}">Div ${divNum} Standings</div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>RK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>PTS</th><th>WINS</th><th>EVENTS</th></tr></thead>
+                        <thead><tr><th>RK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>ACCUM</th><th>PTS</th><th>WINS</th><th>EVENTS</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>
                 </div>`;
