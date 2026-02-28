@@ -3,288 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip Rebirth 74</title>
+    <title>Grip & Rip - Official Leaderboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
-            --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
+            --header-grad: linear-gradient(135deg, #7C7C7C 0%, #545454 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
-            --promo: rgba(40, 167, 69, 0.25); 
-            --releg: rgba(220, 53, 69, 0.25); 
         }
-        body { background-color: #000; margin: 0; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; overflow-x: hidden; }
+        body { background-color: #f0f2f5; margin: 20px; font-family: 'Segoe UI', sans-serif; font-size: 18px; }
+        .leaderboard-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 40px; }
         
-        /* HEADER SECTION */
-        .header-main { 
-            background: var(--header-grad); 
-            text-align: center; 
-            border-bottom: 4px solid var(--gold); 
-            box-shadow: 0px 5px 20px rgba(255, 215, 0, 0.3);
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 0; 
-        }
+        .header { background: var(--header-grad); color: white; padding: 25px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 4px solid var(--gold); }
+        .header-title { font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+
+        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 40px; border-bottom: 3px solid var(--gold); }
+        .info-item { display: flex; align-items: center; font-size: 22px; font-weight: 800; }
+        .label { color: var(--gold); font-weight: 900; font-size: 14px; margin-right: 10px; text-transform: uppercase; }
         
-        .logo-img { 
-            width: 100%; 
-            height: auto; 
-            max-height: 40vh; 
-            display: block; 
-            object-fit: contain; 
-        }
-
-        /* LANDSCAPE OPTIMIZATION */
-        @media (orientation: landscape) {
-            .logo-img {
-                max-width: 1000px;
-                max-height: 45vh;
-                margin: 0 auto;
-            }
-        }
-
-        /* INFO BAR (Season/Week) */
-        .info-bar { 
-            background: var(--info-grad); 
-            color: #fff; 
-            padding: 15px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            gap: 60px; 
-            border-bottom: 1px solid #444; 
-        }
-        .info-item { display: flex; align-items: center; font-size: 24px; font-weight: 900; }
-        .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 2px; }
-
-        /* EVENT HERO SECTION */
-        .event-container { 
-            background: #000; 
-            padding: 30px 0; 
-            text-align: center; 
-            border-bottom: 3px solid var(--gold); 
-        }
-        .event-img-full { 
-            width: 90%; 
-            max-width: 850px; 
-            height: auto; 
-            filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.7)); 
-        }
-
-        /* TABLE STYLING */
-        .leaderboard-container { width: 100%; background: white; margin-bottom: 40px; }
-        .div-header { 
-            color: white; padding: 20px; font-size: 26px; font-weight: 900; 
-            text-transform: uppercase; text-align: center; letter-spacing: 1px;
-        }
-        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); }
+        .div-header { color: white; padding: 12px 25px; font-size: 22px; font-weight: bold; text-transform: uppercase; }
+        .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        .table-responsive { width: 100%; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #f8f8f8; padding: 15px; font-size: 12px; color: #666; text-transform: uppercase; border-bottom: 2px solid #ddd; }
-        td { padding: 18px; text-align: center; font-size: 18px; font-weight: 700; border-bottom: 1px solid #eee; }
+        thead th { background: #f4f4f4; font-size: 13px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 18px; font-weight: 600; }
         
-        .name-cell { display: flex; align-items: center; gap: 15px; padding-left: 20px; min-width: 250px; text-align: left; }
-        .plat-icon { width: 25px; font-size: 22px; }
-        .pts-col { background: #fffde7; font-weight: 900; font-size: 22px; color: #000; }
-
-        .season-header { 
-            background: #111; color: var(--gold); padding: 30px; 
-            font-size: 32px; font-weight: 900; text-align: center; 
-            text-transform: uppercase; border-bottom: 5px solid var(--gold); 
-        }
+        .name-col { text-align: left !important; padding-left: 30px !important; display: flex; align-items: center; }
+        .plat-icon { margin-right: 15px; width: 20px; font-size: 18px; text-align: center; }
+        
+        .score-cell { font-weight: 800; font-size: 20px; }
+        .pts-col { font-weight: 900; color: #0047AB; font-size: 20px; }
+        
+        .season-header { background: #555; color: white; padding: 15px; font-size: 24px; font-weight: 900; text-align: center; text-transform: uppercase; }
+        .footer-awards { background: #f9f9f9; padding: 15px; font-weight: bold; font-size: 16px; border-top: 1px solid #ddd; text-align: center; }
+        
+        .badge { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; vertical-align: middle; }
+        .sig-badge { background: var(--gold); color: #000; }
     </style>
 </head>
 <body>
 
-    <div class="header-main">
-        <img src="logo.png" alt="Grip & Rip Rebirth 74" class="logo-img">
-    </div>
+    <div class="leaderboard-container">
+        <div class="header">
+            <div class="header-title">Grip & Rip Divisional Leaderboard</div>
+        </div>
+        
+        <div class="info-bar">
+            <div class="info-item"><span class="label">Season</span> <span id="view-season">-</span></div>
+            <div class="info-item"><span class="label">Week</span> <span id="view-week">-</span></div>
+            <div class="info-item">
+                <span class="label">Venue</span> <span id="view-venue">-</span>
+                <span id="sig-badge-container"></span>
+            </div>
+            <div class="info-item"><span class="label">Par</span> <span id="view-par">-</span></div>
+        </div>
 
-    <div id="info-bar" class="info-bar">
-        <div class="info-item"><span class="label">Season</span><span id="season-val">1</span></div>
-        <div class="info-item"><span class="label">Week</span><span id="week-val">1</span></div>
+        <div id="live-container"></div>
     </div>
-
-    <div class="event-container">
-        <img src="event.png" alt="Current Event" class="event-img-full">
-    </div>
-
-    <div id="live-tables"></div>
 
     <div class="leaderboard-container">
-        <div class="season-header">Season Standings (Projected)</div>
-        <div id="season-tables"></div>
+        <div class="season-header">Current Season Standings</div>
+        <div id="season-container"></div>
     </div>
 
 <script>
-    const DB_KEY = 'GR_v98_Final_Nav';
     const GITHUB_URL = "https://raw.githubusercontent.com/lst-2k/gripnrip/refs/heads/main/GR_Backup.json";
     const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
-    
-    // Initial state
-    let state = JSON.parse(localStorage.getItem(DB_KEY)) || { 
-        players: [], par: '72', venue: 'TPC Sawgrass', season: '1', week: '1', isSignature: false, isDoubleBonus: false
-    };
-
-    let saveTimeout;
-    function triggerSaveUI() {
-        const indicator = document.getElementById('save-indicator');
-        indicator.classList.add('show');
-        clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(() => indicator.classList.remove('show'), 1500);
-    }
-
-    function toggleSSMode() {
-        const isSS = document.body.classList.toggle('ss-mode');
-        document.getElementById('exit-ss').style.display = isSS ? 'block' : 'none';
-    }
-
-    // UPDATED: Saves the Double Bonus checkbox state
-    function saveState() {
-        state.par = document.getElementById('course-par').innerText;
-        state.venue = document.getElementById('course-venue').innerText;
-        state.season = document.getElementById('season-num').innerText;
-        state.week = document.getElementById('week-num').innerText;
-        state.isSignature = document.getElementById('is-signature').checked;
-        state.isDoubleBonus = document.getElementById('is-double-bonus').checked;
-        localStorage.setItem(DB_KEY, JSON.stringify(state));
-        triggerSaveUI();
-    }
-
-    // NEW: Automatically pulls latest data from your GitHub link
-    function loadDataFromGitHub() {
-        fetch(`${GITHUB_URL}?t=${Date.now()}`)
-            .then(response => {
-                if (!response.ok) throw new Error("GitHub sync failed");
-                return response.json();
-            })
-            .then(data => {
-                state = data;
-                render();
-                console.log("Synced with GitHub");
-            })
-            .catch(err => console.warn("Using local cache:", err));
-    }
+    let state = { players: [] };
 
     function getNum(val) {
         if (!val || val === '' || val === '-' || val === '.') return null;
-        const n = (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
-        return isNaN(n) ? null : n;
+        return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
     }
 
     function getScoreColor(val) {
         const n = getNum(val);
         if (n === null) return 'black';
-        if (n < 0) return 'var(--red)';
-        if (n === 0) return 'var(--green)';
-        return 'black';
+        return n < 0 ? 'var(--red)' : (n === 0 ? 'var(--green)' : 'black');
     }
 
-    // NEW: Function for the "Sort Scores" button
-    function sortByScore() {
-        state.players.sort((a, b) => {
-            if (a.division !== b.division) return a.division - b.division;
-            const scoreA = getNum(a.toPar) ?? 999;
-            const scoreB = getNum(b.toPar) ?? 999;
-            return scoreA - scoreB;
-        });
-        saveState();
-        render();
+    function getPlatIcon(p) {
+        if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
+        if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
+        return '<i class="fa-brands fa-steam" style="color:#171a21"></i>';
     }
 
-    // UPDATED: Correctly doubles bonus points when checkbox is checked
-    function calculateLivePoints(player, divisionPlayers) {
+    function calculatePoints(player, divPlayers) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
         
-        const isSig = document.getElementById('is-signature').checked;
-        const isDoubleBonus = document.getElementById('is-double-bonus').checked;
+        const mult = state.isSignature ? 2 : 1;
+        const bMult = state.isDoubleBonus ? 2 : 1;
         
-        const multiplier = isSig ? 2 : 1;
-        const bonusMultiplier = isDoubleBonus ? 2 : 1;
-        
-        const scoredPlayers = divisionPlayers.filter(p => getNum(p.toPar) !== null)
-                                             .sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
-        const firstTieIdx = scoredPlayers.findIndex(p => getNum(p.toPar) === score);
-        let basePts = (firstTieIdx !== -1 && firstTieIdx < ptsMap.length) ? ptsMap[firstTieIdx] : 5;
+        const scored = divPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
+        const rankIdx = scored.findIndex(p => getNum(p.toPar) === score);
+        let base = (rankIdx !== -1 && rankIdx < ptsMap.length) ? ptsMap[rankIdx] : 5;
 
-        let bonusPts = 0;
-        const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null && v > 0);
-        const maxPutt = validPutts.length ? Math.max(...validPutts) : null;
+        let bonus = 0;
+        const validPutts = divPlayers.map(p => getNum(p.putt)).filter(v => v > 0);
+        if (getNum(player.putt) === Math.max(...validPutts)) bonus += 25;
         
-        const validHoles = divisionPlayers.map(p => getNum(p.hole)).filter(v => v !== null && v > 0);
-        const maxHole = validHoles.length ? Math.max(...validHoles) : null;
-
-        if (getNum(player.putt) === maxPutt && maxPutt !== null) bonusPts += 25;
-        if (getNum(player.hole) === maxHole && maxHole !== null) bonusPts += 25;
+        const validHoles = divPlayers.map(p => getNum(p.hole)).filter(v => v > 0);
+        if (getNum(player.hole) === Math.max(...validHoles)) bonus += 25;
         
-        bonusPts += (parseInt(player.hio) || 0) * 50;
-        bonusPts += (parseInt(player.albatross) || 0) * 50;
+        bonus += (parseInt(player.hio) || 0) * 50;
+        bonus += (parseInt(player.albatross) || 0) * 50;
 
-        // Apply bonus multiplier to bonuses before adding to base, then apply signature multiplier
-        return (basePts + (bonusPts * bonusMultiplier)) * multiplier;
+        return (base + (bonus * bMult)) * mult;
     }
 
     function render() {
-        document.getElementById('course-par').innerText = state.par;
-        document.getElementById('course-venue').innerText = state.venue;
-        document.getElementById('season-num').innerText = state.season;
-        document.getElementById('week-num').innerText = state.week;
-        document.getElementById('is-signature').checked = state.isSignature || false;
-        document.getElementById('is-double-bonus').checked = state.isDoubleBonus || false;
+        document.getElementById('view-season').innerText = state.season;
+        document.getElementById('view-week').innerText = state.week;
+        document.getElementById('view-venue').innerText = state.venue;
+        document.getElementById('view-par').innerText = state.par;
 
-        const container = document.getElementById('div-container');
-        container.innerHTML = '';
+        let badges = '';
+        if(state.isSignature) badges += '<span class="badge sig-badge">Signature Event</span>';
+        if(state.isDoubleBonus) badges += '<span class="badge" style="background:#00d4ff">2X Bonus</span>';
+        document.getElementById('sig-badge-container').innerHTML = badges;
+
+        const liveContainer = document.getElementById('live-container');
+        liveContainer.innerHTML = '';
         
         [1, 2, 3].forEach(divNum => {
-            const divBox = document.createElement('div');
-            divBox.id = `div-wrapper-${divNum}`;
-            divBox.innerHTML = `
+            const dps = state.players.filter(p => String(p.division) === String(divNum))
+                                     .sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
+            
+            let rows = dps.map((p, idx) => `
+                <tr>
+                    <td>${getNum(p.toPar) !== null ? (idx + 1) : '-'}</td>
+                    <td class="name-col">${getPlatIcon(p.platform)} ${p.name}</td>
+                    <td class="score-cell" style="color:${getScoreColor(p.toPar)}">${p.toPar || '-'}</td>
+                    <td>${p.putt || '-'}</td>
+                    <td>${p.hole || '-'}</td>
+                    <td class="pts-col">${calculatePoints(p, dps)}</td>
+                </tr>`).join('');
+
+            liveContainer.innerHTML += `
                 <div class="div-header div-${divNum}">Division ${divNum}</div>
                 <table>
-                    <thead>
-                        <tr>
-                            <th style="width:60px">POS</th><th style="width:300px; text-align:left; padding-left:25px;">PLAYER</th>
-                            <th style="width:120px">TO PAR</th><th style="width:140px">L-PUTT</th>
-                            <th style="width:140px">L-SHOT</th><th style="width:70px">HIO</th>
-                            <th style="width:70px">ALBA</th><th class="pts-col">LIVE PTS</th>
-                        </tr>
-                    </thead>
-                    <tbody id="div-body-${divNum}"></tbody>
-                    <tfoot>
-                        <tr style="background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd;">
-                            <td colspan="8" id="awards-footer-${divNum}" style="text-align: center; padding: 15px 25px; font-size: 17px;"></td>
-                        </tr>
-                    </tfoot>
+                    <thead><tr><th>POS</th><th style="text-align:left; padding-left:30px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>PTS</th></tr></thead>
+                    <tbody>${rows}</tbody>
                 </table>`;
-            container.appendChild(divBox);
-
-            let dps = state.players.filter(p => String(p.division) === String(divNum));
-            dps.forEach((p, idx) => {
-                const tr = document.createElement('tr');
-                const score = getNum(p.toPar);
-                tr.innerHTML = `
-                    <td>${score !== null ? (idx + 1) : '-'}</td>
-                    <td><div class="name-col-cell">
-                        <span class="plat-icon" onclick="cyclePlatform('${p.name}')" style="cursor:pointer">${getPlatIcon(p.platform)}</span>
-                        <span class="player-name-text">${p.name}</span>
-                        <i class="fa-solid fa-trash delete-btn" onclick="delPlayer('${p.name}')"></i>
-                    </div></td>
-                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="toPar" value="${p.toPar || ''}" placeholder="--" style="color:${getScoreColor(p.toPar)}"></td>
-                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="putt" value="${p.putt || ''}" placeholder="--"></td>
-                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="hole" value="${p.hole || ''}" placeholder="--"></td>
-                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="hio" value="${p.hio || ''}" placeholder="--"></td>
-                    <td><input type="text" class="nav-in" data-p="${p.name}" data-f="albatross" value="${p.albatross || ''}" placeholder="--"></td>
-                    <td class="pts-col live-pts">0</td>
-                `;
-                document.getElementById(`div-body-${divNum}`).appendChild(tr);
-            });
         });
-        updateAllTables();
-        bindInputs();
+        renderSeason();
     }
 
     function renderSeason() {
@@ -292,142 +157,28 @@
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
             let dps = state.players.filter(p => String(p.division) === String(divNum));
-            let scored = dps.filter(p => getNum(p.toPar) !== null);
-            let minScore = scored.length > 0 ? Math.min(...scored.map(p => getNum(p.toPar))) : null;
-
             let list = dps.map(p => {
-                const histScore = (p.history || []).reduce((s, v) => s + (Number(v) || 0), 0);
-                const currScore = getNum(p.toPar);
-                const livePts = calculateLivePoints(p, dps);
-                return { 
-                    p, 
-                    accum: histScore + (currScore !== null ? currScore : 0),
-                    totalPts: (p.seasonPts || 0) + livePts,
-                    liveWins: (p.wins || 0) + (currScore !== null && currScore === minScore ? 1 : 0),
-                    liveEvents: (p.events || 0) + (currScore !== null ? 1 : 0)
-                };
-            }).sort((a,b) => b.totalPts - a.totalPts || a.accum - b.accum);
+                const live = calculatePoints(p, dps);
+                return { p, total: (p.seasonPts || 0) + live };
+            }).sort((a,b) => b.total - a.total);
 
-            if (!list.length) return;
-            const rows = list.map((item, idx) => {
-                const p = item.p;
-                const rk = idx + 1;
-                let movement = '<span class="steady">—</span>';
-                if (p.prevRank) {
-                    if (rk < p.prevRank) movement = '<span class="up">▲</span>';
-                    else if (rk > p.prevRank) movement = '<span class="down">▼</span>';
-                }
-                return `<tr><td>${movement}</td><td>${rk}</td>
-                    <td><div class="name-col-cell"><span class="plat-icon">${getPlatIcon(p.platform)}</span><span class="player-name-text">${p.name}</span></div></td>
-                    <td style="color:${getScoreColor(item.accum)}">${item.accum === 0 ? 'E' : (item.accum > 0 ? '+'+item.accum : item.accum)}</td>
-                    <td class="pts-col">${item.totalPts}</td><td>${item.liveWins}</td><td>${item.liveEvents}</td></tr>`;
-            }).join('');
-            
-            container.innerHTML += `<div class="div-header div-${divNum}">Div ${divNum} Standings</div>
-            <table><thead><tr><th style="width:60px">+/-</th><th style="width:60px">RK</th><th style="text-align:left; padding-left:25px;">PLAYER</th><th>ACCUM</th><th class="pts-col">PTS</th><th style="width:80px">WINS</th><th style="width:100px">EVENTS</th></tr></thead><tbody>${rows}</tbody></table>`;
+            let rows = list.map((item, idx) => `
+                <tr>
+                    <td style="width:80px">${idx + 1}</td>
+                    <td class="name-col">${getPlatIcon(item.p.platform)} ${item.p.name}</td>
+                    <td class="pts-col">${item.total}</td>
+                </tr>`).join('');
+
+            container.innerHTML += `
+                <div class="div-header div-${divNum}">Div ${divNum} Standings</div>
+                <table><tbody>${rows}</tbody></table>`;
         });
     }
 
-    function bindInputs() {
-        document.querySelectorAll('.nav-in').forEach(el => {
-            el.oninput = () => {
-                const p = state.players.find(x => x.name === el.dataset.p);
-                p[el.dataset.f] = el.value;
-                if(el.dataset.f === 'toPar') el.style.color = getScoreColor(el.value);
-                saveState();
-                updateAllTables(); 
-            };
-            el.onkeydown = (e) => {
-                const inputs = Array.from(document.querySelectorAll('.nav-in'));
-                const index = inputs.indexOf(el);
-                if (e.key === 'ArrowRight' || e.key === 'Tab' && !e.shiftKey) {
-                    if (index < inputs.length - 1) { e.preventDefault(); inputs[index + 1].focus(); }
-                } else if (e.key === 'ArrowLeft' || e.key === 'Tab' && e.shiftKey) {
-                    if (index > 0) { e.preventDefault(); inputs[index - 1].focus(); }
-                } else if (e.key === 'ArrowDown' || e.key === 'Enter') {
-                    if (index + 5 < inputs.length) { e.preventDefault(); inputs[index + 5].focus(); }
-                } else if (e.key === 'ArrowUp') {
-                    if (index - 5 >= 0) { e.preventDefault(); inputs[index - 5].focus(); }
-                }
-            };
-            el.onfocus = () => el.select();
-        });
-    }
-
-    function updateAllTables() {
-        [1, 2, 3].forEach(divNum => {
-            const dps = state.players.filter(p => String(p.division) === String(divNum));
-            dps.forEach(player => {
-                const lp = calculateLivePoints(player, dps);
-                const row = document.querySelector(`[data-p="${player.name}"]`)?.closest('tr');
-                if(row) row.querySelector('.live-pts').innerText = getNum(player.toPar) !== null ? lp : 0;
-            });
-
-            const validPutts = dps.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val !== null && v.val > 0);
-            const bestPutt = validPutts.length ? validPutts.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
-            const validHoles = dps.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val !== null && v.val > 0);
-            const bestHole = validHoles.length ? validHoles.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
-
-            const footer = document.getElementById(`awards-footer-${divNum}`);
-            if (footer) {
-                footer.innerHTML = `
-                    <span style="margin: 0 40px; color: var(--div1);"><i class="fa-solid fa-flag"></i> Longest Putt: <span style="color:#333">${bestPutt ? bestPutt.name + ' ' + bestPutt.val + 'ft' : '---'}</span></span>
-                    <span style="margin: 0 40px; color: var(--div2);"><i class="fa-solid fa-bullseye"></i> Longest Hole-out: <span style="color:#333">${bestHole ? bestHole.name + ' ' + bestHole.val + 'yds' : '---'}</span></span>
-                `;
-            }
-        });
-        renderSeason();
-    }
-
-    const getPlatIcon = (p) => {
-        if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10"></i>';
-        if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087"></i>';
-        return '<i class="fa-brands fa-steam" style="color:#171a21"></i>';
-    };
-
-    function addPlayer() {
-        const n = document.getElementById('new-name'); if(!n.value) return;
-        state.players.push({ name: n.value, platform: document.getElementById('new-platform').value, division: document.getElementById('new-div').value, toPar:'', putt:'', hole:'', hio:'', albatross:'', seasonPts:0, history:[], wins:0, events:0, prevRank:null });
-        n.value = ''; saveState(); render();
-    }
-
-    function delPlayer(name) { if(confirm(`Remove ${name}?`)) { state.players = state.players.filter(p => p.name !== name); saveState(); render(); }}
-    function cyclePlatform(name) { const p = state.players.find(x => x.name === name); const flow = {'xbox':'playstation','playstation':'steam','steam':'xbox'}; p.platform = flow[p.platform]||'xbox'; saveState(); render(); }
-    function purgeDivisions() { if(confirm("Reset Season?")) { state.players.forEach(p => { p.seasonPts=0; p.history=[]; p.wins=0; p.events=0; p.prevRank=null; p.toPar=''; p.putt=''; p.hole=''; p.hio=''; p.albatross=''; }); state.week="1"; saveState(); render(); }}
-    function exportData() { saveState(); const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `GR_Backup.json`; a.click(); }
-    function importData() { const i = document.createElement('input'); i.type = 'file'; i.onchange = e => { const r = new FileReader(); r.onload = f => { state = JSON.parse(f.target.result); render(); }; r.readAsText(e.target.files[0]); }; i.click(); }
-
-    function startNewTournament() {
-        if (!confirm("Finalize Week? Points and Wins will be awarded.")) return;
-        [1,2,3].forEach(div => {
-            let dps = state.players.filter(p => String(p.division) === String(div));
-            let scored = dps.filter(p => getNum(p.toPar) !== null);
-            if (scored.length > 0) {
-                let minScore = Math.min(...scored.map(p => getNum(p.toPar)));
-                scored.forEach(p => { if (getNum(p.toPar) === minScore) p.wins = (p.wins || 0) + 1; });
-            }
-            dps.forEach(p => {
-                const wkPts = calculateLivePoints(p, dps);
-                const score = getNum(p.toPar);
-                if (score !== null) {
-                    p.seasonPts = (p.seasonPts || 0) + wkPts;
-                    p.events = (p.events || 0) + 1;
-                    p.history.push(score);
-                }
-            });
-            let currentSeasonStandings = [...dps].sort((a,b) => (b.seasonPts||0) - (a.seasonPts||0));
-            currentSeasonStandings.forEach((p, idx) => p.prevRank = idx + 1);
-        });
-        state.players.forEach(p => p.toPar = p.putt = p.hole = p.hio = p.albatross = '');
-        state.week = (parseInt(state.week) || 0) + 1;
-        state.isSignature = false;
-        state.isDoubleBonus = false;
-        saveState(); render();
-    }
-
-    // Initialize
-    loadDataFromGitHub();
-    render();
+    fetch(`${GITHUB_URL}?t=${Date.now()}`)
+        .then(r => r.json())
+        .then(data => { state = data; render(); })
+        .catch(e => console.error("Update failed", e));
 </script>
 </body>
 </html>
