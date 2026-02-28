@@ -13,33 +13,39 @@
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
         }
-        body { background-color: #f0f2f5; margin: 20px; font-family: 'Segoe UI', sans-serif; font-size: 18px; }
-        .leaderboard-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 40px; }
+        body { background-color: #f0f2f5; margin: 10px; font-family: 'Segoe UI', sans-serif; font-size: 16px; }
+        .leaderboard-container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.15); margin-bottom: 30px; }
         
-        .header { background: var(--header-grad); color: white; padding: 25px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 4px solid var(--gold); }
-        .header-title { font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .header { background: var(--header-grad); color: white; padding: 20px; display: flex; align-items: center; justify-content: center; position: relative; border-bottom: 4px solid var(--gold); text-align: center; }
+        .header-title { font-size: clamp(20px, 5vw, 32px); font-weight: 900; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
 
-        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 40px; border-bottom: 3px solid var(--gold); }
-        .info-item { display: flex; align-items: center; font-size: 22px; font-weight: 800; }
-        .label { color: var(--gold); font-weight: 900; font-size: 14px; margin-right: 10px; text-transform: uppercase; }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; gap: 20px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
+        .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; }
+        .label { color: var(--gold); font-weight: 900; font-size: 12px; margin-right: 8px; text-transform: uppercase; }
         
-        .div-header { color: white; padding: 12px 25px; font-size: 22px; font-weight: bold; text-transform: uppercase; }
+        /* SCROLL LOGIC */
+        .table-wrapper { 
+            width: 100%; 
+            overflow-x: auto; /* Enables horizontal scroll */
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 600px; /* Forces scroll on small screens */ }
+        
+        .div-header { color: white; padding: 12px 25px; font-size: 20px; font-weight: bold; text-transform: uppercase; position: sticky; left: 0; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        table { width: 100%; border-collapse: collapse; }
-        thead th { background: #f4f4f4; font-size: 13px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 18px; font-weight: 600; }
+        thead th { background: #f4f4f4; font-size: 12px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; white-space: nowrap; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 600; white-space: nowrap; }
         
-        .name-col { text-align: left !important; padding-left: 30px !important; display: flex; align-items: center; }
-        .plat-icon { margin-right: 15px; width: 20px; font-size: 18px; text-align: center; }
+        .name-col { text-align: left !important; padding-left: 20px !important; display: flex; align-items: center; min-width: 200px; }
+        .plat-icon { margin-right: 12px; width: 20px; font-size: 18px; text-align: center; }
         
-        .score-cell { font-weight: 800; font-size: 20px; }
-        .pts-col { font-weight: 900; color: #0047AB; font-size: 20px; }
+        .score-cell { font-weight: 800; font-size: 19px; }
+        .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
         
-        .season-header { background: #555; color: white; padding: 15px; font-size: 24px; font-weight: 900; text-align: center; text-transform: uppercase; }
-        .footer-awards { background: #f9f9f9; padding: 15px; font-weight: bold; font-size: 16px; border-top: 1px solid #ddd; text-align: center; }
-        
-        .badge { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-left: 10px; vertical-align: middle; }
+        .season-header { background: #555; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; }
+        .badge { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 10px; vertical-align: middle; }
         .sig-badge { background: var(--gold); color: #000; }
     </style>
 </head>
@@ -47,7 +53,7 @@
 
     <div class="leaderboard-container">
         <div class="header">
-            <div class="header-title">Grip & Rip Divisional Leaderboard</div>
+            <div class="header-title">Grip & Rip Leaderboard</div>
         </div>
         
         <div class="info-bar">
@@ -93,24 +99,18 @@
     function calculatePoints(player, divPlayers) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
-        
         const mult = state.isSignature ? 2 : 1;
         const bMult = state.isDoubleBonus ? 2 : 1;
-        
         const scored = divPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
         const rankIdx = scored.findIndex(p => getNum(p.toPar) === score);
         let base = (rankIdx !== -1 && rankIdx < ptsMap.length) ? ptsMap[rankIdx] : 5;
-
         let bonus = 0;
         const validPutts = divPlayers.map(p => getNum(p.putt)).filter(v => v > 0);
         if (getNum(player.putt) === Math.max(...validPutts)) bonus += 25;
-        
         const validHoles = divPlayers.map(p => getNum(p.hole)).filter(v => v > 0);
         if (getNum(player.hole) === Math.max(...validHoles)) bonus += 25;
-        
         bonus += (parseInt(player.hio) || 0) * 50;
         bonus += (parseInt(player.albatross) || 0) * 50;
-
         return (base + (bonus * bMult)) * mult;
     }
 
@@ -121,7 +121,7 @@
         document.getElementById('view-par').innerText = state.par;
 
         let badges = '';
-        if(state.isSignature) badges += '<span class="badge sig-badge">Signature Event</span>';
+        if(state.isSignature) badges += '<span class="badge sig-badge">Signature</span>';
         if(state.isDoubleBonus) badges += '<span class="badge" style="background:#00d4ff">2X Bonus</span>';
         document.getElementById('sig-badge-container').innerHTML = badges;
 
@@ -144,10 +144,12 @@
 
             liveContainer.innerHTML += `
                 <div class="div-header div-${divNum}">Division ${divNum}</div>
-                <table>
-                    <thead><tr><th>POS</th><th style="text-align:left; padding-left:30px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>PTS</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>`;
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>POS</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>PTS</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
         });
         renderSeason();
     }
@@ -162,16 +164,24 @@
                 return { p, total: (p.seasonPts || 0) + live };
             }).sort((a,b) => b.total - a.total);
 
+            if (!list.length) return;
             let rows = list.map((item, idx) => `
                 <tr>
                     <td style="width:80px">${idx + 1}</td>
                     <td class="name-col">${getPlatIcon(item.p.platform)} ${item.p.name}</td>
                     <td class="pts-col">${item.total}</td>
+                    <td>${item.p.wins || 0}</td>
+                    <td>${(item.p.events || 0) + (getNum(item.p.toPar) !== null ? 1 : 0)}</td>
                 </tr>`).join('');
 
             container.innerHTML += `
                 <div class="div-header div-${divNum}">Div ${divNum} Standings</div>
-                <table><tbody>${rows}</tbody></table>`;
+                <div class="table-wrapper">
+                    <table>
+                        <thead><tr><th>RK</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>PTS</th><th>WINS</th><th>EVENTS</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
         });
     }
 
