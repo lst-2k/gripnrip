@@ -24,22 +24,25 @@
         .label { color: var(--gold); font-weight: 900; font-size: 12px; margin-right: 8px; text-transform: uppercase; }
         
         .table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { width: 100%; border-collapse: collapse; min-width: 650px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         
         .div-header { color: white; padding: 12px 25px; font-size: 20px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         
-        thead th { background: #f4f4f4; font-size: 12px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; white-space: nowrap; }
-        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 17px; font-weight: 600; white-space: nowrap; }
+        thead th { background: #f4f4f4; font-size: 11px; padding: 12px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; white-space: nowrap; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #eee; font-size: 16px; font-weight: 600; white-space: nowrap; }
         
         .name-col { text-align: left !important; padding-left: 20px !important; display: flex; align-items: center; min-width: 220px; }
-        
-        /* The gap between icon and name */
         .plat-icon { margin-right: 12px; width: 20px; font-size: 18px; text-align: center; display: inline-block; }
         
-        .score-cell { font-weight: 800; font-size: 19px; }
-        .pts-col { font-weight: 900; color: #0047AB; font-size: 19px; }
+        .score-cell { font-weight: 800; font-size: 18px; }
+        .pts-col { font-weight: 900; color: #0047AB; font-size: 18px; }
         
+        .footer-awards { background: #f9f9f9; padding: 15px; border-top: 2px solid #ddd; display: flex; justify-content: space-around; flex-wrap: wrap; gap: 15px; }
+        .award-item { font-size: 14px; color: #444; font-weight: 700; }
+        .award-item i { margin-right: 5px; color: var(--div1); }
+        .award-val { color: #333; font-weight: 800; }
+
         .season-header { background: #555; color: white; padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; }
         .badge { background: #333; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 10px; vertical-align: middle; }
     </style>
@@ -116,8 +119,8 @@
         document.getElementById('view-par').innerText = state.par;
 
         let badges = '';
-        if(state.isSignature) badges += '<span class="badge" style="background:var(--gold); color:#000;">Signature</span>';
-        if(state.isDoubleBonus) badges += '<span class="badge" style="background:#00d4ff">2X Bonus</span>';
+        if(state.isSignature) badges += '<span class="badge" style="background:var(--gold); color:#000;">Signature Event</span>';
+        if(state.isDoubleBonus) badges += '<span class="badge" style="background:#00d4ff">2X Bonus Pts</span>';
         document.getElementById('sig-badge-container').innerHTML = badges;
 
         const liveContainer = document.getElementById('live-container');
@@ -127,22 +130,27 @@
             const dps = state.players.filter(p => String(p.division) === String(divNum))
                                      .sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             
+            // Weekly Award Logic
+            const validPutts = dps.map(p => ({n: p.name, v: getNum(p.putt)})).filter(x => x.v > 0);
+            const maxPutt = validPutts.length ? validPutts.reduce((a, b) => a.v > b.v ? a : b) : null;
+            const validHoles = dps.map(p => ({n: p.name, v: getNum(p.hole)})).filter(x => x.v > 0);
+            const maxHole = validHoles.length ? validHoles.reduce((a, b) => a.v > b.v ? a : b) : null;
+            const aces = dps.filter(p => parseInt(p.hio) > 0).map(p => p.name);
+            const albys = dps.filter(p => parseInt(p.albatross) > 0).map(p => p.name);
+
             let rows = dps.map((p, idx) => {
                 const score = getNum(p.toPar);
-                let posDisplay = '-';
-                if (score !== null) {
-                    // TIE LOGIC: Check if others have the same score
-                    const isTied = dps.filter(other => getNum(other.toPar) === score).length > 1;
-                    const firstIdx = dps.findIndex(other => getNum(other.toPar) === score);
-                    posDisplay = (isTied ? 'T' : '') + (firstIdx + 1);
-                }
+                const isTied = dps.filter(o => getNum(o.toPar) === score).length > 1;
+                const pos = (score !== null) ? (isTied ? 'T' : '') + (dps.findIndex(o => getNum(o.toPar) === score) + 1) : '-';
 
                 return `<tr>
-                    <td>${posDisplay}</td>
+                    <td>${pos}</td>
                     <td class="name-col"><span class="plat-icon">${getPlatIcon(p.platform)}</span> ${p.name}</td>
                     <td class="score-cell" style="color:${getScoreColor(p.toPar)}">${p.toPar || '-'}</td>
                     <td>${p.putt || '-'}</td>
                     <td>${p.hole || '-'}</td>
+                    <td>${p.hio || '-'}</td>
+                    <td>${p.albatross || '-'}</td>
                     <td class="pts-col">${calculatePoints(p, dps)}</td>
                 </tr>`;
             }).join('');
@@ -151,9 +159,14 @@
                 <div class="div-header div-${divNum}">Division ${divNum}</div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>POS</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>PTS</th></tr></thead>
+                        <thead><tr><th>POS</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>TO PAR</th><th>PUTT</th><th>SHOT</th><th>ACE</th><th>ALBY</th><th>PTS</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>
+                </div>
+                <div class="footer-awards">
+                    <div class="award-item"><i class="fa-solid fa-flag"></i> Longest Putt: <span class="award-val">${maxPutt ? maxPutt.n + ' (' + maxPutt.v + 'ft)' : '---'}</span></div>
+                    <div class="award-item"><i class="fa-solid fa-bullseye"></i> Longest Hole-out: <span class="award-val">${maxHole ? maxHole.n + ' (' + maxHole.v + 'yds)' : '---'}</span></div>
+                    <div class="award-item"><i class="fa-solid fa-star"></i> Ace/Alby: <span class="award-val">${[...aces, ...albys].join(', ') || 'None'}</span></div>
                 </div>`;
         });
         renderSeason();
@@ -164,21 +177,15 @@
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
             let dps = state.players.filter(p => String(p.division) === String(divNum));
-            let list = dps.map(p => {
-                const live = calculatePoints(p, dps);
-                return { p, total: (p.seasonPts || 0) + live };
-            }).sort((a,b) => b.total - a.total);
+            let list = dps.map(p => ({ p, total: (p.seasonPts || 0) + calculatePoints(p, dps) })).sort((a,b) => b.total - a.total);
 
             if (!list.length) return;
 
             let rows = list.map((item, idx) => {
-                // TIE LOGIC: Check for tied points
-                const isTied = list.filter(other => other.total === item.total).length > 1;
-                const firstIdx = list.findIndex(other => other.total === item.total);
-                const rkDisplay = (isTied ? 'T' : '') + (firstIdx + 1);
-
+                const isTied = list.filter(o => o.total === item.total).length > 1;
+                const rk = (isTied ? 'T' : '') + (list.findIndex(o => o.total === item.total) + 1);
                 return `<tr>
-                    <td style="width:80px">${rkDisplay}</td>
+                    <td style="width:80px">${rk}</td>
                     <td class="name-col"><span class="plat-icon">${getPlatIcon(item.p.platform)}</span> ${item.p.name}</td>
                     <td class="pts-col">${item.total}</td>
                     <td>${item.p.wins || 0}</td>
@@ -200,7 +207,7 @@
     fetch(`${GITHUB_URL}?t=${Date.now()}`)
         .then(r => r.json())
         .then(data => { state = data; render(); })
-        .catch(e => console.error("Update failed", e));
+        .catch(e => console.error("Sync Error", e));
 </script>
 </body>
 </html>
