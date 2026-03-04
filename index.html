@@ -18,8 +18,24 @@
         body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
         
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
-        .header { background: var(--header-grad); text-align: center; border-bottom: 4px solid var(--gold); box-shadow: var(--glow); display: flex; justify-content: center; align-items: center; padding: 0; }
+        
+        /* Updated Header for vertical stacking */
+        .header { 
+            background: var(--header-grad); 
+            text-align: center; 
+            border-bottom: 4px solid var(--gold); 
+            box-shadow: var(--glow); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 0; 
+        }
+        
         .logo-img { width: 100%; height: auto; max-height: 45vh; display: block; object-fit: cover; }
+
+        /* Full-width Event Banner */
+        .event-banner { width: 100%; height: auto; display: block; }
 
         .logo-break { background: #000; padding: 10px 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin: 0; line-height: 0; }
         .break-img { width: 90%; max-width: 500px; height: auto; display: inline-block; }
@@ -37,7 +53,6 @@
         .div-section::before { background-image: url('pgalogo.png'); }
         .season-section::before { background-image: url('wannamaker.png'); }
 
-        /* Zone Styling & Column Fix */
         .promo-zone { background-color: var(--promo) !important; }
         .releg-zone { background-color: var(--releg) !important; }
         .promo-zone .accum-col, .releg-zone .accum-col,
@@ -79,7 +94,10 @@
 <body>
 
     <div class="leaderboard-container">
-        <div class="header"><img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img"></div>
+        <div class="header">
+            <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
+            <img src="event.png" alt="Current Event" class="event-banner">
+        </div>
         <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
         <div class="logo-break"><img src="2k25 logo.png" alt="PGA 2K25" class="break-img"></div>
@@ -122,7 +140,6 @@
         
         let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
         
-        // POINT FIX: Specifically mapping to "albatross" key
         let bonusPts = (getNum(player.hio) || 0) * 50 + (getNum(player.albatross) || 0) * 50;
         
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null);
@@ -158,7 +175,6 @@
             const bestPutt = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
             const bestHole = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val > 0).reduce((prev, curr) => (prev && prev.val > curr.val) ? prev : curr, null);
             
-            // FOOTER FIX: Mapping specifically to "albatross"
             const aces = divPlayers.filter(p => getNum(p.hio) > 0).map(p => `${p.name} (x${p.hio})`);
             const albas = divPlayers.filter(p => getNum(p.albatross) > 0).map(p => `${p.name} (x${p.albatross})`);
 
@@ -172,7 +188,6 @@
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
                 
-                // TABLE FIX: Single line display for icons and numbers
                 const hio = getNum(p.hio) || 0;
                 const alby = getNum(p.albatross) || 0;
 
