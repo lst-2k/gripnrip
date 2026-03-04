@@ -38,15 +38,8 @@
         .info-item { display: flex; align-items: center; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
         .label { color: var(--gold); margin-right: 12px; }
 
-        /* Scrollable Table Container */
-        .table-responsive { 
-            width: 100%; 
-            overflow-x: auto; 
-            -webkit-overflow-scrolling: touch; 
-            background: white;
-        }
-        
-        table { width: 100%; border-collapse: collapse; min-width: 800px; } /* Ensures scroll triggers on mobile */
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         thead th { background: #eee; font-size: 12px; padding: 12px 8px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 16px; font-weight: 600; }
         
@@ -61,7 +54,6 @@
         
         .season-header { background: #222; color: var(--gold); padding: 25px; font-size: 28px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 5px solid var(--gold); }
 
-        /* History Dropdown Styles */
         .history-section { background: #f4f4f4; padding: 20px 0; border-top: 5px solid #333; }
         .history-title { text-align: center; font-weight: 900; text-transform: uppercase; font-size: 24px; margin-bottom: 20px; color: #222; }
         .week-dropdown { width: 95%; max-width: 1200px; margin: 10px auto; background: white; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
@@ -119,6 +111,28 @@
         const n = Number(val); return isNaN(n) ? null : n;
     }
 
+    // Helper to get score color
+    function getScoreColor(val) {
+        const n = getNum(val);
+        if (n === null) return 'black';
+        if (n < 0) return 'var(--red)';
+        if (n === 0) return 'var(--green)';
+        return 'black';
+    }
+
+    // This function calculates points for a specific score within a specific week's context
+    function calculateStaticPoints(scoreStr, allScoresInDivStr, isSignature) {
+        const score = getNum(scoreStr);
+        if (score === null) return 0;
+        const multiplier = isSignature ? 2 : 1;
+        
+        const validScores = allScoresInDivStr.map(s => getNum(s)).filter(n => n !== null).sort((a, b) => a - b);
+        const tieRankIdx = validScores.indexOf(score);
+        
+        let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
+        return basePts * multiplier;
+    }
+
     function calculateLivePoints(player, divisionPlayers, isSignature) {
         const score = getNum(player.toPar);
         if (score === null) return 0;
@@ -159,7 +173,7 @@
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
                 html += `<tr><td>${score !== null ? displayRank : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                    <td style="color:${score < 0 ? 'var(--red)' : (score === 0 ? 'var(--green)' : 'black')}">${p.toPar || '-'}</td>
+                    <td style="color:${getScoreColor(p.toPar)}">${p.toPar || '-'}</td>
                     <td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td>${p.hio || '-'}</td><td>${p.albatross || '-'}</td>
                     <td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
             });
@@ -191,7 +205,7 @@
             
             sorted.forEach((p, i) => {
                 html += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                    <td class="accum-col">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td>
+                    <td class="accum-col" style="color:${getScoreColor(p.accum)}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td>
                     <td>${p.projWins}</td><td>${p.projEvents}</td>
                     <td class="pts-col">${p.projPts}</td></tr>`;
             });
@@ -209,11 +223,20 @@
             [1, 2, 3].forEach(divNum => {
                 const playersInDiv = state.players.filter(p => String(p.division) === String(divNum) && p.history && p.history[w-1] !== undefined);
                 if (playersInDiv.length === 0) return;
+
+                // Get all scores for this division in this specific week to calculate points contextually
+                const allScoresInWeek = playersInDiv.map(p => p.history[w-1]);
                 const sorted = [...playersInDiv].sort((a,b) => (getNum(a.history[w-1]) ?? 999) - (getNum(b.history[w-1]) ?? 999));
+
                 weekHtml += `<div class="div-header div-${divNum}" style="font-size:14px;">Division ${divNum}</div><div class="table-responsive"><table>
-                    <thead><tr><th>POS</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>SCORE</th></tr></thead><tbody>`;
+                    <thead><tr><th>POS</th><th style="text-align:left; padding-left:20px;">PLAYER</th><th>SCORE</th><th class="pts-col">PTS EARNED</th></tr></thead><tbody>`;
+                
                 sorted.forEach((p, idx) => {
-                    weekHtml += `<tr><td>${idx+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td><td>${p.history[w-1]}</td></tr>`;
+                    const wkScore = p.history[w-1];
+                    const wkPts = calculateStaticPoints(wkScore, allScoresInWeek, false); // Static calc for history
+                    weekHtml += `<tr><td>${idx+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
+                        <td style="color:${getScoreColor(wkScore)}">${wkScore}</td>
+                        <td class="pts-col">${wkPts}</td></tr>`;
                 });
                 weekHtml += `</tbody></table></div>`;
             });
