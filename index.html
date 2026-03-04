@@ -19,7 +19,7 @@
         
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
         
-        /* Updated Header for vertical stacking */
+        /* Landscape Optimization */
         .header { 
             background: var(--header-grad); 
             text-align: center; 
@@ -30,19 +30,27 @@
             justify-content: center; 
             align-items: center; 
             padding: 0; 
+            overflow: hidden;
         }
         
-        .logo-img { width: 100%; height: auto; max-height: 45vh; display: block; object-fit: cover; }
+        /* Ensures logo doesn't dominate landscape screens */
+        .logo-img { 
+            width: auto; 
+            max-width: 100%;
+            height: auto; 
+            max-height: 35vh; 
+            display: block; 
+            object-fit: contain; 
+        }
 
-        /* Full-width Event Banner */
         .event-banner { width: 100%; height: auto; display: block; }
 
         .logo-break { background: #000; padding: 10px 0; text-align: center; border-top: 4px solid var(--gold); border-bottom: 4px solid var(--gold); margin: 0; line-height: 0; }
         .break-img { width: 90%; max-width: 500px; height: auto; display: inline-block; }
 
-        .info-bar { background: var(--info-grad); color: #fff; padding: 20px; display: flex; justify-content: center; align-items: center; gap: 40px; border-bottom: 3px solid var(--gold); flex-wrap: wrap; }
-        .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; }
-        .label { color: var(--gold); text-transform: uppercase; margin-right: 12px; font-size: 14px; letter-spacing: 1px; }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 15px; display: flex; justify-content: center; align-items: center; border-bottom: 3px solid var(--gold); }
+        .info-item { display: flex; align-items: center; font-size: 22px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
+        .label { color: var(--gold); margin-right: 12px; }
 
         .div-section, .season-section { position: relative; width: 100%; background: white; }
         .div-section::before, .season-section::before {
@@ -139,7 +147,6 @@
         const tieRankIdx = scoredPlayers.indexOf(firstWithScore);
         
         let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
-        
         let bonusPts = (getNum(player.hio) || 0) * 50 + (getNum(player.albatross) || 0) * 50;
         
         const validPutts = divisionPlayers.map(p => getNum(p.putt)).filter(v => v !== null);
@@ -151,10 +158,10 @@
 
     function renderInfo(state) {
         document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Season</span>${state.season || 1}</div>
-            <div class="info-item"><span class="label">Week</span>${state.week || 1}</div>
-            <div class="info-item"><span class="label">Venue</span>${state.venue || 'TBA'} ${state.isSignature ? '⭐' : ''}</div>
-            <div class="info-item"><span class="label">Par</span>${state.par || 72}</div>
+            <div class="info-item">
+                <span class="label">Season</span> ${state.season || 1} 
+                <span class="label" style="margin-left:20px;">Week</span> ${state.week || 1}
+            </div>
         `;
     }
 
@@ -187,7 +194,6 @@
                 const score = getNum(p.toPar);
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
-                
                 const hio = getNum(p.hio) || 0;
                 const alby = getNum(p.albatross) || 0;
 
