@@ -21,7 +21,7 @@
         
         /* LOGO FIX: Full width and better landscape scaling */
         .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); line-height: 0; }
-        .logo-img { width: 100%; height: auto; display: block; object-fit: contain; }
+        .logo-img { width: 100%; height: auto; max-height: 50vh; display: block; object-fit: contain; }
 
         .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); flex-wrap: wrap; gap: 15px; }
         .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
@@ -48,7 +48,7 @@
         .history-title { text-align: center; font-weight: 900; text-transform: uppercase; font-size: 20px; margin-bottom: 15px; color: #222; }
         .week-dropdown { width: 95%; max-width: 1200px; margin: 8px auto; background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
         .week-header { background: #333; color: var(--gold); padding: 10px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
-        .week-content { display: none; }
+        .week-content { display: none; padding: 10px 0; }
         .week-content.active { display: block; }
         
         .logo-break { background: #000; padding: 8px 0; text-align: center; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); margin: 0; line-height: 0; }
@@ -190,13 +190,27 @@
         });
     }
 
+    function toggleHistory(el) {
+        const content = el.closest('.week-dropdown').querySelector('.week-content');
+        const icon = el.querySelector('i');
+        content.classList.toggle('active');
+        if (content.classList.contains('active')) {
+            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+        } else {
+            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+        }
+    }
+
     function renderHistory(state) {
         const container = document.getElementById('history-container');
         container.innerHTML = '';
         const currentWeek = parseInt(state.week) || 1;
         for (let w = currentWeek - 1; w >= 1; w--) {
-            let weekHtml = `<div class="week-dropdown"><div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">
-                    <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i></div><div class="week-content">`;
+            let weekHtml = `<div class="week-dropdown">
+                    <div class="week-header" onclick="toggleHistory(this)">
+                        <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="week-content">`;
 
             [1, 2, 3].forEach(divNum => {
                 const playersInDiv = state.players.filter(p => String(p.division) === String(divNum) && p.history && p.history[w-1] !== undefined);
