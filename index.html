@@ -19,33 +19,18 @@
         
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
         
-        .header { 
-            background: var(--header-grad); 
-            text-align: center; 
-            border-bottom: 3px solid var(--gold); 
-            box-shadow: var(--glow); 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 0; 
-        }
-        
-        /* Scaled down logo */
+        .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0; }
         .logo-img { width: auto; max-width: 100%; height: auto; max-height: 25vh; display: block; object-fit: contain; }
-        .event-banner { width: 100%; height: auto; display: block; }
 
         .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); }
         .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
         .label { color: var(--gold); margin-right: 8px; font-size: 14px; }
 
-        /* Compact Table Styling */
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         thead th { background: #eee; font-size: 11px; padding: 8px 4px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 6px 4px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; font-weight: 600; }
         
-        /* Scaled Division Headers */
         .div-header { color: white; padding: 8px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
 
@@ -55,9 +40,9 @@
         .pts-col { font-weight: 900; color: #333; background: rgba(255, 253, 231, 0.8); min-width: 60px; }
         .accum-col { font-weight: 800; color: #555; min-width: 60px; }
         
-        /* Scaled Section Header */
         .season-header { background: #222; color: var(--gold); padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 4px solid var(--gold); }
 
+        /* History Dropdown Styles */
         .history-section { background: #f4f4f4; padding: 15px 0; border-top: 4px solid #333; }
         .history-title { text-align: center; font-weight: 900; text-transform: uppercase; font-size: 20px; margin-bottom: 15px; color: #222; }
         .week-dropdown { width: 95%; max-width: 1200px; margin: 8px auto; background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
@@ -74,7 +59,6 @@
     <div class="leaderboard-container">
         <div class="header">
             <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
-            <img src="event.png" alt="Current Event" class="event-banner">
         </div>
         <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
@@ -103,7 +87,7 @@
             renderInfo(state);
             renderLive(state);
             renderSeason(state);
-            renderHistory(state);
+            renderHistory(state); // Added trigger for history
         } catch (err) {
             document.getElementById('live-tables').innerHTML = `<div style="padding:50px; text-align:center; color:red;">${err.message}</div>`;
         }
@@ -121,16 +105,6 @@
         if (n < 0) return 'var(--red)';
         if (n === 0) return 'var(--green)';
         return 'black';
-    }
-
-    function calculateStaticPoints(scoreStr, allScoresInDivStr, isSignature) {
-        const score = getNum(scoreStr);
-        if (score === null) return 0;
-        const multiplier = isSignature ? 2 : 1;
-        const validScores = allScoresInDivStr.map(s => getNum(s)).filter(n => n !== null).sort((a, b) => a - b);
-        const tieRankIdx = validScores.indexOf(score);
-        let basePts = (tieRankIdx !== -1 && tieRankIdx < ptsMap.length) ? ptsMap[tieRankIdx] : 5;
-        return basePts * multiplier;
     }
 
     function calculateLivePoints(player, divisionPlayers, isSignature) {
@@ -213,29 +187,35 @@
         });
     }
 
+    // New History Rendering Function
     function renderHistory(state) {
         const container = document.getElementById('history-container');
-        const totalWeeks = state.week || 1;
-        for (let w = totalWeeks - 1; w >= 1; w--) {
-            let weekHtml = `<div class="week-dropdown"><div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">
-                    <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i></div><div class="week-content">`;
+        container.innerHTML = '';
+        const currentWeek = parseInt(state.week) || 1;
+        
+        // Loop backwards from previous week to Week 1
+        for (let w = currentWeek - 1; w >= 1; w--) {
+            let weekHtml = `
+                <div class="week-dropdown">
+                    <div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">
+                        <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="week-content">`;
 
             [1, 2, 3].forEach(divNum => {
                 const playersInDiv = state.players.filter(p => String(p.division) === String(divNum) && p.history && p.history[w-1] !== undefined);
                 if (playersInDiv.length === 0) return;
 
-                const allScoresInWeek = playersInDiv.map(p => p.history[w-1]);
+                // Sort history for that week
                 const sorted = [...playersInDiv].sort((a,b) => (getNum(a.history[w-1]) ?? 999) - (getNum(b.history[w-1]) ?? 999));
 
                 weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div><div class="table-responsive"><table>
-                    <thead><tr><th>POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>SCORE</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
+                    <thead><tr><th>POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>SCORE</th></tr></thead><tbody>`;
                 
                 sorted.forEach((p, idx) => {
                     const wkScore = p.history[w-1];
-                    const wkPts = calculateStaticPoints(wkScore, allScoresInWeek, false);
                     weekHtml += `<tr><td>${idx+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                        <td style="color:${getScoreColor(wkScore)}">${wkScore}</td>
-                        <td class="pts-col">${wkPts}</td></tr>`;
+                        <td style="color:${getScoreColor(wkScore)}">${wkScore}</td></tr>`;
                 });
                 weekHtml += `</tbody></table></div>`;
             });
