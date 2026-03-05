@@ -11,17 +11,15 @@
             --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
             --red: #dc3545; --green: #28a745;
-            --promo: rgba(40, 167, 69, 0.2); 
-            --releg: rgba(220, 53, 69, 0.2); 
             --glow: 0px 3px 10px rgba(255, 215, 0, 0.3);
         }
         body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
         
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
         
-        /* LOGO FIX: Full width and better landscape scaling */
+        /* LOGO FIX: Stretches to full width, no tiny landscape mode */
         .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); line-height: 0; }
-        .logo-img { width: 100%; height: auto; max-height: 50vh; display: block; object-fit: contain; }
+        .logo-img { width: 100%; height: auto; display: block; }
 
         .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); flex-wrap: wrap; gap: 15px; }
         .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
@@ -30,7 +28,7 @@
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         thead th { background: #eee; font-size: 11px; padding: 8px 4px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
-        td { padding: 6px 4px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; font-weight: 600; }
+        td { padding: 8px 4px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; font-weight: 600; }
         
         .div-header { color: white; padding: 8px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
@@ -47,8 +45,8 @@
         .history-section { background: #f4f4f4; padding: 15px 0; border-top: 4px solid #333; }
         .history-title { text-align: center; font-weight: 900; text-transform: uppercase; font-size: 20px; margin-bottom: 15px; color: #222; }
         .week-dropdown { width: 95%; max-width: 1200px; margin: 8px auto; background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
-        .week-header { background: #333; color: var(--gold); padding: 10px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
-        .week-content { display: none; padding: 10px 0; }
+        .week-header { background: #333; color: var(--gold); padding: 12px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
+        .week-content { display: none; padding-bottom: 10px; }
         .week-content.active { display: block; }
         
         .logo-break { background: #000; padding: 8px 0; text-align: center; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); margin: 0; line-height: 0; }
@@ -190,33 +188,33 @@
         });
     }
 
-    function toggleHistory(el) {
-        const content = el.closest('.week-dropdown').querySelector('.week-content');
-        const icon = el.querySelector('i');
-        content.classList.toggle('active');
-        if (content.classList.contains('active')) {
-            icon.classList.replace('fa-chevron-down', 'fa-chevron-up');
-        } else {
-            icon.classList.replace('fa-chevron-up', 'fa-chevron-down');
-        }
-    }
-
     function renderHistory(state) {
         const container = document.getElementById('history-container');
         container.innerHTML = '';
         const currentWeek = parseInt(state.week) || 1;
+        
+        let foundAnyHistory = false;
+
         for (let w = currentWeek - 1; w >= 1; w--) {
             let weekHtml = `<div class="week-dropdown">
-                    <div class="week-header" onclick="toggleHistory(this)">
+                    <div class="week-header" onclick="this.nextElementSibling.classList.toggle('active');">
                         <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
                     </div>
                     <div class="week-content">`;
 
+            let hasWeekData = false;
             [1, 2, 3].forEach(divNum => {
-                const playersInDiv = state.players.filter(p => String(p.division) === String(divNum) && p.history && p.history[w-1] !== undefined);
-                if (playersInDiv.length === 0) return;
+                const playersInDiv = state.players.filter(p => 
+                    String(p.division) === String(divNum) && 
+                    p.history && 
+                    p.history[w-1] !== undefined
+                );
 
-                const sorted = [...playersInDiv].sort((a,b) => (getNum(a.history[w-1]) ?? 999) - (getNum(b.history[w-1]) ?? 999));
+                if (playersInDiv.length === 0) return;
+                hasWeekData = true;
+                foundAnyHistory = true;
+
+                const sorted = [...playersInDiv].sort((a,b) => getNum(a.history[w-1]) - getNum(b.history[w-1]));
                 weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div><div class="table-responsive"><table>
                     <thead><tr><th>POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>SCORE</th></tr></thead><tbody>`;
                 
@@ -227,8 +225,13 @@
                 });
                 weekHtml += `</tbody></table></div>`;
             });
+
             weekHtml += `</div></div>`;
-            container.innerHTML += weekHtml;
+            if (hasWeekData) container.innerHTML += weekHtml;
+        }
+
+        if (!foundAnyHistory) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:#888;">No historical data available.</div>';
         }
     }
 
