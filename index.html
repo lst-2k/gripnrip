@@ -16,30 +16,41 @@
             --glow: 0px 3px 10px rgba(255, 215, 0, 0.3);
         }
         body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+        
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
+        
         .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); line-height: 0; }
-        .logo-img { width: 100%; height: auto; display: block; object-fit: contain; }
+        .logo-img, .event-banner { width: 100%; height: auto; display: block; object-fit: contain; }
+
         .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); flex-wrap: wrap; gap: 15px; }
         .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
         .label { color: var(--gold); margin-right: 8px; font-size: 13px; }
+
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
         thead th { background: #eee; font-size: 11px; padding: 8px 4px; border-bottom: 2px solid #ddd; color: #444; text-transform: uppercase; }
         td { padding: 6px 4px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; font-weight: 600; }
+        
         .div-header { color: white; padding: 8px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
+
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; min-width: 180px; gap: 8px; }
         .plat-icon { width: 18px; font-size: 15px; text-align: center; }
+        
         .pts-col { font-weight: 900; color: #333; background: rgba(255, 253, 231, 0.8); min-width: 60px; }
         .accum-col { font-weight: 800; color: #555; min-width: 60px; }
-        .award-footer { background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd; text-align: center; padding: 10px; font-size: 14px; color: #444; }
+        
+        .award-footer { background: #f9f9f9; font-weight: bold; border-top: 2px solid #ddd; text-align: center; padding: 12px; font-size: 15px; color: #333; }
+
         .season-header { background: #222; color: var(--gold); padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 4px solid var(--gold); }
+
         .history-section { background: #f4f4f4; padding: 15px 0; border-top: 4px solid #333; }
         .history-title { text-align: center; font-weight: 900; text-transform: uppercase; font-size: 20px; margin-bottom: 15px; color: #222; }
         .week-dropdown { width: 95%; max-width: 1200px; margin: 8px auto; background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
         .week-header { background: #333; color: var(--gold); padding: 10px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
         .week-content { display: none; }
         .week-content.active { display: block; }
+        
         .logo-break { background: #000; padding: 8px 0; text-align: center; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); margin: 0; line-height: 0; }
         .break-img { width: 80%; max-width: 400px; height: auto; display: inline-block; }
     </style>
@@ -47,7 +58,10 @@
 <body>
 
     <div class="leaderboard-container">
-        <div class="header"><img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img"></div>
+        <div class="header">
+            <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
+            <img src="event.png" alt="Event Banner" class="event-banner">
+        </div>
         <div id="info-bar" class="info-bar">Loading...</div>
         <div id="live-tables"></div>
     </div>
@@ -133,7 +147,6 @@
             let sorted = [...divPlayers].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             if (sorted.length === 0) return;
 
-            // Find longest putt/hole-out for this division
             const validPutts = divPlayers.map(p => ({name: p.name, val: getNum(p.putt)})).filter(v => v.val !== null && v.val > 0);
             const bestPutt = validPutts.length ? validPutts.reduce((prev, curr) => (prev.val > curr.val) ? prev : curr) : null;
             const validHoles = divPlayers.map(p => ({name: p.name, val: getNum(p.hole)})).filter(v => v.val !== null && v.val > 0);
@@ -151,11 +164,10 @@
                     <td>${p.putt || '-'}</td><td>${p.hole || '-'}</td><td>${p.hio || '-'}</td><td>${p.albatross || '-'}</td>
                     <td class="pts-col">${score !== null ? calculateLivePoints(p, divPlayers, state.isSignature) : 0}</td></tr>`;
             });
-
             html += `</tbody></table></div>
                 <div class="award-footer">
-                    <span style="margin-right: 30px;"><i class="fa-solid fa-flag"></i> Longest Putt: ${bestPutt ? `${bestPutt.name} (${bestPutt.val}ft)` : '--'}</span>
-                    <span><i class="fa-solid fa-bullseye"></i> Longest Hole-out: ${bestHole ? `${bestHole.name} (${bestHole.val}yds)` : '--'}</span>
+                    <span style="margin: 0 25px;"><i class="fa-solid fa-flag"></i> Longest Putt: <strong>${bestPutt ? `${bestPutt.name} (${bestPutt.val}ft)` : '--'}</strong></span>
+                    <span style="margin: 0 25px;"><i class="fa-solid fa-bullseye"></i> Longest Hole-out: <strong>${bestHole ? `${bestHole.name} (${bestHole.val}yds)` : '--'}</strong></span>
                 </div>
             </div>`;
             container.innerHTML += html;
