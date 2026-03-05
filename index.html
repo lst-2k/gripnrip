@@ -19,12 +19,13 @@
         
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
         
-        .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0; }
-        .logo-img { width: auto; max-width: 100%; height: auto; max-height: 25vh; display: block; object-fit: contain; }
+        /* LOGO FIX: Full width and better landscape scaling */
+        .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); line-height: 0; }
+        .logo-img { width: 100%; height: auto; display: block; object-fit: contain; }
 
-        .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); }
-        .info-item { display: flex; align-items: center; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .label { color: var(--gold); margin-right: 8px; font-size: 14px; }
+        .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); flex-wrap: wrap; gap: 15px; }
+        .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .label { color: var(--gold); margin-right: 8px; font-size: 13px; }
 
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
@@ -87,7 +88,7 @@
             renderInfo(state);
             renderLive(state);
             renderSeason(state);
-            renderHistory(state); // Added trigger for history
+            renderHistory(state);
         } catch (err) {
             document.getElementById('live-tables').innerHTML = `<div style="padding:50px; text-align:center; color:red;">${err.message}</div>`;
         }
@@ -121,7 +122,9 @@
 
     function renderInfo(state) {
         document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Season</span> ${state.season || 1} <span class="label" style="margin-left:15px;">Week</span> ${state.week || 1}</div>
+            <div class="info-item"><span class="label">Season</span> ${state.season || 1}</div>
+            <div class="info-item"><span class="label">Week</span> ${state.week || 1}</div>
+            <div class="info-item"><span class="label">Venue</span> ${state.venue || 'TBA'}</div>
         `;
     }
 
@@ -187,28 +190,19 @@
         });
     }
 
-    // New History Rendering Function
     function renderHistory(state) {
         const container = document.getElementById('history-container');
         container.innerHTML = '';
         const currentWeek = parseInt(state.week) || 1;
-        
-        // Loop backwards from previous week to Week 1
         for (let w = currentWeek - 1; w >= 1; w--) {
-            let weekHtml = `
-                <div class="week-dropdown">
-                    <div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">
-                        <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
-                    </div>
-                    <div class="week-content">`;
+            let weekHtml = `<div class="week-dropdown"><div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">
+                    <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i></div><div class="week-content">`;
 
             [1, 2, 3].forEach(divNum => {
                 const playersInDiv = state.players.filter(p => String(p.division) === String(divNum) && p.history && p.history[w-1] !== undefined);
                 if (playersInDiv.length === 0) return;
 
-                // Sort history for that week
                 const sorted = [...playersInDiv].sort((a,b) => (getNum(a.history[w-1]) ?? 999) - (getNum(b.history[w-1]) ?? 999));
-
                 weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div><div class="table-responsive"><table>
                     <thead><tr><th>POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>SCORE</th></tr></thead><tbody>`;
                 
