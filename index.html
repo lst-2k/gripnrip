@@ -18,12 +18,9 @@
         body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
         
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
-        
-        /* Logo & Event Scaling */
         .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); line-height: 0; }
         .logo-img, .event-banner { width: 100%; height: auto; display: block; }
 
-        /* Simplified Info Bar */
         .info-bar { background: var(--info-grad); color: var(--gold); padding: 12px; text-align: center; border-bottom: 2px solid var(--gold); font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; }
 
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
@@ -34,7 +31,6 @@
         .div-header { color: white; padding: 8px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
 
-        /* Zone Styling */
         .promo-zone { background-color: var(--promo) !important; }
         .releg-zone { background-color: var(--releg) !important; }
 
@@ -46,7 +42,6 @@
         
         .season-header { background: #222; color: var(--gold); padding: 15px; font-size: 22px; font-weight: 900; text-align: center; text-transform: uppercase; border-bottom: 4px solid var(--gold); }
 
-        /* History Dropdown Styles */
         .history-section { background: #f4f4f4; padding: 15px 0; border-top: 4px solid #333; }
         .history-title { text-align: center; font-weight: 900; text-transform: uppercase; font-size: 20px; margin-bottom: 15px; color: #222; }
         .week-dropdown { width: 95%; max-width: 1200px; margin: 8px auto; background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
@@ -63,9 +58,9 @@
     <div class="leaderboard-container">
         <div class="header">
             <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
-            <img src="event.png" alt="Event Details" class="event-banner">
+            <img src="event.png" alt="Event Banner" class="event-banner">
         </div>
-        <div id="info-bar" class="info-bar">Loading...</div>
+        <div id="info-bar" class="info-bar">Season X Week X</div>
         <div id="live-tables"></div>
     </div>
 
@@ -112,7 +107,6 @@
         return 'black';
     }
 
-    // Helper to calculate points for ANY score and set of players
     function calculatePointsFromScore(score, divisionScores) {
         if (score === null) return 0;
         const sortedScores = divisionScores.filter(s => s !== null).sort((a, b) => a - b);
@@ -145,8 +139,6 @@
                 const score = getNum(p.toPar);
                 const firstWithScore = sorted.find(person => getNum(person.toPar) === score);
                 const displayRank = sorted.indexOf(firstWithScore) + 1;
-                
-                // Live points calculation (includes bonuses)
                 const basePts = calculatePointsFromScore(score, divPlayers.map(dp => getNum(dp.toPar)));
                 let bonusPts = (getNum(p.hio) || 0) * 50 + (getNum(p.albatross) || 0) * 50;
                 const totalLive = (basePts + bonusPts) * (state.isSignature ? 2 : 1);
@@ -170,7 +162,6 @@
                 const basePts = calculatePointsFromScore(score, divPlayers.map(dp => getNum(dp.toPar)));
                 let bonusPts = (getNum(p.hio) || 0) * 50 + (getNum(p.albatross) || 0) * 50;
                 const livePts = score !== null ? (basePts + bonusPts) * (state.isSignature ? 2 : 1) : 0;
-                
                 const histTotal = (p.history || []).reduce((sum, s) => sum + (getNum(s) || 0), 0);
                 return { 
                     ...p, 
@@ -216,19 +207,27 @@
                 if (playersInDiv.length === 0) return;
                 hasWeekData = true; foundAnyHistory = true;
 
-                // Sort by the specific historical week score
-                const sorted = [...playersInDiv].sort((a,b) => getNum(a.history[w-1]) - getNum(b.history[w-1]));
+                // Map data for sorting
                 const weekScores = playersInDiv.map(p => getNum(p.history[w-1]));
+                const playersWithData = playersInDiv.map(p => {
+                    const s = getNum(p.history[w-1]);
+                    return { ...p, currentWeekScore: s, currentWeekPts: calculatePointsFromScore(s, weekScores) };
+                });
+
+                // Sort by Points (Highest first), then by Score (Lowest first)
+                playersWithData.sort((a, b) => b.currentWeekPts - a.currentWeekPts || (a.currentWeekScore ?? 999) - (b.currentWeekScore ?? 999));
 
                 weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div><div class="table-responsive"><table>
                     <thead><tr><th>POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>SCORE</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
                 
-                sorted.forEach((p, idx) => {
-                    const wkScore = getNum(p.history[w-1]);
-                    const wkPts = calculatePointsFromScore(wkScore, weekScores);
+                playersWithData.forEach((p, idx) => {
+                    const wkScore = p.currentWeekScore;
+                    const displayScore = wkScore === null ? '--' : (wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore));
+                    const displayPts = p.currentWeekPts === 0 ? '--' : p.currentWeekPts;
+                    
                     weekHtml += `<tr><td>${idx+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                        <td style="color:${getScoreColor(wkScore)}">${wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore)}</td>
-                        <td class="pts-col">${wkPts}</td></tr>`;
+                        <td style="color:${getScoreColor(wkScore)}">${displayScore}</td>
+                        <td class="pts-col">${displayPts}</td></tr>`;
                 });
                 weekHtml += `</tbody></table></div>`;
             });
