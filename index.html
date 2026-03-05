@@ -18,12 +18,14 @@
         body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
         
         .leaderboard-container { width: 100%; margin: 0; background: white; position: relative; }
+        
+        /* Header & Logo Styles */
         .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); box-shadow: var(--glow); line-height: 0; }
         .logo-img { width: 100%; height: auto; display: block; }
+        .event-banner { width: 100%; height: auto; display: block; border-top: 1px solid rgba(255,215,0,0.3); }
 
-        .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); flex-wrap: wrap; gap: 15px; }
-        .info-item { display: flex; align-items: center; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
-        .label { color: var(--gold); margin-right: 8px; font-size: 13px; }
+        /* Info Bar: Season X Week X */
+        .info-bar { background: var(--info-grad); color: #fff; padding: 12px; display: flex; justify-content: center; align-items: center; border-bottom: 2px solid var(--gold); font-size: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: var(--gold); }
 
         .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; }
@@ -61,8 +63,9 @@
     <div class="leaderboard-container">
         <div class="header">
             <img src="logo.png" alt="Grip & Rip Rebirth" class="logo-img">
+            <img src="event.png" alt="Current Event" class="event-banner">
         </div>
-        <div id="info-bar" class="info-bar">Loading...</div>
+        <div id="info-bar" class="info-bar">Season 0 Week 0</div>
         <div id="live-tables"></div>
     </div>
 
@@ -122,11 +125,8 @@
     }
 
     function renderInfo(state) {
-        document.getElementById('info-bar').innerHTML = `
-            <div class="info-item"><span class="label">Season</span> ${state.season || 1}</div>
-            <div class="info-item"><span class="label">Week</span> ${state.week || 1}</div>
-            <div class="info-item"><span class="label">Venue</span> ${state.venue || 'TBA'}</div>
-        `;
+        // Simplified Venue Bar as requested
+        document.getElementById('info-bar').innerHTML = `Season ${state.season || 1} Week ${state.week || 1}`;
     }
 
     const getIcon = (p) => {
@@ -182,10 +182,9 @@
                 <thead><tr><th>RK</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>ACCUM</th><th>WINS</th><th>EVTS</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
             
             sorted.forEach((p, i) => {
-                // Apply promo/releg classes
                 let rowClass = "";
-                if (i < 2) rowClass = "promo-zone"; // Top 2
-                if (i >= sorted.length - 2 && sorted.length > 4) rowClass = "releg-zone"; // Bottom 2
+                if (i < 2) rowClass = "promo-zone"; 
+                if (i >= sorted.length - 2 && sorted.length > 4) rowClass = "releg-zone";
 
                 html += `<tr class="${rowClass}"><td>${i+1}</td><td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
                     <td class="accum-col" style="color:${getScoreColor(p.accum)}">${p.accum > 0 ? '+' + p.accum : (p.accum === 0 ? 'E' : p.accum)}</td>
