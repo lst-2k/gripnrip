@@ -47,8 +47,11 @@
         .history-section { background: #f4f4f4; padding: 15px 0; border-top: 4px solid #333; }
         .history-title { text-align: center; font-weight: 900; text-transform: uppercase; font-size: 20px; margin-bottom: 15px; color: #222; }
         .week-dropdown { width: 95%; max-width: 1200px; margin: 8px auto; background: white; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; }
-        .week-header { background: #333; color: var(--gold); padding: 10px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 15px; }
-        .week-content { display: none; }
+        
+        /* DROPDOWN FIX */
+        .week-header { background: #333; color: var(--gold); padding: 12px 20px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 16px; user-select: none; }
+        .week-header:hover { background: #444; }
+        .week-content { display: none; padding-bottom: 10px; }
         .week-content.active { display: block; }
         
         .logo-break { background: #000; padding: 8px 0; text-align: center; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); margin: 0; line-height: 0; }
@@ -143,7 +146,6 @@
         const container = document.getElementById('live-tables');
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
-            // FIX: Only show players who are NOT archived
             let divPlayers = state.players.filter(p => String(p.division) === String(divNum) && !p.archived);
             let sorted = [...divPlayers].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             if (sorted.length === 0) return;
@@ -179,7 +181,6 @@
         const container = document.getElementById('season-tables');
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
-            // FIX: Filter out archived players from standings
             let divPlayers = state.players.filter(p => String(p.division) === String(divNum) && !p.archived);
             let sorted = divPlayers.map(p => {
                 const livePts = calculateLivePoints(p, divPlayers, state.isSignature);
@@ -208,69 +209,80 @@
         });
     }
 
-function renderHistory(state) {
-    const container = document.getElementById('history-container');
-    container.innerHTML = '';
-    const currentWeek = parseInt(state.week) || 1;
-    
-    for (let w = currentWeek - 1; w >= 1; w--) {
-        // Dropdown Header Logic
-        let weekHtml = `<div class="week-dropdown">
-            <div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">
-                <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div class="week-content">`;
-
-        [1, 2, 3].forEach(divNum => {
-            // FIX: Allow archived players to show in history if they have data for that week
-            const playersInDiv = state.players.filter(p => 
-                String(p.division) === String(divNum) && 
-                p.history && 
-                p.history[w-1] !== undefined && 
-                p.history[w-1] !== "-"
-            );
-            if (playersInDiv.length === 0) return;
-
-            const weekScores = playersInDiv.map(p => getNum(p.history[w-1]));
-            
-            const playersWithData = playersInDiv.map(p => {
-                const s = getNum(p.history[w-1]);
-                const totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
-                                 ? p.pointsHistory[w-1] 
-                                 : calculateBasePoints(s, weekScores);
-                return { ...p, currentScore: s, currentPts: totalPts };
-            }).sort((a,b) => b.currentPts - a.currentPts || (a.currentScore ?? 999) - (b.currentScore ?? 999));
-
-            weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div>
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>POS</th>
-                            <th style="text-align:left; padding-left:15px;">PLAYER</th>
-                            <th>SCORE</th>
-                            <th class="pts-col">TOTAL PTS</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-            
-            playersWithData.forEach((p, idx) => {
-                const wkScore = p.currentScore;
-                const displayScore = wkScore === null ? '--' : (wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore));
-                
-                weekHtml += `<tr>
-                    <td>${idx+1}</td>
-                    <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                    <td style="color:${getScoreColor(wkScore)}">${displayScore}</td>
-                    <td class="pts-col" style="color:#0047AB;">${p.currentPts || 0}</td>
-                </tr>`;
-            });
-            weekHtml += `</tbody></table></div>`;
-        });
-        weekHtml += `</div></div>`;
-        container.innerHTML += weekHtml;
+    function toggleWeek(el) {
+        const content = el.nextElementSibling;
+        content.classList.toggle('active');
+        const icon = el.querySelector('i');
+        if (content.classList.contains('active')) {
+            icon.className = 'fa-solid fa-chevron-up';
+        } else {
+            icon.className = 'fa-solid fa-chevron-down';
+        }
     }
-}
+
+    function renderHistory(state) {
+        const container = document.getElementById('history-container');
+        container.innerHTML = '';
+        const currentWeek = parseInt(state.week) || 1;
+        
+        for (let w = currentWeek - 1; w >= 1; w--) {
+            // Header with toggle function call
+            let weekHtml = `<div class="week-dropdown">
+                <div class="week-header" onclick="toggleWeek(this)">
+                    <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="week-content">`;
+
+            [1, 2, 3].forEach(divNum => {
+                const playersInDiv = state.players.filter(p => 
+                    String(p.division) === String(divNum) && 
+                    p.history && 
+                    p.history[w-1] !== undefined && 
+                    p.history[w-1] !== "-"
+                );
+                if (playersInDiv.length === 0) return;
+
+                const weekScores = playersInDiv.map(p => getNum(p.history[w-1]));
+                
+                const playersWithData = playersInDiv.map(p => {
+                    const s = getNum(p.history[w-1]);
+                    // Logic to retrieve ptsHistory if it exists, else calculate base
+                    const totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
+                                     ? p.pointsHistory[w-1] 
+                                     : calculateBasePoints(s, weekScores);
+                    return { ...p, currentScore: s, currentPts: totalPts };
+                }).sort((a,b) => b.currentPts - a.currentPts || (a.currentScore ?? 999) - (b.currentScore ?? 999));
+
+                weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>POS</th>
+                                <th style="text-align:left; padding-left:15px;">PLAYER</th>
+                                <th>SCORE</th>
+                                <th class="pts-col">TOTAL PTS</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+                
+                playersWithData.forEach((p, idx) => {
+                    const wkScore = p.currentScore;
+                    const displayScore = wkScore === null ? '--' : (wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore));
+                    
+                    weekHtml += `<tr>
+                        <td>${idx+1}</td>
+                        <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
+                        <td style="color:${getScoreColor(wkScore)}">${displayScore}</td>
+                        <td class="pts-col" style="color:#0047AB;">${p.currentPts || 0}</td>
+                    </tr>`;
+                });
+                weekHtml += `</tbody></table></div>`;
+            });
+            weekHtml += `</div></div>`;
+            container.innerHTML += weekHtml;
+        }
+    }
 
     loadLeaderboard();
 </script>
