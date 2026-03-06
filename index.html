@@ -246,13 +246,12 @@ function renderHistory(state) {
         [1, 2, 3].forEach(divNum => {
             // Check ALL players (including archived) who have a score for this specific week
             const playersInDiv = state.players.filter(p => 
-                String(p.division) === String(divNum) && 
-                p.history && 
-                p.history[w-1] !== undefined && 
-                p.history[w-1] !== null &&
-                p.history[w-1] !== "" &&
-                p.history[w-1] !== "-"
-            );
+				p.history && 
+				p.history[w-1] !== undefined && 
+				p.history[w-1] !== "-"
+				// Note: We don't filter by p.division here if we want a master history,
+				// OR we check where they WERE that week. 
+			);
 
             if (playersInDiv.length === 0) return;
             weekHasData = true;
