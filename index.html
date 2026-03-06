@@ -224,16 +224,14 @@ function renderHistory(state) {
     const container = document.getElementById('history-container');
     container.innerHTML = '';
     
-    // We look at the total number of entries in any player's history to find the max weeks
+    // Find how many weeks have actually been played
     const maxWeeks = state.players.reduce((max, p) => Math.max(max, (p.history ? p.history.length : 0)), 0);
     
-    // If no history exists at all
     if (maxWeeks === 0) {
         container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No historical data available yet.</div>';
         return;
     }
 
-    // Loop backwards from the most recent completed week
     for (let w = maxWeeks; w >= 1; w--) {
         let weekHtml = `<div class="week-dropdown">
             <div class="week-header" onclick="toggleWeek(this)">
@@ -244,14 +242,15 @@ function renderHistory(state) {
         let weekHasData = false;
 
         [1, 2, 3].forEach(divNum => {
-            // Check ALL players (including archived) who have a score for this specific week
+            // FIX: Filter players so they only appear in the Division they belong to
             const playersInDiv = state.players.filter(p => 
-				p.history && 
-				p.history[w-1] !== undefined && 
-				p.history[w-1] !== "-"
-				// Note: We don't filter by p.division here if we want a master history,
-				// OR we check where they WERE that week. 
-			);
+                String(p.division) === String(divNum) && // Matches their current division
+                p.history && 
+                p.history[w-1] !== undefined && 
+                p.history[w-1] !== null &&
+                p.history[w-1] !== "" &&
+                p.history[w-1] !== "-"
+            );
 
             if (playersInDiv.length === 0) return;
             weekHasData = true;
@@ -260,7 +259,6 @@ function renderHistory(state) {
             
             const playersWithData = playersInDiv.map(p => {
                 const s = getNum(p.history[w-1]);
-                // Use pointsHistory if your admin saved it, otherwise calculate live
                 const totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
                                  ? p.pointsHistory[w-1] 
                                  : calculateBasePoints(s, weekScores);
@@ -295,11 +293,7 @@ function renderHistory(state) {
         });
 
         weekHtml += `</div></div>`;
-        
-        // Only add the week dropdown if we actually found players with scores
-        if (weekHasData) {
-            container.innerHTML += weekHtml;
-        }
+        if (weekHasData) container.innerHTML += weekHtml;
     }
 }
 
