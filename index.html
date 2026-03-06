@@ -220,69 +220,89 @@
         }
     }
 
-    function renderHistory(state) {
-        const container = document.getElementById('history-container');
-        container.innerHTML = '';
-        const currentWeek = parseInt(state.week) || 1;
-        
-        for (let w = currentWeek - 1; w >= 1; w--) {
-            // Header with toggle function call
-            let weekHtml = `<div class="week-dropdown">
-                <div class="week-header" onclick="toggleWeek(this)">
-                    <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
-                </div>
-                <div class="week-content">`;
+function renderHistory(state) {
+    const container = document.getElementById('history-container');
+    container.innerHTML = '';
+    
+    // We look at the total number of entries in any player's history to find the max weeks
+    const maxWeeks = state.players.reduce((max, p) => Math.max(max, (p.history ? p.history.length : 0)), 0);
+    
+    // If no history exists at all
+    if (maxWeeks === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">No historical data available yet.</div>';
+        return;
+    }
 
-            [1, 2, 3].forEach(divNum => {
-                const playersInDiv = state.players.filter(p => 
-                    String(p.division) === String(divNum) && 
-                    p.history && 
-                    p.history[w-1] !== undefined && 
-                    p.history[w-1] !== "-"
-                );
-                if (playersInDiv.length === 0) return;
+    // Loop backwards from the most recent completed week
+    for (let w = maxWeeks; w >= 1; w--) {
+        let weekHtml = `<div class="week-dropdown">
+            <div class="week-header" onclick="toggleWeek(this)">
+                <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="week-content">`;
 
-                const weekScores = playersInDiv.map(p => getNum(p.history[w-1]));
+        let weekHasData = false;
+
+        [1, 2, 3].forEach(divNum => {
+            // Check ALL players (including archived) who have a score for this specific week
+            const playersInDiv = state.players.filter(p => 
+                String(p.division) === String(divNum) && 
+                p.history && 
+                p.history[w-1] !== undefined && 
+                p.history[w-1] !== null &&
+                p.history[w-1] !== "" &&
+                p.history[w-1] !== "-"
+            );
+
+            if (playersInDiv.length === 0) return;
+            weekHasData = true;
+
+            const weekScores = playersInDiv.map(p => getNum(p.history[w-1]));
+            
+            const playersWithData = playersInDiv.map(p => {
+                const s = getNum(p.history[w-1]);
+                // Use pointsHistory if your admin saved it, otherwise calculate live
+                const totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
+                                 ? p.pointsHistory[w-1] 
+                                 : calculateBasePoints(s, weekScores);
+                return { ...p, currentScore: s, currentPts: totalPts };
+            }).sort((a,b) => b.currentPts - a.currentPts || (a.currentScore ?? 999) - (b.currentScore ?? 999));
+
+            weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:50px">POS</th>
+                            <th style="text-align:left; padding-left:15px;">PLAYER</th>
+                            <th>SCORE</th>
+                            <th class="pts-col">PTS</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+            
+            playersWithData.forEach((p, idx) => {
+                const wkScore = p.currentScore;
+                const displayScore = wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore);
                 
-                const playersWithData = playersInDiv.map(p => {
-                    const s = getNum(p.history[w-1]);
-                    // Logic to retrieve ptsHistory if it exists, else calculate base
-                    const totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
-                                     ? p.pointsHistory[w-1] 
-                                     : calculateBasePoints(s, weekScores);
-                    return { ...p, currentScore: s, currentPts: totalPts };
-                }).sort((a,b) => b.currentPts - a.currentPts || (a.currentScore ?? 999) - (b.currentScore ?? 999));
-
-                weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>POS</th>
-                                <th style="text-align:left; padding-left:15px;">PLAYER</th>
-                                <th>SCORE</th>
-                                <th class="pts-col">TOTAL PTS</th>
-                            </tr>
-                        </thead>
-                        <tbody>`;
-                
-                playersWithData.forEach((p, idx) => {
-                    const wkScore = p.currentScore;
-                    const displayScore = wkScore === null ? '--' : (wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore));
-                    
-                    weekHtml += `<tr>
-                        <td>${idx+1}</td>
-                        <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
-                        <td style="color:${getScoreColor(wkScore)}">${displayScore}</td>
-                        <td class="pts-col" style="color:#0047AB;">${p.currentPts || 0}</td>
-                    </tr>`;
-                });
-                weekHtml += `</tbody></table></div>`;
+                weekHtml += `<tr>
+                    <td>${idx+1}</td>
+                    <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
+                    <td style="color:${getScoreColor(wkScore)}">${displayScore}</td>
+                    <td class="pts-col" style="color:#0047AB;">${p.currentPts || 0}</td>
+                </tr>`;
             });
-            weekHtml += `</div></div>`;
+            weekHtml += `</tbody></table></div>`;
+        });
+
+        weekHtml += `</div></div>`;
+        
+        // Only add the week dropdown if we actually found players with scores
+        if (weekHasData) {
             container.innerHTML += weekHtml;
         }
     }
+}
 
     loadLeaderboard();
 </script>
