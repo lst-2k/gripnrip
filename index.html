@@ -143,7 +143,8 @@
         const container = document.getElementById('live-tables');
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
-            let divPlayers = state.players.filter(p => String(p.division) === String(divNum));
+            // FIX: Only show players who are NOT archived
+            let divPlayers = state.players.filter(p => String(p.division) === String(divNum) && !p.archived);
             let sorted = [...divPlayers].sort((a,b) => (getNum(a.toPar) ?? 999) - (getNum(b.toPar) ?? 999));
             if (sorted.length === 0) return;
 
@@ -178,7 +179,8 @@
         const container = document.getElementById('season-tables');
         container.innerHTML = '';
         [1, 2, 3].forEach(divNum => {
-            let divPlayers = state.players.filter(p => String(p.division) === String(divNum));
+            // FIX: Filter out archived players from standings
+            let divPlayers = state.players.filter(p => String(p.division) === String(divNum) && !p.archived);
             let sorted = divPlayers.map(p => {
                 const livePts = calculateLivePoints(p, divPlayers, state.isSignature);
                 const histTotal = (p.history || []).reduce((sum, s) => sum + (Number(s) || 0), 0);
@@ -212,6 +214,7 @@ function renderHistory(state) {
     const currentWeek = parseInt(state.week) || 1;
     
     for (let w = currentWeek - 1; w >= 1; w--) {
+        // Dropdown Header Logic
         let weekHtml = `<div class="week-dropdown">
             <div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">
                 <span>Week ${w} Results</span><i class="fa-solid fa-chevron-down"></i>
@@ -219,15 +222,19 @@ function renderHistory(state) {
             <div class="week-content">`;
 
         [1, 2, 3].forEach(divNum => {
-            const playersInDiv = state.players.filter(p => String(p.division) === String(divNum) && p.history && p.history[w-1] !== undefined);
+            // FIX: Allow archived players to show in history if they have data for that week
+            const playersInDiv = state.players.filter(p => 
+                String(p.division) === String(divNum) && 
+                p.history && 
+                p.history[w-1] !== undefined && 
+                p.history[w-1] !== "-"
+            );
             if (playersInDiv.length === 0) return;
 
             const weekScores = playersInDiv.map(p => getNum(p.history[w-1]));
             
-            // Map players and prioritize the SAVED total points from the pointsHistory array
             const playersWithData = playersInDiv.map(p => {
                 const s = getNum(p.history[w-1]);
-                // If pointsHistory exists for this week, use it. Otherwise, fallback to base points calc.
                 const totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
                                  ? p.pointsHistory[w-1] 
                                  : calculateBasePoints(s, weekScores);
