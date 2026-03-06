@@ -224,7 +224,7 @@ function renderHistory(state) {
     const container = document.getElementById('history-container');
     container.innerHTML = '';
     
-    // Find how many weeks have actually been played
+    // Determine how many weeks have been recorded
     const maxWeeks = state.players.reduce((max, p) => Math.max(max, (p.history ? p.history.length : 0)), 0);
     
     if (maxWeeks === 0) {
@@ -232,6 +232,7 @@ function renderHistory(state) {
         return;
     }
 
+    // Loop backwards through weeks
     for (let w = maxWeeks; w >= 1; w--) {
         let weekHtml = `<div class="week-dropdown">
             <div class="week-header" onclick="toggleWeek(this)">
@@ -239,31 +240,36 @@ function renderHistory(state) {
             </div>
             <div class="week-content">`;
 
-        let weekHasData = false;
-
         [1, 2, 3].forEach(divNum => {
-            // FIX: Filter players so they only appear in the Division they belong to
+            // FIX: Get ALL players in this division, including archived ones who have history
+            // We only exclude players who were added AFTER this week occurred (no history yet)
             const playersInDiv = state.players.filter(p => 
-                String(p.division) === String(divNum) && // Matches their current division
-                p.history && 
-                p.history[w-1] !== undefined && 
-                p.history[w-1] !== null &&
-                p.history[w-1] !== "" &&
-                p.history[w-1] !== "-"
+                String(p.division) === String(divNum) && 
+                p.history && p.history.length >= w
             );
 
             if (playersInDiv.length === 0) return;
-            weekHasData = true;
 
-            const weekScores = playersInDiv.map(p => getNum(p.history[w-1]));
+            // Get scores specifically for calculating points for those who DID play
+            const weekScores = playersInDiv.map(p => getNum(p.history[w-1])).filter(s => s !== null);
             
             const playersWithData = playersInDiv.map(p => {
                 const s = getNum(p.history[w-1]);
-                const totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
-                                 ? p.pointsHistory[w-1] 
-                                 : calculateBasePoints(s, weekScores);
+                let totalPts = 0;
+                
+                // If they played, calculate/get points. If not, points stay 0.
+                if (s !== null) {
+                    totalPts = (p.pointsHistory && p.pointsHistory[w-1] !== undefined) 
+                                     ? p.pointsHistory[w-1] 
+                                     : calculateBasePoints(s, weekScores);
+                }
                 return { ...p, currentScore: s, currentPts: totalPts };
-            }).sort((a,b) => b.currentPts - a.currentPts || (a.currentScore ?? 999) - (b.currentScore ?? 999));
+            }).sort((a,b) => {
+                // Sort: Players with scores first, then by points/score, then non-players at bottom
+                if (a.currentScore === null && b.currentScore !== null) return 1;
+                if (a.currentScore !== null && b.currentScore === null) return -1;
+                return b.currentPts - a.currentPts || (a.currentScore ?? 999) - (b.currentScore ?? 999);
+            });
 
             weekHtml += `<div class="div-header div-${divNum}" style="font-size:12px; padding: 5px 15px;">Div ${divNum}</div>
             <div class="table-responsive">
@@ -280,20 +286,23 @@ function renderHistory(state) {
             
             playersWithData.forEach((p, idx) => {
                 const wkScore = p.currentScore;
-                const displayScore = wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore);
+                // If score is null, show --. If 0, show E. Otherwise show +/-.
+                const displayScore = wkScore === null ? '--' : (wkScore === 0 ? 'E' : (wkScore > 0 ? '+'+wkScore : wkScore));
+                const displayPts = wkScore === null ? '--' : (p.currentPts || 0);
+                const displayPos = wkScore === null ? '--' : (idx + 1);
                 
                 weekHtml += `<tr>
-                    <td>${idx+1}</td>
+                    <td>${displayPos}</td>
                     <td><div class="name-cell">${getIcon(p.platform)}<span>${p.name}</span></div></td>
                     <td style="color:${getScoreColor(wkScore)}">${displayScore}</td>
-                    <td class="pts-col" style="color:#0047AB;">${p.currentPts || 0}</td>
+                    <td class="pts-col" style="color:#0047AB;">${displayPts}</td>
                 </tr>`;
             });
             weekHtml += `</tbody></table></div>`;
         });
 
         weekHtml += `</div></div>`;
-        if (weekHasData) container.innerHTML += weekHtml;
+        container.innerHTML += weekHtml;
     }
 }
 
