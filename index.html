@@ -9,104 +9,77 @@
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
-            --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
         }
         body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; }
 
-        /* --- STICKY TOP SECTION --- */
-        .sticky-wrapper {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+        /* --- STICKY LOGIC --- */
         .header { background: var(--header-grad); text-align: center; line-height: 0; border-bottom: 2px solid var(--gold); }
         .logo-img, .event-banner { width: 100%; height: auto; display: block; max-width: 1400px; margin: 0 auto; }
         
-        .info-bar { 
-            background: var(--info-grad); 
-            color: #fff; 
-            padding: 12px; 
-            text-align: center;
-            border-bottom: 3px solid var(--gold); 
-            font-weight: 800; 
-            text-transform: uppercase;
-            font-size: 18px;
-            letter-spacing: 1px;
+        .sticky-bar { 
+            position: sticky; top: 0; z-index: 1000;
+            background: #222; color: #fff; padding: 12px; 
+            text-align: center; border-bottom: 3px solid var(--gold); 
+            font-weight: 800; text-transform: uppercase; font-size: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .info-bar span { color: var(--gold); }
+        .sticky-bar span { color: var(--gold); }
 
-        /* --- INDEPENDENT SCROLLING TABLES --- */
-        .table-container {
-            width: 100%;
-            overflow-x: auto; /* Allows left/right swipe */
-            -webkit-overflow-scrolling: touch;
-            background: white;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
+        /* --- HORIZONTAL SCROLLING --- */
+        .table-wrap {
+            width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+            background: white; margin-bottom: 25px; border-bottom: 1px solid #ddd;
         }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; table-layout: fixed; }
         
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            min-width: 600px; /* Forces scroll on smaller screens */
-            table-layout: fixed;
-        }
-
         /* --- STYLING --- */
-        .div-header { color: white; padding: 10px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; position: sticky; left: 0; }
+        .div-label { color: white; padding: 10px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
-        
-        thead th { background: #f8f8f8; font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #666; }
+        th { background: #f8f8f8; font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #666; text-transform: uppercase; }
         td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; font-weight: 600; }
-        
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
-        .plat-icon { width: 20px; margin-right: 12px; font-size: 16px; }
         .pts-col { font-weight: 900; background: #fffde7; width: 80px; }
+        .award-footer { background: #fff; padding: 12px; font-size: 13px; font-weight: bold; text-align: center; color: #555; border-top: 1px solid #eee; }
+        .section-header { background: #000; color: var(--gold); padding: 15px; text-align: center; font-weight: 900; font-size: 20px; text-transform: uppercase; }
         
-        .award-footer { background: #fff; padding: 15px; font-size: 14px; font-weight: bold; text-align: center; color: #444; border-top: 1px solid #eee; }
-        
-        .section-title { 
-            background: #222; color: var(--gold); padding: 15px; 
-            text-align: center; font-weight: 900; font-size: 20px; 
-        }
-
-        .history-section { background: #e9ecef; padding: 20px 10px; }
-        .week-dropdown { background: white; margin-bottom: 10px; border-radius: 8px; overflow: hidden; }
-        .week-header { background: #333; color: var(--gold); padding: 12px 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 800; }
+        .history-box { background: #e9ecef; padding: 20px 10px; }
+        .wk-btn { background: #333; color: var(--gold); padding: 12px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 800; margin-bottom: 5px; border-radius: 4px; }
+        .wk-content { display: none; background: white; margin-bottom: 15px; }
+        .active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="sticky-wrapper">
-        <div class="header">
-            <img src="logo.png" class="logo-img">
-            <img src="event.png" class="event-banner">
-        </div>
-        <div id="info-bar" class="info-bar">
-            SEASON <span id="s-val">-</span> | WEEK <span id="w-val">-</span>
-        </div>
+    <div class="header">
+        <img src="logo.png" class="logo-img">
+        <img src="event.png" class="event-banner">
+    </div>
+
+    <div class="sticky-bar">
+        SEASON <span id="s-val">-</span> | WEEK <span id="w-val">-</span>
     </div>
 
     <div id="live-tables"></div>
 
-    <div class="section-title">SEASON STANDINGS</div>
+    <div class="section-header">Season Standings</div>
     <div id="season-tables"></div>
 
-    <div class="history-section">
-        <div style="text-align:center; font-weight:900; font-size:18px; margin-bottom:15px; color:#555;">EVENT HISTORY</div>
+    <div class="history-box">
+        <div style="text-align:center; font-weight:900; color:#666; margin-bottom:15px;">EVENT HISTORY</div>
         <div id="history-container"></div>
     </div>
 
 <script>
     const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
 
-    async function loadData() {
+    async function load() {
         try {
             const res = await fetch('GR_Backup.json?t=' + Date.now());
             const state = await res.json();
-            renderPage(state);
-        } catch (e) { document.getElementById('info-bar').innerText = "FAILED TO LOAD JSON"; }
+            document.getElementById('s-val').innerText = state.season;
+            document.getElementById('w-val').innerText = state.week;
+            render(state);
+        } catch (e) { console.error(e); }
     }
 
     function getNum(val) {
@@ -114,103 +87,78 @@
         return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
     }
 
-    function calculateLivePoints(player, divPlayers, isSig, isDB) {
-        const score = getNum(player.toPar);
-        if (score === null) return 0;
-        const multiplier = isSig ? 2 : 1;
-        const bonusMult = isDB ? 2 : 1;
-        const scored = divPlayers.filter(p => getNum(p.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
-        const rankIdx = scored.findIndex(p => getNum(p.toPar) === score);
-        let base = (rankIdx !== -1 && rankIdx < ptsMap.length) ? ptsMap[rankIdx] : 5;
-        
+    function calcPts(p, dps, state) {
+        const s = getNum(p.toPar); if (s === null) return 0;
+        const m = state.isSignature ? 2 : 1;
+        const b = state.isDoubleBonus ? 2 : 1;
+        const scored = dps.filter(x => getNum(x.toPar) !== null).sort((a,b) => getNum(a.toPar) - getNum(b.toPar));
+        const r = scored.findIndex(x => getNum(x.toPar) === s);
+        let base = (r !== -1 && r < ptsMap.length) ? ptsMap[r] : 5;
         let bonus = 0;
-        const putts = divPlayers.map(p => getNum(p.putt)).filter(v => v > 0);
-        const maxP = putts.length ? Math.max(...putts) : 0;
-        const holes = divPlayers.map(p => getNum(p.hole)).filter(v => v > 0);
-        const maxH = holes.length ? Math.max(...holes) : 0;
-
-        if (getNum(player.putt) === maxP && maxP > 0) bonus += 25;
-        if (getNum(player.hole) === maxH && maxH > 0) bonus += 25;
-        bonus += (parseInt(player.hio)||0)*50 + (parseInt(player.albatross)||0)*50;
-        return (base + (bonus * bonusMult)) * multiplier;
+        const maxP = Math.max(...dps.map(x => getNum(x.putt)||0));
+        const maxH = Math.max(...dps.map(x => getNum(x.hole)||0));
+        if (getNum(p.putt) === maxP && maxP > 0) bonus += 25;
+        if (getNum(p.hole) === maxH && maxH > 0) bonus += 25;
+        bonus += (parseInt(p.hio)||0)*50 + (parseInt(p.albatross)||0)*50;
+        return (base + (bonus * b)) * m;
     }
 
-    function renderPage(state) {
-        // Simplified Info Bar
-        document.getElementById('s-val').innerText = state.season || "1";
-        document.getElementById('w-val').innerText = state.week || "1";
-        
+    function render(state) {
         const live = document.getElementById('live-tables');
         const season = document.getElementById('season-tables');
         live.innerHTML = ''; season.innerHTML = '';
 
         [1,2,3].forEach(div => {
-            let activePlayers = state.players.filter(p => String(p.division) === String(div) && !p.archived);
-            if (!activePlayers.length) return;
+            let active = state.players.filter(p => String(p.division) === String(div) && !p.archived);
+            if (!active.length) return;
 
-            // Live Table with independent scroll
-            let sortedLive = [...activePlayers].sort((a,b) => (getNum(a.toPar)??999) - (getNum(b.toPar)??999));
-            let liveHtml = `<div class="div-header div-${div}">Division ${div} Live</div><div class="table-container"><table><thead><tr><th style="width:50px">POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th style="width:80px">TO PAR</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
-            
+            // Live Table
+            let sortedLive = [...active].sort((a,b) => (getNum(a.toPar)??999) - (getNum(b.toPar)??999));
+            let liveH = `<div class="div-label div-${div}">Div ${div} Live</div><div class="table-wrap"><table><thead><tr><th style="width:50px">POS</th><th>PLAYER</th><th style="width:80px">TO PAR</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
             sortedLive.forEach((p, i) => {
-                const lp = calculateLivePoints(p, activePlayers, state.isSignature, state.isDoubleBonus);
-                liveHtml += `<tr><td>${getNum(p.toPar)!==null ? i+1 : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}${p.name}</div></td><td style="color:${getNum(p.toPar)<=0?'var(--green)':'#000'}">${p.toPar||'-'}</td><td class="pts-col">${getNum(p.toPar)!==null?lp:0}</td></tr>`;
+                liveH += `<tr><td>${getNum(p.toPar)!==null?i+1:'-'}</td><td><div class="name-cell">${getI(p.platform)}${p.name}</div></td><td style="color:${getNum(p.toPar)<=0?'#28a745':'#000'}">${p.toPar||'-'}</td><td class="pts-col">${getNum(p.toPar)!==null?calcPts(p,active,state):0}</td></tr>`;
             });
-            
-            // Awards calculation
-            const maxP = Math.max(...activePlayers.map(p => getNum(p.putt)||0));
-            const bestP = activePlayers.find(p => getNum(p.putt) === maxP && maxP > 0);
-            const maxH = Math.max(...activePlayers.map(p => getNum(p.hole)||0));
-            const bestH = activePlayers.find(p => getNum(p.hole) === maxH && maxH > 0);
+            const maxP = Math.max(...active.map(x => getNum(x.putt)||0));
+            const bestP = active.find(x => getNum(x.putt) === maxP && maxP > 0);
+            const maxH = Math.max(...active.map(x => getNum(x.hole)||0));
+            const bestH = active.find(x => getNum(x.hole) === maxH && maxH > 0);
+            live.innerHTML += liveH + `</tbody></table><div class="award-footer">Putt: ${bestP?bestP.name:'--'} | Hole-out: ${bestH?bestH.name:'--'}</div></div>`;
 
-            live.innerHTML += liveHtml + `</tbody></table><div class="award-footer">Longest Putt: ${bestP ? bestP.name : '--'} | Hole-out: ${bestH ? bestH.name : '--'}</div></div>`;
-
-            // Season Standings with independent scroll
-            let sortedSeason = activePlayers.map(p => ({
-                p, 
-                acc: (p.history||[]).reduce((a,b)=>a+(Number(b)||0),0) + (getNum(p.toPar)||0),
-                total: (p.seasonPts||0) + calculateLivePoints(p, activePlayers, state.isSignature, state.isDoubleBonus)
+            // Season Table
+            let sortedSeason = active.map(p => ({
+                p, acc: (p.history||[]).reduce((a,b)=>a+(Number(b)||0),0) + (getNum(p.toPar)||0),
+                total: (p.seasonPts||0) + calcPts(p, active, state)
             })).sort((a,b) => b.total - a.total || a.acc - b.acc);
-
-            let seasHtml = `<div class="div-header div-${div}">Div ${div} Standings</div><div class="table-container"><table><thead><tr><th style="width:50px">RK</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th style="width:80px">ACCUM</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
+            let seasH = `<div class="div-label div-${div}">Div ${div} Standings</div><div class="table-wrap"><table><thead><tr><th style="width:50px">RK</th><th>PLAYER</th><th style="width:80px">ACCUM</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
             sortedSeason.forEach((item, i) => {
-                seasHtml += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(item.p.platform)}${item.p.name}</div></td><td style="color:${item.acc<=0?'var(--green)':'#000'}">${item.acc === 0 ? 'E' : (item.acc > 0 ? '+'+item.acc : item.acc)}</td><td class="pts-col">${item.total}</td></tr>`;
+                seasH += `<tr><td>${i+1}</td><td><div class="name-cell">${getI(item.p.platform)}${item.p.name}</div></td><td>${item.acc === 0 ? 'E' : (item.acc > 0 ? '+'+item.acc : item.acc)}</td><td class="pts-col">${item.total}</td></tr>`;
             });
-            season.innerHTML += seasHtml + `</tbody></table></div>`;
+            season.innerHTML += seasH + `</tbody></table></div>`;
         });
 
-        // History Section
-        const histCont = document.getElementById('history-container');
-        histCont.innerHTML = '';
+        const hist = document.getElementById('history-container');
         for (let w = parseInt(state.week)-1; w >= 1; w--) {
-            let weekHtml = `<div class="week-dropdown"><div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">Week ${w} Results <i class="fa-solid fa-chevron-down"></i></div><div class="week-content">`;
+            let hH = `<div class="wk-btn" onclick="this.nextElementSibling.classList.toggle('active')">Week ${w} Results <i class="fa-solid fa-chevron-down"></i></div><div class="wk-content">`;
             [1,2,3].forEach(div => {
-                let histPlayers = state.players.filter(p => String(p.division) === String(div) && p.history && p.history[w-1] !== undefined && p.history[w-1] !== "-");
-                if (!histPlayers.length) return;
-                
-                let sortedHist = histPlayers.map(p => ({
-                    p, 
-                    score: getNum(p.history[w-1]), 
-                    pts: (p.pointsHistory && p.pointsHistory[w-1] !== undefined) ? p.pointsHistory[w-1] : 0 
-                })).sort((a,b) => b.pts - a.pts || a.score - b.score);
-
-                weekHtml += `<div class="div-header div-${div}" style="font-size:12px;">Division ${div}</div><div class="table-container"><table><tbody>`;
-                sortedHist.forEach((item, i) => {
-                    weekHtml += `<tr><td style="width:50px">${i+1}</td><td style="text-align:left; padding-left:15px;">${item.p.name}</td><td style="width:80px">${item.score}</td><td class="pts-col">${item.pts}</td></tr>`;
-                });
-                weekHtml += `</tbody></table></div>`;
+                let pHist = state.players.filter(p => String(p.division) === String(div) && p.history && p.history[w-1] !== undefined && p.history[w-1] !== "-");
+                if (!pHist.length) return;
+                let sHist = pHist.map(p => ({ p, s: getNum(p.history[w-1]), pts: (p.pointsHistory && p.pointsHistory[w-1] !== undefined) ? p.pointsHistory[w-1] : 0 }))
+                                 .sort((a,b) => b.pts - a.pts || a.s - b.s);
+                hH += `<div class="div-label div-${div}" style="font-size:12px;">Division ${div}</div><div class="table-wrap"><table><tbody>`;
+                sHist.forEach((item, i) => { hH += `<tr><td style="width:50px">${i+1}</td><td>${item.p.name}</td><td style="width:80px">${item.s}</td><td class="pts-col">${item.pts}</td></tr>`; });
+                hH += `</tbody></table></div>`;
             });
-            histCont.innerHTML += weekHtml + `</div></div>`;
+            hist.innerHTML += hH + `</div>`;
         }
     }
 
-    function getIcon(p) {
-        if (p === 'xbox') return '<i class="fa-brands fa-xbox plat-icon" style="color:#107C10"></i>';
-        if (p === 'playstation') return '<i class="fa-brands fa-playstation plat-icon" style="color:#003087"></i>';
-        return '<i class="fa-brands fa-steam plat-icon" style="color:#171a21"></i>';
+    function getI(p) {
+        if (p === 'xbox') return '<i class="fa-brands fa-xbox" style="color:#107C10; margin-right:10px;"></i>';
+        if (p === 'playstation') return '<i class="fa-brands fa-playstation" style="color:#003087; margin-right:10px;"></i>';
+        return '<i class="fa-brands fa-steam" style="color:#171a21; margin-right:10px;"></i>';
     }
 
-    loadData();
+    load();
 </script>
 </body>
 </html>
