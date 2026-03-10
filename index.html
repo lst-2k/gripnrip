@@ -3,56 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grip & Rip Rebirth - Season Standings</title>
+    <title>Grip & Rip - Season Standings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
             --info-grad: linear-gradient(135deg, #4a4a4a 0%, #2d2d2d 100%);
-            --red: #dc3545; --green: #28a745;
         }
-        body { background-color: #000; margin: 0; font-family: 'Segoe UI', sans-serif; }
-        .leaderboard-container { width: 100%; margin: 0; background: white; }
-        .header { background: var(--header-grad); text-align: center; border-bottom: 3px solid var(--gold); line-height: 0; }
-        .logo-img, .event-banner { width: 100%; height: auto; display: block; }
-        .info-bar { background: var(--info-grad); color: #fff; padding: 10px; display: flex; justify-content: center; gap: 15px; border-bottom: 2px solid var(--gold); font-weight: 800; text-transform: uppercase; }
-        .label { color: var(--gold); margin-right: 5px; }
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
-        thead th { background: #eee; font-size: 11px; padding: 8px; border-bottom: 2px solid #ddd; }
-        td { padding: 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 14px; font-weight: 600; }
-        .div-header { color: white; padding: 8px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
+        body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; }
+
+        /* --- STICKY TOP SECTION --- */
+        .sticky-wrapper {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .header { background: var(--header-grad); text-align: center; line-height: 0; border-bottom: 2px solid var(--gold); }
+        .logo-img, .event-banner { width: 100%; height: auto; display: block; max-width: 1400px; margin: 0 auto; }
+        
+        .info-bar { 
+            background: var(--info-grad); 
+            color: #fff; 
+            padding: 12px; 
+            text-align: center;
+            border-bottom: 3px solid var(--gold); 
+            font-weight: 800; 
+            text-transform: uppercase;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+        .info-bar span { color: var(--gold); }
+
+        /* --- INDEPENDENT SCROLLING TABLES --- */
+        .table-container {
+            width: 100%;
+            overflow-x: auto; /* Allows left/right swipe */
+            -webkit-overflow-scrolling: touch;
+            background: white;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            min-width: 600px; /* Forces scroll on smaller screens */
+            table-layout: fixed;
+        }
+
+        /* --- STYLING --- */
+        .div-header { color: white; padding: 10px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; position: sticky; left: 0; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
+        
+        thead th { background: #f8f8f8; font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #666; }
+        td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; font-weight: 600; }
+        
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
-        .plat-icon { width: 18px; margin-right: 10px; }
-        .pts-col { font-weight: 900; background: #fffde7; }
-        .award-footer { background: #f9f9f9; padding: 12px; font-size: 14px; font-weight: bold; text-align: center; border-top: 1px solid #ddd; }
-        .history-section { background: #f4f4f4; padding: 20px 0; }
-        .week-dropdown { width: 95%; margin: 10px auto; background: white; border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .week-header { background: #333; color: var(--gold); padding: 10px 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 800; }
-        .week-content { display: none; }
-        .active { display: block; }
+        .plat-icon { width: 20px; margin-right: 12px; font-size: 16px; }
+        .pts-col { font-weight: 900; background: #fffde7; width: 80px; }
+        
+        .award-footer { background: #fff; padding: 15px; font-size: 14px; font-weight: bold; text-align: center; color: #444; border-top: 1px solid #eee; }
+        
+        .section-title { 
+            background: #222; color: var(--gold); padding: 15px; 
+            text-align: center; font-weight: 900; font-size: 20px; 
+        }
+
+        .history-section { background: #e9ecef; padding: 20px 10px; }
+        .week-dropdown { background: white; margin-bottom: 10px; border-radius: 8px; overflow: hidden; }
+        .week-header { background: #333; color: var(--gold); padding: 12px 20px; cursor: pointer; display: flex; justify-content: space-between; font-weight: 800; }
     </style>
 </head>
 <body>
 
-    <div class="leaderboard-container">
+    <div class="sticky-wrapper">
         <div class="header">
             <img src="logo.png" class="logo-img">
             <img src="event.png" class="event-banner">
         </div>
-        <div id="info-bar" class="info-bar">Loading...</div>
-        <div id="live-tables"></div>
+        <div id="info-bar" class="info-bar">
+            SEASON <span id="s-val">-</span> | WEEK <span id="w-val">-</span>
+        </div>
     </div>
 
-    <div class="leaderboard-container">
-        <div style="background:#222; color:var(--gold); padding:15px; text-align:center; font-weight:900; font-size:22px;">SEASON STANDINGS</div>
-        <div id="season-tables"></div>
-    </div>
+    <div id="live-tables"></div>
+
+    <div class="section-title">SEASON STANDINGS</div>
+    <div id="season-tables"></div>
 
     <div class="history-section">
-        <div style="text-align:center; font-weight:900; font-size:20px; margin-bottom:15px;">EVENT HISTORY</div>
+        <div style="text-align:center; font-weight:900; font-size:18px; margin-bottom:15px; color:#555;">EVENT HISTORY</div>
         <div id="history-container"></div>
     </div>
 
@@ -60,9 +102,11 @@
     const ptsMap = [100, 90, 80, 70, 60, 50, 40, 30, 20, 10];
 
     async function loadData() {
-        const res = await fetch('GR_Backup.json?t=' + Date.now());
-        const state = await res.json();
-        renderPage(state);
+        try {
+            const res = await fetch('GR_Backup.json?t=' + Date.now());
+            const state = await res.json();
+            renderPage(state);
+        } catch (e) { document.getElementById('info-bar').innerText = "FAILED TO LOAD JSON"; }
     }
 
     function getNum(val) {
@@ -92,7 +136,9 @@
     }
 
     function renderPage(state) {
-        document.getElementById('info-bar').innerHTML = `<span class="label">Week</span> ${state.week} | <span class="label">Venue</span> ${state.venue}`;
+        // Simplified Info Bar
+        document.getElementById('s-val').innerText = state.season || "1";
+        document.getElementById('w-val').innerText = state.week || "1";
         
         const live = document.getElementById('live-tables');
         const season = document.getElementById('season-tables');
@@ -102,42 +148,43 @@
             let activePlayers = state.players.filter(p => String(p.division) === String(div) && !p.archived);
             if (!activePlayers.length) return;
 
-            // Live Table
+            // Live Table with independent scroll
             let sortedLive = [...activePlayers].sort((a,b) => (getNum(a.toPar)??999) - (getNum(b.toPar)??999));
-            let liveHtml = `<div class="div-header div-${div}">Div ${div} Live</div><table><thead><tr><th>POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>TO PAR</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
+            let liveHtml = `<div class="div-header div-${div}">Division ${div} Live</div><div class="table-container"><table><thead><tr><th style="width:50px">POS</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th style="width:80px">TO PAR</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
+            
             sortedLive.forEach((p, i) => {
                 const lp = calculateLivePoints(p, activePlayers, state.isSignature, state.isDoubleBonus);
                 liveHtml += `<tr><td>${getNum(p.toPar)!==null ? i+1 : '-'}</td><td><div class="name-cell">${getIcon(p.platform)}${p.name}</div></td><td style="color:${getNum(p.toPar)<=0?'var(--green)':'#000'}">${p.toPar||'-'}</td><td class="pts-col">${getNum(p.toPar)!==null?lp:0}</td></tr>`;
             });
             
+            // Awards calculation
             const maxP = Math.max(...activePlayers.map(p => getNum(p.putt)||0));
             const bestP = activePlayers.find(p => getNum(p.putt) === maxP && maxP > 0);
             const maxH = Math.max(...activePlayers.map(p => getNum(p.hole)||0));
             const bestH = activePlayers.find(p => getNum(p.hole) === maxH && maxH > 0);
 
-            live.innerHTML += liveHtml + `</tbody></table><div class="award-footer">Putt: ${bestP ? bestP.name : '--'} | Hole: ${bestH ? bestH.name : '--'}</div>`;
+            live.innerHTML += liveHtml + `</tbody></table><div class="award-footer">Longest Putt: ${bestP ? bestP.name : '--'} | Hole-out: ${bestH ? bestH.name : '--'}</div></div>`;
 
-            // Season Table
+            // Season Standings with independent scroll
             let sortedSeason = activePlayers.map(p => ({
                 p, 
                 acc: (p.history||[]).reduce((a,b)=>a+(Number(b)||0),0) + (getNum(p.toPar)||0),
                 total: (p.seasonPts||0) + calculateLivePoints(p, activePlayers, state.isSignature, state.isDoubleBonus)
             })).sort((a,b) => b.total - a.total || a.acc - b.acc);
 
-            let seasHtml = `<div class="div-header div-${div}">Div ${div} Standings</div><table><thead><tr><th>RK</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th>ACCUM</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
+            let seasHtml = `<div class="div-header div-${div}">Div ${div} Standings</div><div class="table-container"><table><thead><tr><th style="width:50px">RK</th><th style="text-align:left; padding-left:15px;">PLAYER</th><th style="width:80px">ACCUM</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
             sortedSeason.forEach((item, i) => {
-                seasHtml += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(item.p.platform)}${item.p.name}</div></td><td>${item.acc}</td><td class="pts-col">${item.total}</td></tr>`;
+                seasHtml += `<tr><td>${i+1}</td><td><div class="name-cell">${getIcon(item.p.platform)}${item.p.name}</div></td><td style="color:${item.acc<=0?'var(--green)':'#000'}">${item.acc === 0 ? 'E' : (item.acc > 0 ? '+'+item.acc : item.acc)}</td><td class="pts-col">${item.total}</td></tr>`;
             });
-            season.innerHTML += seasHtml + `</tbody></table>`;
+            season.innerHTML += seasHtml + `</tbody></table></div>`;
         });
 
-        // History
+        // History Section
         const histCont = document.getElementById('history-container');
         histCont.innerHTML = '';
         for (let w = parseInt(state.week)-1; w >= 1; w--) {
             let weekHtml = `<div class="week-dropdown"><div class="week-header" onclick="this.nextElementSibling.classList.toggle('active')">Week ${w} Results <i class="fa-solid fa-chevron-down"></i></div><div class="week-content">`;
             [1,2,3].forEach(div => {
-                // Include everyone (including archived) who played that week
                 let histPlayers = state.players.filter(p => String(p.division) === String(div) && p.history && p.history[w-1] !== undefined && p.history[w-1] !== "-");
                 if (!histPlayers.length) return;
                 
@@ -147,11 +194,11 @@
                     pts: (p.pointsHistory && p.pointsHistory[w-1] !== undefined) ? p.pointsHistory[w-1] : 0 
                 })).sort((a,b) => b.pts - a.pts || a.score - b.score);
 
-                weekHtml += `<div class="div-header div-${div}" style="font-size:12px;">Division ${div}</div><table><tbody>`;
+                weekHtml += `<div class="div-header div-${div}" style="font-size:12px;">Division ${div}</div><div class="table-container"><table><tbody>`;
                 sortedHist.forEach((item, i) => {
-                    weekHtml += `<tr><td>${i+1}</td><td style="text-align:left; padding-left:15px;">${item.p.name}</td><td>${item.score}</td><td class="pts-col">${item.pts}</td></tr>`;
+                    weekHtml += `<tr><td style="width:50px">${i+1}</td><td style="text-align:left; padding-left:15px;">${item.p.name}</td><td style="width:80px">${item.score}</td><td class="pts-col">${item.pts}</td></tr>`;
                 });
-                weekHtml += `</tbody></table>`;
+                weekHtml += `</tbody></table></div>`;
             });
             histCont.innerHTML += weekHtml + `</div></div>`;
         }
