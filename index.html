@@ -9,10 +9,13 @@
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
+            /* Score Colors */
+            --under-par: #d9534f; /* Red */
+            --even-par: #28a745;  /* Green */
+            --over-par: #000000;  /* Black */
         }
         body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; }
 
-        /* --- STICKY LOGIC --- */
         .header { background: var(--header-grad); text-align: center; line-height: 0; border-bottom: 2px solid var(--gold); }
         .logo-img, .event-banner { width: 100%; height: auto; display: block; max-width: 1400px; margin: 0 auto; }
         
@@ -25,19 +28,21 @@
         }
         .sticky-bar span { color: var(--gold); }
 
-        /* --- HORIZONTAL SCROLLING --- */
         .table-wrap {
             width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
             background: white; margin-bottom: 25px; border-bottom: 1px solid #ddd;
         }
         table { width: 100%; border-collapse: collapse; min-width: 600px; table-layout: fixed; }
         
-        /* --- STYLING --- */
         .div-label { color: white; padding: 10px 15px; font-size: 18px; font-weight: bold; text-transform: uppercase; }
         .div-1 { background: var(--div1); } .div-2 { background: var(--div2); } .div-3 { background: var(--div3); } 
         th { background: #f8f8f8; font-size: 11px; padding: 10px; border-bottom: 2px solid #ddd; color: #666; text-transform: uppercase; }
         td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; font-weight: 600; }
+        
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
+        /* Tighten player column in history */
+        .hist-name { text-align: left !important; padding-left: 15px; width: auto; }
+        
         .pts-col { font-weight: 900; background: #fffde7; width: 80px; }
         .award-footer { background: #fff; padding: 12px; font-size: 13px; font-weight: bold; text-align: center; color: #555; border-top: 1px solid #eee; }
         .section-header { background: #000; color: var(--gold); padding: 15px; text-align: center; font-weight: 900; font-size: 20px; text-transform: uppercase; }
@@ -87,6 +92,15 @@
         return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
     }
 
+    // Helper for color coding scores
+    function getScoreColor(val) {
+        const n = getNum(val);
+        if (n === null) return 'var(--over-par)';
+        if (n < 0) return 'var(--under-par)';
+        if (n === 0) return 'var(--even-par)';
+        return 'var(--over-par)';
+    }
+
     function calcPts(p, dps, state) {
         const s = getNum(p.toPar); if (s === null) return 0;
         const m = state.isSignature ? 2 : 1;
@@ -116,7 +130,7 @@
             let sortedLive = [...active].sort((a,b) => (getNum(a.toPar)??999) - (getNum(b.toPar)??999));
             let liveH = `<div class="div-label div-${div}">Div ${div} Live</div><div class="table-wrap"><table><thead><tr><th style="width:50px">POS</th><th>PLAYER</th><th style="width:80px">TO PAR</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
             sortedLive.forEach((p, i) => {
-                liveH += `<tr><td>${getNum(p.toPar)!==null?i+1:'-'}</td><td><div class="name-cell">${getI(p.platform)}${p.name}</div></td><td style="color:${getNum(p.toPar)<=0?'#28a745':'#000'}">${p.toPar||'-'}</td><td class="pts-col">${getNum(p.toPar)!==null?calcPts(p,active,state):0}</td></tr>`;
+                liveH += `<tr><td>${getNum(p.toPar)!==null?i+1:'-'}</td><td><div class="name-cell">${getI(p.platform)}${p.name}</div></td><td style="color:${getScoreColor(p.toPar)}">${p.toPar||'-'}</td><td class="pts-col">${getNum(p.toPar)!==null?calcPts(p,active,state):0}</td></tr>`;
             });
             const maxP = Math.max(...active.map(x => getNum(x.putt)||0));
             const bestP = active.find(x => getNum(x.putt) === maxP && maxP > 0);
@@ -131,12 +145,14 @@
             })).sort((a,b) => b.total - a.total || a.acc - b.acc);
             let seasH = `<div class="div-label div-${div}">Div ${div} Standings</div><div class="table-wrap"><table><thead><tr><th style="width:50px">RK</th><th>PLAYER</th><th style="width:80px">ACCUM</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
             sortedSeason.forEach((item, i) => {
-                seasH += `<tr><td>${i+1}</td><td><div class="name-cell">${getI(item.p.platform)}${item.p.name}</div></td><td>${item.acc === 0 ? 'E' : (item.acc > 0 ? '+'+item.acc : item.acc)}</td><td class="pts-col">${item.total}</td></tr>`;
+                const displayAcc = item.acc === 0 ? 'E' : (item.acc > 0 ? '+'+item.acc : item.acc);
+                seasH += `<tr><td>${i+1}</td><td><div class="name-cell">${getI(item.p.platform)}${item.p.name}</div></td><td style="color:${getScoreColor(item.acc)}">${displayAcc}</td><td class="pts-col">${item.total}</td></tr>`;
             });
             season.innerHTML += seasH + `</tbody></table></div>`;
         });
 
         const hist = document.getElementById('history-container');
+        hist.innerHTML = '';
         for (let w = parseInt(state.week)-1; w >= 1; w--) {
             let hH = `<div class="wk-btn" onclick="this.nextElementSibling.classList.toggle('active')">Week ${w} Results <i class="fa-solid fa-chevron-down"></i></div><div class="wk-content">`;
             [1,2,3].forEach(div => {
@@ -145,7 +161,9 @@
                 let sHist = pHist.map(p => ({ p, s: getNum(p.history[w-1]), pts: (p.pointsHistory && p.pointsHistory[w-1] !== undefined) ? p.pointsHistory[w-1] : 0 }))
                                  .sort((a,b) => b.pts - a.pts || a.s - b.s);
                 hH += `<div class="div-label div-${div}" style="font-size:12px;">Division ${div}</div><div class="table-wrap"><table><tbody>`;
-                sHist.forEach((item, i) => { hH += `<tr><td style="width:50px">${i+1}</td><td>${item.p.name}</td><td style="width:80px">${item.s}</td><td class="pts-col">${item.pts}</td></tr>`; });
+                sHist.forEach((item, i) => { 
+                    hH += `<tr><td style="width:40px">${i+1}</td><td class="hist-name">${item.p.name}</td><td style="width:60px; color:${getScoreColor(item.s)}">${item.s === 0 ? 'E' : item.s}</td><td class="pts-col" style="width:60px">${item.pts}</td></tr>`; 
+                });
                 hH += `</tbody></table></div>`;
             });
             hist.innerHTML += hH + `</div>`;
