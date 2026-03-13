@@ -9,10 +9,9 @@
         :root { 
             --div1: #0047AB; --div2: #008B8B; --div3: #D2691E; --gold: #FFD700; 
             --header-grad: linear-gradient(180deg, #1a1a1a 0%, #000000 100%); 
-            /* Score Colors */
-            --under-par: #d9534f; /* Red */
-            --even-par: #28a745;  /* Green */
-            --over-par: #000000;  /* Black */
+            --under-par: #d9534f;
+            --even-par: #28a745;
+            --over-par: #000000;
         }
         body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', sans-serif; }
 
@@ -40,7 +39,6 @@
         td { padding: 12px 8px; text-align: center; border-bottom: 1px solid #eee; font-size: 15px; font-weight: 600; }
         
         .name-cell { display: flex; align-items: center; text-align: left; padding-left: 15px; }
-        /* Tighten player column in history */
         .hist-name { text-align: left !important; padding-left: 15px; width: auto; }
         
         .pts-col { font-weight: 900; background: #fffde7; width: 80px; }
@@ -92,7 +90,6 @@
         return (val.toString().toUpperCase() === 'E') ? 0 : Number(val);
     }
 
-    // Helper for color coding scores
     function getScoreColor(val) {
         const n = getNum(val);
         if (n === null) return 'var(--over-par)';
@@ -128,7 +125,7 @@
 
             // Live Table
             let sortedLive = [...active].sort((a,b) => (getNum(a.toPar)??999) - (getNum(b.toPar)??999));
-            let liveH = `<div class="div-label div-${div}">Div ${div} Live</div><div class="table-wrap"><table><thead><tr><th style="width:50px">POS</th><th>PLAYER</th><th style="width:80px">TO PAR</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
+            let liveH = `<div class="div-label div-${div}">Division ${div} Live</div><div class="table-wrap"><table><thead><tr><th style="width:50px">POS</th><th>PLAYER</th><th style="width:80px">TO PAR</th><th class="pts-col">PTS</th></tr></thead><tbody>`;
             sortedLive.forEach((p, i) => {
                 liveH += `<tr><td>${getNum(p.toPar)!==null?i+1:'-'}</td><td><div class="name-cell">${getI(p.platform)}${p.name}</div></td><td style="color:${getScoreColor(p.toPar)}">${p.toPar||'-'}</td><td class="pts-col">${getNum(p.toPar)!==null?calcPts(p,active,state):0}</td></tr>`;
             });
@@ -143,7 +140,7 @@
                 p, acc: (p.history||[]).reduce((a,b)=>a+(Number(b)||0),0) + (getNum(p.toPar)||0),
                 total: (p.seasonPts||0) + calcPts(p, active, state)
             })).sort((a,b) => b.total - a.total || a.acc - b.acc);
-            let seasH = `<div class="div-label div-${div}">Div ${div} Standings</div><div class="table-wrap"><table><thead><tr><th style="width:50px">RK</th><th>PLAYER</th><th style="width:80px">ACCUM</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
+            let seasH = `<div class="div-label div-${div}">Division ${div} Standings</div><div class="table-wrap"><table><thead><tr><th style="width:50px">RK</th><th>PLAYER</th><th style="width:80px">ACCUM</th><th class="pts-col">TOTAL</th></tr></thead><tbody>`;
             sortedSeason.forEach((item, i) => {
                 const displayAcc = item.acc === 0 ? 'E' : (item.acc > 0 ? '+'+item.acc : item.acc);
                 seasH += `<tr><td>${i+1}</td><td><div class="name-cell">${getI(item.p.platform)}${item.p.name}</div></td><td style="color:${getScoreColor(item.acc)}">${displayAcc}</td><td class="pts-col">${item.total}</td></tr>`;
